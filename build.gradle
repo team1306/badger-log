@@ -12,6 +12,8 @@ def javaVersion = JavaVersion.VERSION_17
 java {
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
+    withSourcesJar()
+    withJavadocJar()
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -86,11 +88,6 @@ dependencies {
 test{
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }
 
 // Simulation configuration (e.g. environment variables).
