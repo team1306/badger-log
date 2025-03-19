@@ -7,6 +7,8 @@ plugins {
     id("io.freefair.lombok") version "8.12.2.1"
 }
 
+group = 'com.github.NukeMinecart'
+
 def javaVersion = JavaVersion.VERSION_17
 
 java {
