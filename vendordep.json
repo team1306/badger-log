@@ -1,0 +1,20 @@
+{
+  "javaDependencies": [
+    {
+      "groupId": "com.github.nukeminecart",
+      "artifactId": "badger-log",
+      "version": "2025.1.0"
+    }
+  ],
+  "fileName": "badger-log.json",
+  "frcYear": "2025",
+  "jsonUrl": "https://raw.githubusercontent.com/nukeminecart/badger-log/master/vendordep.json",
+  "name": "Badger-Log",
+  "jniDependencies": [],
+  "mavenUrls": [
+    "https://jitpack.io"
+  ],
+  "cppDependencies": [],
+  "version": "2025.1.0",
+  "uuid": "65592ce1-2251-4a31-8e4b-2df20dacebe4"
+}
