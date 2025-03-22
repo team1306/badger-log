@@ -19,6 +19,9 @@ public class Robot extends TimedRobot
     private Command autonomousCommand;
     
     private final RobotContainer robotContainer;
+
+    @Entry(type = EntryType.Publisher)
+    private static boolean testMode = false;
     
     public Robot()
     {
