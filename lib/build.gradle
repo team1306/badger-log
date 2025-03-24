@@ -1,5 +1,3 @@
-import org.gradle.api.artifacts.DependencySet
-
 plugins {
     id 'java'
     id "com.diffplug.spotless" version "7.0.2"
@@ -9,7 +7,7 @@ plugins {
  }
 
 group = 'nukeminecart'
-version = '1.2'
+version = '1.3'
 
 repositories {
     mavenCentral()
