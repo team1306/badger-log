@@ -4,6 +4,8 @@ import badgerlog.entry.Config;
 import badgerlog.entry.Entry;
 import badgerlog.networktables.DashboardEntry;
 import badgerlog.networktables.DashboardUtil;
+import badgerlog.networktables.mappings.Mapping;
+import badgerlog.networktables.mappings.MappingType;
 import badgerlog.networktables.mappings.Mappings;
 import badgerlog.networktables.publisher.DashboardPublisher;
 import badgerlog.networktables.publisher.DashboardSendable;
@@ -13,6 +15,7 @@ import badgerlog.networktables.subscriber.FieldSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -72,28 +75,31 @@ public class Dashboard {
 
     private static final HashMap<String, DashboardEntry> ntEntries = new HashMap<>();
     private static final HashMap<String, DashboardPublisher<?>> singleUsePublishers = new HashMap<>();
-    
-    static {
-        initialize();
-    }
 
     /**
      * Runs once on startup to create field type mappings and values on networktables
+     * @param packages the packages to scan from (usually only frc.robot)
      */
-    @SneakyThrows({InterruptedException.class, ExecutionException.class})
-    private static void initialize() {
+    @SneakyThrows({InterruptedException.class, ExecutionException.class, IllegalAccessException.class})
+    public static void initialize(String... packages) {
         defaultTable.getEntry("Dashboard Startup").setBoolean(false);
-
-        Mappings.initialize();
-
+        
         var classGraph = new ClassGraph()
-                .enableFieldInfo()
-                .enableClassInfo()
-                .enableAnnotationInfo()
+                .acceptPackages(packages)
+                .acceptPackages("badgerlog")
+                .enableAllInfo()
                 .ignoreFieldVisibility();
         
         var resultAsync = classGraph.scanAsync(executorService, 10);
         var result = resultAsync.get();
+
+        for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(MappingType.class)) {
+            for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))) {
+                var field = DashboardUtil.checkFieldValidity(fieldInfo);
+                
+                Mappings.mappings.add((Mapping<?, ?>) field.get(null));
+            }
+        }
 
         for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(Entry.class)) {
             for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(Entry.class))) {
@@ -123,6 +129,7 @@ public class Dashboard {
      * Updates all current NetworkTables entries. Should be called once in the Robot Periodic method
      */
     public static void update() {
+        checkDashboardInitialized();
         ntEntries.forEach((Key, entry) -> entry.update());
     }
 
@@ -134,6 +141,8 @@ public class Dashboard {
      * @return the trigger bound to the NetworkTables value and {@link EventLoop}
      */
     public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
+        checkDashboardInitialized();
+
         var subscriber = new DashboardSubscriber<>(key, boolean.class, NetworkTableType.kBoolean);
         return new Trigger(eventLoop, () -> subscriber.getValue(false));
     }
@@ -146,6 +155,8 @@ public class Dashboard {
      * @return the trigger bound to the NetworkTables value and {@link EventLoop} with an auto reset command
      */
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
+        checkDashboardInitialized();
+
         var subscriber = new DashboardSubscriber<>(key, boolean.class, NetworkTableType.kBoolean);
         return new Trigger(eventLoop,
                 () -> subscriber.getValue(false))
@@ -176,6 +187,8 @@ public class Dashboard {
      */
     @SuppressWarnings("unchecked")
     public static <FieldType> void putValue(String key, FieldType value, String config) {
+        checkDashboardInitialized();
+        
         DashboardPublisher<FieldType> publisher;
         if (!singleUsePublishers.containsKey(key)) {
             publisher = new DashboardPublisher<>(key, (Class<FieldType>) value.getClass(), Mappings.findMappingType(value.getClass()), config);
@@ -185,5 +198,11 @@ public class Dashboard {
         }
 
         publisher.publish(value);
+    }
+    
+    
+    private static void checkDashboardInitialized() {
+        if(!isInitialized)
+            throw new IllegalStateException("Dashboard is not initialized. \n Call Dashboard.initialize() in Robot.robotInit");
     }
 }

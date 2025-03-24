@@ -25,6 +25,7 @@ public class Robot extends TimedRobot
     
     public Robot()
     {
+        Dashboard.initialize("frc.robot");
         robotContainer = new RobotContainer();
     }
     
