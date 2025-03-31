@@ -43,11 +43,7 @@ public class DashboardUtil {
      */
     public static Field checkFieldValidity(FieldInfo fieldInfo) {
         var field = fieldInfo.loadClassAndGetField();
-
-        if (!fieldInfo.isStatic())
-            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be static");
-        if (fieldInfo.isFinal())
-            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must not be final");
+        
         if (DashboardUtil.getFieldValue(field) == null)
             throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be initialized");
         return field;
