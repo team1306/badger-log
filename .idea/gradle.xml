@@ -17,7 +17,6 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$/test-project" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/lib" />
             <option value="$PROJECT_DIR$/test-project" />
           </set>
         </option>
