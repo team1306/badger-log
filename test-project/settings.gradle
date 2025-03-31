@@ -26,8 +26,5 @@ pluginManagement {
     }
 }
 
-include ':lib'
-project(':lib').projectDir = new File(settingsDir, '../lib')
-
 Properties props = System.getProperties()
 props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true")

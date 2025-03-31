@@ -83,7 +83,9 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.junit.jupiter:junit-jupiter-params"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-    implementation project(':lib')
+    
+    implementation files("../lib/build/libs/lib.jar")
+    annotationProcessor files("../lib/build/libs/lib.jar")
 }
 
 test{
