@@ -13,12 +13,14 @@ import java.lang.annotation.Target;
 public @interface Entry {
     /**
      * The key used for the entry in NetworkTables
-     * @return the string used for NetworkTables. Defaults to a table with the name of the class and name of field 
+     *
+     * @return the string used for NetworkTables. Defaults to a table with the name of the class and name of field
      */
     String key() default "";
 
     /**
      * Type of NetworkTable Entry. (Publisher, Subscriber, Sendable)
+     *
      * @return the type
      */
     EntryType type();

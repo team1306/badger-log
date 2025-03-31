@@ -1,7 +1,7 @@
 package badgerlog.entry;
 
 /**
- * The type of NetworkTable entry 
+ * The type of NetworkTable entry
  */
 public enum EntryType {
     /**

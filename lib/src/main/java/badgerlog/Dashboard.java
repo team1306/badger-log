@@ -15,12 +15,10 @@ import badgerlog.networktables.subscriber.FieldSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.FieldInfo;
@@ -67,36 +65,35 @@ public class Dashboard {
      * The ExecutorService to use for all of Dashboardv3 for consistent thread allocations--rio doesn't support multi threading well though
      */
     public static final ExecutorService executorService = Executors.newCachedThreadPool();
-
+    private static final HashMap<String, DashboardEntry> ntEntries = new HashMap<>();
+    private static final HashMap<String, DashboardPublisher<?>> singleUsePublishers = new HashMap<>();
     /**
      * Boolean representing whether the Dashboard has completed initialization
      */
     public static boolean isInitialized = false;
 
-    private static final HashMap<String, DashboardEntry> ntEntries = new HashMap<>();
-    private static final HashMap<String, DashboardPublisher<?>> singleUsePublishers = new HashMap<>();
-
     /**
      * Runs once on startup to create field type mappings and values on networktables
+     *
      * @param packages the packages to scan from (usually only frc.robot)
      */
     @SneakyThrows({InterruptedException.class, ExecutionException.class, IllegalAccessException.class})
     public static void initialize(String... packages) {
         defaultTable.getEntry("Dashboard Startup").setBoolean(false);
-        
+
         var classGraph = new ClassGraph()
                 .acceptPackages(packages)
                 .acceptPackages("badgerlog")
                 .enableAllInfo()
                 .ignoreFieldVisibility();
-        
+
         var resultAsync = classGraph.scanAsync(executorService, 10);
         var result = resultAsync.get();
 
         for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(MappingType.class)) {
             for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))) {
                 var field = DashboardUtil.checkFieldValidity(fieldInfo);
-                
+
                 Mappings.mappings.add((Mapping<?, ?>) field.get(null));
             }
         }
@@ -188,7 +185,7 @@ public class Dashboard {
     @SuppressWarnings("unchecked")
     public static <FieldType> void putValue(String key, FieldType value, String config) {
         checkDashboardInitialized();
-        
+
         DashboardPublisher<FieldType> publisher;
         if (!singleUsePublishers.containsKey(key)) {
             publisher = new DashboardPublisher<>(key, (Class<FieldType>) value.getClass(), Mappings.findMappingType(value.getClass()), config);
@@ -199,10 +196,10 @@ public class Dashboard {
 
         publisher.publish(value);
     }
-    
-    
+
+
     private static void checkDashboardInitialized() {
-        if(!isInitialized)
+        if (!isInitialized)
             throw new IllegalStateException("Dashboard is not initialized. \n Call Dashboard.initialize() in Robot.robotInit");
     }
 }

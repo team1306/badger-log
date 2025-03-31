@@ -7,8 +7,9 @@ import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.NetworkTableType;
 
 /**
- * This class represents a publisher for values to be sent to NetworkTables. 
+ * This class represents a publisher for values to be sent to NetworkTables.
  * Publishing values to NetworkTables can be done at any point during the lifespan of this class
+ *
  * @param <FieldType> the type of field to map to a valid NetworkTableType
  */
 public class DashboardPublisher<FieldType> {
@@ -19,10 +20,11 @@ public class DashboardPublisher<FieldType> {
 
     /**
      * Default constructor of Dashboard Publisher
-     * @param key the key on NetworkTables
-     * @param type the type of the original type
+     *
+     * @param key        the key on NetworkTables
+     * @param type       the type of the original type
      * @param targetType the target {@link NetworkTableType}
-     * @param config the configuration options for use with the {@link Mappings}
+     * @param config     the configuration options for use with the {@link Mappings}
      */
     public DashboardPublisher(String key, Class<FieldType> type, NetworkTableType targetType, String config) {
         mapping = Mappings.findMapping(type);
@@ -36,8 +38,9 @@ public class DashboardPublisher<FieldType> {
 
     /**
      * Constructor to use when there is no configuration option
-     * @param key the key for NetworkTables
-     * @param type the type of the original object
+     *
+     * @param key        the key for NetworkTables
+     * @param type       the type of the original object
      * @param targetType the target {@link NetworkTableType}
      */
     public DashboardPublisher(String key, Class<FieldType> type, NetworkTableType targetType) {
@@ -46,6 +49,7 @@ public class DashboardPublisher<FieldType> {
 
     /**
      * Publish a value to NetworkTables. Maps the input to a valid type
+     *
      * @param input the input value
      */
     public void publish(FieldType input) {

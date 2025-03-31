@@ -57,7 +57,7 @@ public class BaseMappings {
             return ntValue;
         }
     };
-    
+
     /**
      * Mapping from Boolean to Boolean (object)
      */

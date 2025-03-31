@@ -10,17 +10,19 @@ import java.util.List;
  */
 public class Mappings {
     /**
-     * A List containing all the registered mappings 
+     * A List containing all the registered mappings
+     *
      * @see MappingType
      */
     public static final List<Mapping<?, ?>> mappings = new ArrayList<>();
 
     /**
      * Find a mapping based off the field type. It is assumed that only one mapping per field type is created, and will throw an error if there are more than one present
-     * @param type the type of mapping to search for
-     * @return the mapping with the specified input, and a valid NetworkTableOutput
+     *
+     * @param type        the type of mapping to search for
      * @param <FieldType> the type specified by the field
-     * @param <NTType> the NetworkTableType
+     * @param <NTType>    the NetworkTableType
+     * @return the mapping with the specified input, and a valid NetworkTableOutput
      */
     @SuppressWarnings("unchecked")
     public static <FieldType, NTType> Mapping<FieldType, NTType> findMapping(Class<FieldType> type) {
@@ -33,6 +35,7 @@ public class Mappings {
 
     /**
      * Finds the NetworkTable type given a field type class
+     *
      * @param type the field type
      * @return the NetworkTableType
      */

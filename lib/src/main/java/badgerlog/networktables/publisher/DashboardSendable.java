@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
 
 /**
- * This class represents a sendable to be put and updated on NetworkTables. 
- *  The sendable is updated when the {@link #update()} method is called
+ * This class represents a sendable to be put and updated on NetworkTables.
+ * The sendable is updated when the {@link #update()} method is called
  */
 public class DashboardSendable implements DashboardEntry {
 
@@ -18,7 +18,8 @@ public class DashboardSendable implements DashboardEntry {
 
     /**
      * Default constructor of Dashboard Sendable
-     * @param key the key for NetworkTables
+     *
+     * @param key      the key for NetworkTables
      * @param sendable the value of the {@link Sendable}
      */
     public DashboardSendable(String key, Sendable sendable) {

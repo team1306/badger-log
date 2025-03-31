@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 
 /**
  * Class to subscribe to a NetworkTables value and update the field
+ *
  * @param <FieldType> the type of the field
  */
 @SuppressWarnings("unchecked")
@@ -18,8 +19,9 @@ public class FieldSubscriber<FieldType> extends DashboardSubscriber<FieldType> i
 
     /**
      * Construct a new FieldSubscriber, updating the field based off NetworkTables
-     * @param key the key on NetworkTables
-     * @param field the field to update
+     *
+     * @param key    the key on NetworkTables
+     * @param field  the field to update
      * @param config the configuration for the {@link Mappings}
      */
     public FieldSubscriber(String key, Field field, String config) {

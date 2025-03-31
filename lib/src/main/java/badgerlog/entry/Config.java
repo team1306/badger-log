@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 public @interface Config {
     /**
      * The configuration option value as a string for use in mappings
+     *
      * @return the string config option
      * @see Mappings
      */
