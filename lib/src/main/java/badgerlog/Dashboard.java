@@ -2,119 +2,109 @@ package badgerlog;
 
 import badgerlog.entry.Config;
 import badgerlog.entry.Entry;
-import badgerlog.networktables.DashboardEntry;
 import badgerlog.networktables.DashboardUtil;
+import badgerlog.networktables.Updater;
+import badgerlog.networktables.entries.SendableEntry;
+import badgerlog.networktables.entries.publisher.Publisher;
+import badgerlog.networktables.entries.publisher.PublisherFactory;
+import badgerlog.networktables.entries.publisher.PublisherUpdater;
+import badgerlog.networktables.entries.subscriber.SubscriberFactory;
+import badgerlog.networktables.entries.subscriber.SubscriberUpdater;
+import badgerlog.networktables.entries.subscriber.ValueSubscriber;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.MappingType;
 import badgerlog.networktables.mappings.Mappings;
-import badgerlog.networktables.publisher.DashboardPublisher;
-import badgerlog.networktables.publisher.DashboardSendable;
-import badgerlog.networktables.publisher.FieldPublisher;
-import badgerlog.networktables.subscriber.DashboardSubscriber;
-import badgerlog.networktables.subscriber.FieldSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Custom method of putting data to NetworkTables. This Dashboard is meant to replace {@link edu.wpi.first.wpilibj.smartdashboard.SmartDashboard}
- * to allow for a much easier use of putting and getting values through the use of annotations.
- * <br> <br>
- * This can be done by annotating any field with a type mapping (See {@link Mappings}) with {@link Entry}.
- * Some parameters in the annotation are optional (the key will be auto set if not specified). The type of NetworkTable entry must be set.
- * <br> <br>
- * There are 3 types of Entries for use with NetworkTables. <br> <br>
- * These include <i>Publisher</i>, <i>Subscriber</i>, and <i>Sendable</i>. <br>
- * A <i>Publisher</i> puts values to NetworkTable from the field value. <br>
- * A <i>Subscriber</i> sets the field value to the value in NetworkTables. This allows it to be changed in a dashboard such as Elastic <br>
- * A <i>Sendable</i> uses an object which inherits from {@link edu.wpi.first.util.sendable.Sendable} to publish a specific set of values. <br>
+ * 
+ * This class is the base class for BadgerLog, providing methods for initialization, updating, and utility functions for NetworkTables.
  * <br>
- * If a <i>Sendable</i> can be used, it should because it logs more information than individual publishers or subscribers
+ * <h4>Requirements for BadgerLog to function correctly</h4>
+ * <li> {@link #initialize(DashboardConfig)} must be called on robot initialization (Robot.robotInit) for BadgerLog to create the publishers and subscribers for NetworkTables.
+ * <li> {@link #update()} must be called periodically (Robot.robotPeriodic) for values on NetworkTables to be updated
+ * <li> Any values put to NetworkTables with {@link Entry} or {@link #putValue} must have an associated {@link Mapping} or an error will be thrown
  * <br> <br>
- * All fields annotated with {@link Entry} <b>must</b> be static (they are already effectively static). The can have any access level and still work.
- * All fields also must be initialized in static initialization to ensure that the default value is correct.
- * <br> <br>
- * Example: <br>
- * <code>
- * &#064;Entry(*key  = "distance", type = EntryType.Publisher) <br>
- * public static Distance distance = Inches.of(2)
- * </code> <br>
- * *key is not required, and will default to a NetworkTable key of the field name under a table with the class' simple name
+ *
+ * <h4>Additional Utilities BadgerLog has</h4>
+ * <li> Create a {@link Trigger} bound to a NetworkTables boolean for events
+ * <li> Put values to NetworkTables at arbitrary times without an Entry annotation and whatever value wanted
  */
-public class Dashboard {
+public final class Dashboard {
+
+    private static final HashMap<String, Updater> ntEntries = new HashMap<>();
+    private static final HashMap<String, Publisher<?>> singleUsePublishers = new HashMap<>();
+    private static DashboardConfig config = DashboardConfig.defaultConfig;
+    /**
+     * The base table used by BadgerLog for publishing and subscribing to
+     */
+    public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
+    private static boolean isInitialized = false;
+
+    private Dashboard() {
+    }
 
     /**
-     * The default table to be used by Dashboardv3
-     */
-    public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("Dashboard");
-
-    /**
-     * The ExecutorService to use for all of Dashboardv3 for consistent thread allocations--rio doesn't support multi threading well though
-     */
-    public static final ExecutorService executorService = Executors.newCachedThreadPool();
-    private static final HashMap<String, DashboardEntry> ntEntries = new HashMap<>();
-    private static final HashMap<String, DashboardPublisher<?>> singleUsePublishers = new HashMap<>();
-    /**
-     * Boolean representing whether the Dashboard has completed initialization
-     */
-    public static boolean isInitialized = false;
-
-    /**
-     * Runs once on startup to create field type mappings and values on networktables
+     * Initialize method used to register all the type mappings and find all fields annotated with {@link Entry}. This should be called on robot startup, usually Robot.robotInit
      *
-     * @param packages the packages to scan from (usually only frc.robot)
+     * @param config the configuration for BadgerLog to use
      */
-    @SneakyThrows({InterruptedException.class, ExecutionException.class, IllegalAccessException.class})
-    public static void initialize(String... packages) {
+    @SneakyThrows({InterruptedException.class, ExecutionException.class})
+    public static void initialize(DashboardConfig config) {
+        Dashboard.config = config;
+        if (isInitialized) return;
+
         defaultTable.getEntry("Dashboard Startup").setBoolean(false);
 
-        var classGraph = new ClassGraph()
-                .acceptPackages(packages)
-                .acceptPackages("badgerlog")
-                .enableAllInfo()
-                .ignoreFieldVisibility();
+        var classGraph = new ClassGraph().acceptPackages(config.getBasePackages()).acceptPackages("badgerlog").enableAllInfo().ignoreFieldVisibility();
 
-        var resultAsync = classGraph.scanAsync(executorService, 10);
+        var resultAsync = classGraph.scanAsync(Executors.newCachedThreadPool(), 10);
         var result = resultAsync.get();
 
-        for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(MappingType.class)) {
-            for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))) {
-                var field = DashboardUtil.checkFieldValidity(fieldInfo);
+        Mappings.mappings.addAll(
+                result.getClassesWithFieldAnnotation(MappingType.class).stream()
+                        .flatMap(classInfo -> classInfo.getFieldInfo().stream()
+                                .filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))
+                                .map(DashboardUtil::checkFieldValidity)
+                                .map(field -> (Mapping<?, ?>) DashboardUtil.getFieldValue(field))
+                        ).toList()
+        );
 
-                Mappings.mappings.add((Mapping<?, ?>) field.get(null));
-            }
-        }
+        var fieldInfoCollection = result.getClassesWithFieldAnnotation(Entry.class).stream()
+                .flatMap(classInfo -> classInfo.getFieldInfo().stream()
+                        .filter(fieldInfo -> fieldInfo.hasAnnotation(Entry.class))
+                ).toList();
 
-        for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(Entry.class)) {
-            for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(Entry.class))) {
-                var field = DashboardUtil.checkFieldValidity(fieldInfo);
 
-                var entry = field.getAnnotation(Entry.class);
-                var key = entry.key();
-                if (key.isEmpty()) key = classInfo.getSimpleName() + "/" + fieldInfo.getName();
+        for (FieldInfo fieldInfo : fieldInfoCollection) {
+            var field = DashboardUtil.checkFieldValidity(fieldInfo);
 
-                String config = null;
-                if (fieldInfo.hasAnnotation(Config.class)) config = field.getAnnotation(Config.class).value();
+            var entry = field.getAnnotation(Entry.class);
+            var key = entry.key();
+            if (key.isEmpty()) key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
 
-                ntEntries.put(key, switch (entry.type()) {
-                    case Publisher -> new FieldPublisher<>(key, field, config);
-                    case Subscriber -> new FieldSubscriber<>(key, field, config);
-                    case Sendable -> new DashboardSendable(key, DashboardUtil.getFieldValue(field));
-                });
-            }
+            String fieldConfig = null;
+            if (fieldInfo.hasAnnotation(Config.class)) fieldConfig = field.getAnnotation(Config.class).value();
+
+            ntEntries.put(key, switch (entry.type()) {
+                case Publisher ->
+                        new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(config, key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
+                case Subscriber ->
+                        new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(config, key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
+                case Sendable -> new SendableEntry(key, DashboardUtil.getFieldValue(field));
+            });
         }
         result.close();
 
@@ -123,7 +113,7 @@ public class Dashboard {
     }
 
     /**
-     * Updates all current NetworkTables entries. Should be called once in the Robot Periodic method
+     * Method to update all values from BadgerLog in NetworkTables. This should be called in a periodic method, usually Robot.robotPeriodic
      */
     public static void update() {
         checkDashboardInitialized();
@@ -131,70 +121,67 @@ public class Dashboard {
     }
 
     /**
-     * Get a button for use on NetworkTables
+     * Method to get a {@link Trigger} bound to a NetworkTables boolean to all for a 'button' on NetworkTables
      *
-     * @param key       the key for the button
-     * @param eventLoop the {@link EventLoop} to bind the button to
-     * @return the trigger bound to the NetworkTables value and {@link EventLoop}
+     * @param key       the key for the subscriber
+     * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
+     * @return the Trigger
      */
     public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
         checkDashboardInitialized();
 
-        var subscriber = new DashboardSubscriber<>(key, boolean.class, NetworkTableType.kBoolean);
-        return new Trigger(eventLoop, () -> subscriber.getValue(false));
+        var subscriber = new ValueSubscriber<>(key, boolean.class, false, null);
+        return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
     /**
-     * Get a button that auto resets its value to false
+     * Method to get a {@link Trigger} that auto resets after 0.25s
      *
-     * @param key       the key for the button
-     * @param eventLoop the {@link EventLoop} to bind the button to
-     * @return the trigger bound to the NetworkTables value and {@link EventLoop} with an auto reset command
+     * @param key       the key for the subscriber
+     * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
+     * @return the Trigger that auto resets the NetworkTables value after 0.25s
+     * @see #getNetworkTablesButton
      */
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         checkDashboardInitialized();
-
-        var subscriber = new DashboardSubscriber<>(key, boolean.class, NetworkTableType.kBoolean);
-        return new Trigger(eventLoop,
-                () -> subscriber.getValue(false))
-                .onTrue(Commands.waitSeconds(0.25)
-                        .andThen(new InstantCommand(() -> subscriber.setInitialPublish(false))
-                                .ignoringDisable(true))
-                );
+        
+        return getNetworkTablesButton(key, eventLoop)
+                .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
 
     /**
-     * Put a value to NetworkTables given a key and value
+     * Method to put a generic value to NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown
      *
-     * @param key         the key referencing the NetworkTable entry
-     * @param value       the value to publish
-     * @param <FieldType> the value of the field
+     * @param key   the key for NetworkTables
+     * @param value the value to be published
+     * @param <T>   the type to be published
+     * @see #putValue(String, Object, String)
      */
-    public static <FieldType> void putValue(String key, FieldType value) {
+    public static <T> void putValue(String key, T value) {
         putValue(key, value, null);
     }
 
     /**
-     * Put a value to NetworkTables given a key and value, using config to configure the mapping
+     * Method to put a generic value to NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
      *
-     * @param key         the key referencing the NetworkTable entry
-     * @param value       the value to publish
-     * @param config      the config string to use
-     * @param <FieldType> the value of the field
+     * @param key    the key for NetworkTables
+     * @param value  the value to be published
+     * @param config configuration options for {@link Mapping} types
+     * @param <T>    the type to be published
      */
     @SuppressWarnings("unchecked")
-    public static <FieldType> void putValue(String key, FieldType value, String config) {
+    public static <T> void putValue(String key, T value, String config) {
         checkDashboardInitialized();
 
-        DashboardPublisher<FieldType> publisher;
+        Publisher<T> publisher;
         if (!singleUsePublishers.containsKey(key)) {
-            publisher = new DashboardPublisher<>(key, (Class<FieldType>) value.getClass(), Mappings.findMappingType(value.getClass()), config);
+            publisher = (Publisher<T>) PublisherFactory.getPublisherFromValue(Dashboard.config, key, value, config);
             singleUsePublishers.put(key, publisher);
         } else {
-            publisher = (DashboardPublisher<FieldType>) singleUsePublishers.get(key);
+            publisher = (Publisher<T>) singleUsePublishers.get(key);
         }
 
-        publisher.publish(value);
+        publisher.publishValue(value);
     }
 
 
