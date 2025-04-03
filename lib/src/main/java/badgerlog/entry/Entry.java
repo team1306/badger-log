@@ -14,14 +14,15 @@ public @interface Entry {
     /**
      * The key used for the entry in NetworkTables
      *
-     * @return the string used for NetworkTables. Defaults to a table with the name of the class and name of field
+     * @return the string used for NetworkTables. Defaults to a subtable of the base table with the simple name of the class and name of the field as the entry
      */
     String key() default "";
 
     /**
      * Type of NetworkTable Entry. (Publisher, Subscriber, Sendable)
      *
-     * @return the type
+     * @return the entry type
+     * @see EntryType
      */
     EntryType type();
 }

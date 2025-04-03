@@ -3,12 +3,13 @@ package badgerlog.networktables.mappings;
 import edu.wpi.first.networktables.NetworkTableType;
 
 /**
- * The base mappings for NetworkTables, includes only double, boolean, integer, and string mappings
+ * Collection of {@link Mapping Mappings} for NetworkTables, includes only {@link Double}, {@link Boolean}, {@link Integer}, and {@link String} mappings
  */
-public class BaseMappings {
+//TODO array type mappings for all array types
+public final class BaseMappings {
 
     /**
-     * Mapping from double to double (primitive)
+     * Mapping from {@link Double} to {@link Double} (primitive)
      */
     @MappingType
     public static Mapping<Double, Double> doubleMapping = new Mapping<>(double.class, double.class, NetworkTableType.kDouble) {
@@ -23,9 +24,8 @@ public class BaseMappings {
             return ntValue;
         }
     };
-
     /**
-     * Mapping from Double to Double (object)
+     * Mapping from {@link Double} to {@link Double} (object)
      */
     @MappingType
     public static Mapping<Double, Double> double1Mapping = new Mapping<>(Double.class, Double.class, NetworkTableType.kDouble) {
@@ -40,9 +40,8 @@ public class BaseMappings {
             return ntValue;
         }
     };
-
     /**
-     * Mapping from boolean to boolean (primitive)
+     * Mapping from {@link Boolean} to {@link Boolean} (primitive)
      */
     @MappingType
     public static Mapping<Boolean, Boolean> booleanMapping = new Mapping<>(boolean.class, boolean.class, NetworkTableType.kBoolean) {
@@ -57,9 +56,8 @@ public class BaseMappings {
             return ntValue;
         }
     };
-
     /**
-     * Mapping from Boolean to Boolean (object)
+     * Mapping from {@link Boolean} to {@link Boolean} (object)
      */
     @MappingType
     public static Mapping<Boolean, Boolean> boolean1Mapping = new Mapping<>(Boolean.class, Boolean.class, NetworkTableType.kBoolean) {
@@ -74,9 +72,8 @@ public class BaseMappings {
             return ntValue;
         }
     };
-
     /**
-     * Mapping from int to double (primitive)
+     * Mapping from {@link Integer} to {@link Double} (primitive)
      */
     @MappingType
     public static Mapping<Integer, Double> integerMapping = new Mapping<>(int.class, double.class, NetworkTableType.kDouble) {
@@ -91,9 +88,8 @@ public class BaseMappings {
             return ntValue.intValue();
         }
     };
-
     /**
-     * Mapping from Integer to Double (object)
+     * Mapping from {@link Integer} to {@link Double} (object)
      */
     @MappingType
     public static Mapping<Integer, Double> integer1Mapping = new Mapping<>(Integer.class, Double.class, NetworkTableType.kDouble) {
@@ -108,9 +104,8 @@ public class BaseMappings {
             return ntValue.intValue();
         }
     };
-
     /**
-     * Mapping from String to String
+     * Mapping from {@link String} to {@link String}
      */
     @MappingType
     public static Mapping<String, String> stringMapping = new Mapping<>(String.class, String.class, NetworkTableType.kString) {
@@ -125,4 +120,7 @@ public class BaseMappings {
             return ntValue;
         }
     };
+
+    private BaseMappings() {
+    }
 }

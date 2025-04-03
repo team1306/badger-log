@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark fields to be collected as a mapping
+ * Annotation to mark fields for collection. Any fields marked with this must be of type {@link Mapping}
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -6,16 +6,18 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.BaseUnits;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.*;
 
 /**
- * Class containing a couple of useful unit mappings
+ * Collection of {@link Mapping Mappings} for NetworkTables, includes the {@link Measure}, rotation, translation, twist, and pose mappings
  */
-public class UnitMappings {
+//TODO Finish all the mappings and add all the configuration options for measures
+public final class UnitMappings {
     /**
-     * Mapping of distance to double
+     * Mapping of {@link Distance} to {@link Double}
      *
      * @see DistanceConfiguration
      */
@@ -44,7 +46,7 @@ public class UnitMappings {
         }
     };
     /**
-     * Mapping of rotation2d to double
+     * Mapping of {@link Rotation2d} to {@link Double}
      *
      * @see RotationConfiguration
      */
@@ -73,7 +75,7 @@ public class UnitMappings {
         }
     };
     /**
-     * Mapping of Translation3d to double array
+     * Mapping of {@link Translation3d} to {@link Double}[]
      */
     @MappingType
     public static Mapping<Translation3d, double[]> translation3dToDoubleArrayMapping = new Mapping<>(Translation3d.class, double[].class, NetworkTableType.kDoubleArray) {
@@ -92,7 +94,7 @@ public class UnitMappings {
         }
     };
     /**
-     * Mapping of Rotation3d to double array
+     * Mapping of {@link Rotation3d} to {@link Double}[]
      *
      * @see RotationConfiguration
      */
@@ -133,35 +135,37 @@ public class UnitMappings {
             return new Rotation3d(radianX, radianY, radianZ);
         }
     };
+    private UnitMappings() {
+    }
 
     /**
-     * Configuration options for the distance mapping
+     * Configuration options for {@link Distance} mappings
      */
     public static class DistanceConfiguration {
         /**
-         * String config option representing inches
+         * Config option representing inches
          */
         public static final String INCHES = "inches";
         /**
-         * String config option representing meters
+         * Config option representing meters
          */
         public static final String METERS = "meters";
     }
 
     /**
-     * Configuration options for the rotation mappings
+     * Configuration options for the {@link Rotation3d} and {@link Rotation2d} mappings
      */
     public static class RotationConfiguration {
         /**
-         * String config option representing degrees
+         * Config option representing degrees
          */
         public static final String DEGREES = "degrees";
         /**
-         * String config option representing radians
+         * Config option representing radians
          */
         public static final String RADIANS = "radians";
         /**
-         * String config option representing rotations
+         * Config option representing rotations
          */
         public static final String ROTATIONS = "rotations";
     }

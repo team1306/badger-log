@@ -1,22 +1,26 @@
 package badgerlog.networktables;
 
-import badgerlog.Dashboard;
+import badgerlog.entry.Entry;
+import badgerlog.networktables.mappings.MappingType;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 
 /**
- * Class containing utility methods for use by {@link Dashboard}
+ * Field utility class used for BadgerLog internally to manipulate {@link Field} values
  */
-public class DashboardUtil {
+public final class DashboardUtil {
+
+    private DashboardUtil() {
+    }
 
     /**
-     * Gets a field value
+     * Gets the value on the provided {@link Field}
      *
-     * @param field        the field to get from
-     * @param <FieldValue> the type of the field
-     * @return the value of the field
+     * @param field        the Field to get from
+     * @param <FieldValue> the type on the Field. Implicitly assumed that the type matches the type on the field
+     * @return the value on the field, cast to the provided type
      */
     @SuppressWarnings("unchecked")
     @SneakyThrows({IllegalAccessException.class, IllegalArgumentException.class})
@@ -26,11 +30,11 @@ public class DashboardUtil {
     }
 
     /**
-     * Set a field's value
+     * Sets the value on the provided {@link Field} to the specified value
      *
-     * @param field        the field to set
-     * @param value        the value to set the field to
-     * @param <FieldValue> the type of the field
+     * @param field        the Field to set
+     * @param value        the value to set the Field to
+     * @param <FieldValue> the type on the Field. Implicitly assumed that the type matches the type on the field
      */
     @SneakyThrows({IllegalAccessException.class})
     public static <FieldValue> void setFieldValue(Field field, FieldValue value) {
@@ -39,14 +43,17 @@ public class DashboardUtil {
     }
 
     /**
-     * Ensure that a field is correctly created, for use as a Publisher, Subscriber, or Sendable
+     * Verify that the provided {@link FieldInfo} matches the requirements for a field annotated with {@link Entry} or {@link MappingType}
      *
-     * @param fieldInfo the info for the field
-     * @return the loaded field
+     * @param fieldInfo the FieldInfo for the field
+     * @return the loaded {@link Field}
      */
     public static Field checkFieldValidity(FieldInfo fieldInfo) {
         var field = fieldInfo.loadClassAndGetField();
-
+        if (!fieldInfo.isStatic())
+            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be static");
+        if (fieldInfo.isFinal())
+            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must not be final");
         if (DashboardUtil.getFieldValue(field) == null)
             throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be initialized");
         return field;

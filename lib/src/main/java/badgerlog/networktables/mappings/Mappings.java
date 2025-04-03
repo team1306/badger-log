@@ -2,27 +2,30 @@ package badgerlog.networktables.mappings;
 
 import edu.wpi.first.networktables.NetworkTableType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Class containing all mappings for each type. On startup, searches for any fields annotated with {@link MappingType} and adds them to the list of current mappings.
+ * Class containing a list of all {@link Mapping Mappings} for every registered type and providing methods to find specific mappings.
  */
-public class Mappings {
+public final class Mappings {
     /**
-     * A List containing all the registered mappings
+     * A Set containing all the registered mappings
      *
      * @see MappingType
      */
-    public static final List<Mapping<?, ?>> mappings = new ArrayList<>();
+    public static final Set<Mapping<?, ?>> mappings = new HashSet<>();
+
+    private Mappings() {
+    }
 
     /**
-     * Find a mapping based off the field type. It is assumed that only one mapping per field type is created, and will throw an error if there are more than one present
+     * Find a {@link Mapping} from a type class. It is assumed that only one mapping per class type is created, and will throw an error if there are more than one present
      *
-     * @param type        the type of mapping to search for
-     * @param <FieldType> the type specified by the field
-     * @param <NTType>    the NetworkTableType
-     * @return the mapping with the specified input, and a valid NetworkTableOutput
+     * @param type        the {@link Class} representing
+     * @param <FieldType> the type on the field
+     * @param <NTType>    the {@link Object} representation of a {@link NetworkTableType}
+     * @return the Mapping with the specified input type, and a valid NetworkTableType
      */
     @SuppressWarnings("unchecked")
     public static <FieldType, NTType> Mapping<FieldType, NTType> findMapping(Class<FieldType> type) {
@@ -34,9 +37,9 @@ public class Mappings {
     }
 
     /**
-     * Finds the NetworkTable type given a field type class
+     * Finds the {@link NetworkTableType} given a class type
      *
-     * @param type the field type
+     * @param type the type as a {@link Class}
      * @return the NetworkTableType
      */
     public static NetworkTableType findMappingType(Class<?> type) {

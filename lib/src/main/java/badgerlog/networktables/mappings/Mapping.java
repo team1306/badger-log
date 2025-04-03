@@ -4,37 +4,31 @@ import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
 
 /**
- * Mapping class to map a type on a field to a valid NetworkTable type
+ * Class to map an arbitrary type to a {@link NetworkTableType}
  *
- * @param <FieldType> the type on a field
- * @param <NTType>    the valid NetworkTable type
+ * @param <FieldType> the starting type
+ * @param <NTType>    the {@link Object} form of a NetworkTableType
  */
 @Getter
 public abstract class Mapping<FieldType, NTType> {
     /**
-     * The Class type of the field
-     *
-     * @return the Class representing the type of the field
+     * The starting type as a {@link Class}
      */
     private final Class<FieldType> fieldType;
     /**
-     * The Class type on NetworkTables
-     *
-     * @return the Class representing the type on NetworkTables
+     * The {@link NetworkTableType} as a {@link Class}
      */
     private final Class<NTType> tableType;
 
     /**
      * The {@link NetworkTableType} for NetworkTables
-     *
-     * @return the {@link NetworkTableType} for NetworkTables
      */
     private final NetworkTableType networkTableType;
 
     /**
-     * Construct a new mapping for a field and NetworkTable value
+     * Construct a new mapping for a starting type and NetworkTable type
      *
-     * @param fieldType the type of the field
+     * @param fieldType the starting type
      * @param tableType the type on NetworkTables
      * @param ntType    the {@link NetworkTableType}
      */
@@ -45,30 +39,32 @@ public abstract class Mapping<FieldType, NTType> {
     }
 
     /**
-     * Check if the type of field matches, since it is assumed to only have one mapping per field type
+     * Check if the type of field matches another. It is assumed that there is only have one mapping per starting type
      *
-     * @param fieldType the type of field
-     * @return if this mapping matches the type given
+     * @param fieldType the starting type
+     * @return if this {@link Mapping} matches the type given
      */
     public boolean matches(Class<?> fieldType) {
         return this.fieldType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.fieldType);
     }
 
     /**
-     * A function to map the field type to a NetworkTable type given a config and value
+     * A function to map the starting type to a NetworkTable type given a config and value
      *
-     * @param fieldValue the value of the field to map
-     * @param config     the configuration in the form of a string, see {@link UnitMappings} for an example of how to use
+     * @param fieldValue the value to map
+     * @param config     the configuration in the form of a {@link String}
      * @return the value in the NetworkTable type
+     * @see UnitMappings
      */
     public abstract NTType toNT(FieldType fieldValue, String config);
 
     /**
-     * A function to map a NetworkTable type to the field type
+     * A function to map a NetworkTable type to the starting type
      *
      * @param ntValue the value given by NetworkTables
-     * @param config  the configuration in the form of a string, see {@link UnitMappings} for an example of how to use
-     * @return the value in the field type
+     * @param config  the configuration in the form of a string
+     * @return the value in the starting type
+     * @see UnitMappings
      */
     public abstract FieldType toField(NTType ntValue, String config);
 }
