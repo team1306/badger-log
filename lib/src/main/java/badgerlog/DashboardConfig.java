@@ -31,7 +31,7 @@ public final class DashboardConfig {
             .withStructOptions(StructOptions.STRUCT)
             .withBaseTableKey("SmartDashboard");
 
-    private String baseTableKey = "badgerlog";
+    private String baseTableKey = "BadgerLog";
     private StructOptions structOptions = StructOptions.SUB_TABLE;
     private String[] basePackages = {"frc.robot"};
 
