@@ -7,22 +7,18 @@ import edu.wpi.first.networktables.StructEntry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 
-/**
- * {@link Subscriber} and {@link Publisher} implementing the other alternative method of putting a {@link Struct} to NetworkTables
- *
- * @param <T> the Struct type. Must be of type {@link StructSerializable}
- */
+/// [Subscriber] and [Publisher] implementing the other alternative method of putting a [Struct] to NetworkTables
+///
+/// @param <T> the Struct type. Must be of type [StructSerializable]
 public final class StructValueEntry<T> implements Subscriber<T>, Publisher<T> {
 
     private final StructEntry<T> entry;
 
-    /**
-     * Default constructor for {@link StructValueEntry}
-     *
-     * @param key          the key for NetworkTables
-     * @param struct       the {@link Struct} to use for the schema on NetworkTables
-     * @param defaultValue the default value for NetworkTables
-     */
+    /// Default constructor for [StructValueEntry]
+    ///
+    /// @param key          the key for NetworkTables
+    /// @param struct       the [Struct] to use for the schema on NetworkTables
+    /// @param defaultValue the default value for NetworkTables
     public StructValueEntry(String key, Struct<T> struct, T defaultValue) {
         entry = Dashboard.defaultTable.getStructTopic(key, struct).getEntry(defaultValue);
         publishValue(defaultValue);

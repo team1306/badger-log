@@ -28,39 +28,35 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
-/**
- * 
- * This class is the base class for BadgerLog, providing methods for initialization, updating, and utility functions for NetworkTables.
- * <br>
- * <h4>Requirements for BadgerLog to function correctly</h4>
- * <li> {@link #initialize(DashboardConfig)} must be called on robot initialization (Robot.robotInit) for BadgerLog to create the publishers and subscribers for NetworkTables.
- * <li> {@link #update()} must be called periodically (Robot.robotPeriodic) for values on NetworkTables to be updated
- * <li> Any values put to NetworkTables with {@link Entry} or {@link #putValue} must have an associated {@link Mapping} or an error will be thrown
- * <br> <br>
- *
- * <h4>Additional Utilities BadgerLog has</h4>
- * <li> Create a {@link Trigger} bound to a NetworkTables boolean for events
- * <li> Put values to NetworkTables at arbitrary times without an Entry annotation and whatever value wanted
- */
+/// 
+/// This class is the base class for BadgerLog, providing methods for initialization, updating, and utility functions for NetworkTables.
+///   
+/// ### Requirements for BadgerLog to function correctly
+///   -  [#initialize(DashboardConfig)] must be called on robot initialization (Robot.robotInit) for BadgerLog to create the publishers and subscribers for NetworkTables.
+///   -  [#update()] must be called periodically (Robot.robotPeriodic) for values on NetworkTables to be updated.
+///   -  Any values put to NetworkTables with [Entry] or [#putValue] must have an associated [Mapping] or an error will be thrown.
+///   
+///   
+/// ### Additional Utilities BadgerLog has
+///   -  Create a [Trigger] bound to a NetworkTables boolean for events. 
+///   -  Put values to NetworkTables at arbitrary times without an Entry annotation and whatever value wanted.
+/// 
 public final class Dashboard {
 
     private static final HashMap<String, Updater> ntEntries = new HashMap<>();
     private static final HashMap<String, Publisher<?>> singleUsePublishers = new HashMap<>();
     private static DashboardConfig config = DashboardConfig.defaultConfig;
-    /**
-     * The base table used by BadgerLog for publishing and subscribing to
-     */
+    
+    /// The base table used by BadgerLog for publishing and subscribing to
     public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
     private static boolean isInitialized = false;
 
     private Dashboard() {
     }
 
-    /**
-     * Initialize method used to register all the type mappings and find all fields annotated with {@link Entry}. This should be called on robot startup, usually Robot.robotInit
-     *
-     * @param config the configuration for BadgerLog to use
-     */
+    /// Initialize method used to register all the type mappings and find all fields annotated with [Entry]. This should be called on robot startup, usually Robot.robotInit
+    ///
+    /// @param config the configuration for BadgerLog to use
     @SneakyThrows({InterruptedException.class, ExecutionException.class})
     public static void initialize(DashboardConfig config) {
         Dashboard.config = config;
@@ -112,21 +108,17 @@ public final class Dashboard {
         isInitialized = true;
     }
 
-    /**
-     * Method to update all values from BadgerLog in NetworkTables. This should be called in a periodic method, usually Robot.robotPeriodic
-     */
+    /// Method to update all values from BadgerLog in NetworkTables. This should be called in a periodic method, usually Robot.robotPeriodic
     public static void update() {
         checkDashboardInitialized();
         ntEntries.forEach((Key, entry) -> entry.update());
     }
 
-    /**
-     * Method to get a {@link Trigger} bound to a NetworkTables boolean to all for a 'button' on NetworkTables
-     *
-     * @param key       the key for the subscriber
-     * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
-     * @return the Trigger
-     */
+    /// Method to get a [Trigger] bound to a NetworkTables boolean to all for a 'button' on NetworkTables
+    ///
+    /// @param key       the key for the subscriber
+    /// @param eventLoop the [EventLoop] for the Trigger to be bound to
+    /// @return the Trigger
     public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
         checkDashboardInitialized();
 
@@ -134,14 +126,12 @@ public final class Dashboard {
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
-    /**
-     * Method to get a {@link Trigger} that auto resets after 0.25s
-     *
-     * @param key       the key for the subscriber
-     * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
-     * @return the Trigger that auto resets the NetworkTables value after 0.25s
-     * @see #getNetworkTablesButton
-     */
+    /// Method to get a [Trigger] that auto resets after 0.25s
+    ///
+    /// @param key       the key for the subscriber
+    /// @param eventLoop the [EventLoop] for the Trigger to be bound to
+    /// @return the Trigger that auto resets the NetworkTables value after 0.25s
+    /// @see #getNetworkTablesButton
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         checkDashboardInitialized();
         
@@ -149,26 +139,22 @@ public final class Dashboard {
                 .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
 
-    /**
-     * Method to put a generic value to NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown
-     *
-     * @param key   the key for NetworkTables
-     * @param value the value to be published
-     * @param <T>   the type to be published
-     * @see #putValue(String, Object, String)
-     */
+    /// Method to put a generic value to NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown
+    ///
+    /// @param key   the key for NetworkTables
+    /// @param value the value to be published
+    /// @param <T>   the type to be published
+    /// @see #putValue(String, Object, String)
     public static <T> void putValue(String key, T value) {
         putValue(key, value, null);
     }
 
-    /**
-     * Method to put a generic value to NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
-     *
-     * @param key    the key for NetworkTables
-     * @param value  the value to be published
-     * @param config configuration options for {@link Mapping} types
-     * @param <T>    the type to be published
-     */
+    /// Method to put a generic value to NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
+    ///
+    /// @param key    the key for NetworkTables
+    /// @param value  the value to be published
+    /// @param config configuration options for [Mapping] types
+    /// @param <T>    the type to be published
     @SuppressWarnings("unchecked")
     public static <T> void putValue(String key, T value, String config) {
         checkDashboardInitialized();

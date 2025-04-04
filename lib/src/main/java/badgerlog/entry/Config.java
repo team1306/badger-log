@@ -9,19 +9,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Configuration annotation for an {@link Entry}. Configuration options for the {@link #value()} parameter of the annotation can be found where the respective {@link Mapping} was registered
- *
- * @see UnitMappings
- */
+/// Configuration annotation for an [Entry]. Configuration options for the [#value()] parameter of the annotation can be found where the respective [Mapping] was registered
+///
+/// @see UnitMappings
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface Config {
-    /**
-     * The configuration option value as a string for use in mappings
-     *
-     * @return the string config option
-     * @see Mappings
-     */
+    /// The configuration option value as a string for use in mappings
+    ///
+    /// @return the string config option
+    /// @see Mappings
     String value();
 }

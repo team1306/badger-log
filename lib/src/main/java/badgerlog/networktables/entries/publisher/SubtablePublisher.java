@@ -6,14 +6,13 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * {@link Publisher} implementing the alternative method of putting a {@link Struct} to NetworkTables.
- * <br /> <br/>
- * It uses subtables on NetworkTables to put values to. Should be more friendly with dashboards such as Elastic.
- * The only {@linkplain Struct Structs} that are supported are ones that are <b>only doubles</b>, or <b>compositions of types with only doubles </b>
- *
- * @param <T> the starting type before mapping
- */
+/// [Publisher] implementing the alternative method of putting a [Struct] to NetworkTables.
+///   
+///   
+/// It uses subtables on NetworkTables to put values to. Should be more friendly with dashboards such as Elastic.
+/// The only {@linkplain Struct Structs} that are supported are ones that are **only doubles**, or **compositions of types with only doubles **
+///
+/// @param <T> the starting type before mapping
 public final class SubtablePublisher<T> implements Publisher<T> {
 
     private final Struct<T> struct;
@@ -21,12 +20,10 @@ public final class SubtablePublisher<T> implements Publisher<T> {
     private final List<Publisher<Double>> publishers;
     private final ByteBuffer buffer;
 
-    /**
-     * The default constructor for {@link SubtablePublisher}
-     *
-     * @param key    the key for NetworkTables
-     * @param struct the {@link} Struct to use for the tables on NetworkTables
-     */
+    /// The default constructor for [SubtablePublisher]
+    ///
+    /// @param key    the key for NetworkTables
+    /// @param struct the [] Struct to use for the tables on NetworkTables
     public SubtablePublisher(String key, Struct<T> struct) {
         this.struct = struct;
 
@@ -48,12 +45,10 @@ public final class SubtablePublisher<T> implements Publisher<T> {
         buffer.clear();
     }
 
-    /**
-     * A utility method to recursively create {@link Publisher} objects. This order should be the order the {@link ByteBuffer} is packed in the {@link Struct}
-     *
-     * @param baseStruct the base struct to search through
-     * @param currentKey the current NetworkTables key
-     */
+    /// A utility method to recursively create [Publisher] objects. This order should be the order the [ByteBuffer] is packed in the [Struct]
+    ///
+    /// @param baseStruct the base struct to search through
+    /// @param currentKey the current NetworkTables key
     private void createPublishers(Struct<?> baseStruct, String currentKey) {
         for (Struct<?> nestedStruct : baseStruct.getNested()) {
             createPublishers(nestedStruct, currentKey + "/" + nestedStruct.getTypeName());

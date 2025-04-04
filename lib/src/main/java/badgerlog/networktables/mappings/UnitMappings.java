@@ -11,16 +11,12 @@ import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.*;
 
-/**
- * Collection of {@link Mapping Mappings} for NetworkTables, includes the {@link Measure}, rotation, translation, twist, and pose mappings
- */
+/// Collection of [Mappings][Mapping] for NetworkTables, includes the [Measure], rotation, translation, twist, and pose mappings
 //TODO Finish all the mappings and add all the configuration options for measures
 public final class UnitMappings {
-    /**
-     * Mapping of {@link Distance} to {@link Double}
-     *
-     * @see DistanceConfiguration
-     */
+    /// Mapping of [Distance] to [Double]
+    ///
+    /// @see DistanceConfiguration
     @MappingType
     public static Mapping<Distance, Double> distanceMapping = new Mapping<>(Distance.class, double.class, NetworkTableType.kDouble) {
         @Override
@@ -45,11 +41,9 @@ public final class UnitMappings {
             };
         }
     };
-    /**
-     * Mapping of {@link Rotation2d} to {@link Double}
-     *
-     * @see RotationConfiguration
-     */
+    /// Mapping of [Rotation2d] to [Double]
+    ///
+    /// @see RotationConfiguration
     @MappingType
     public static Mapping<Rotation2d, Double> rotation2dDoubleMapping = new Mapping<>(Rotation2d.class, double.class, NetworkTableType.kDouble) {
 
@@ -74,9 +68,7 @@ public final class UnitMappings {
             };
         }
     };
-    /**
-     * Mapping of {@link Translation3d} to {@link Double}[]
-     */
+    /// Mapping of [Translation3d] to [Double][]
     @MappingType
     public static Mapping<Translation3d, double[]> translation3dToDoubleArrayMapping = new Mapping<>(Translation3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
@@ -93,11 +85,9 @@ public final class UnitMappings {
             return new Translation3d(ntValue[0], ntValue[1], ntValue[2]);
         }
     };
-    /**
-     * Mapping of {@link Rotation3d} to {@link Double}[]
-     *
-     * @see RotationConfiguration
-     */
+    /// Mapping of [Rotation3d] to [Double][]
+    ///
+    /// @see RotationConfiguration
     @MappingType
     public static Mapping<Rotation3d, double[]> rotation3dToDoubleArrayMapping = new Mapping<>(Rotation3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
@@ -138,35 +128,21 @@ public final class UnitMappings {
     private UnitMappings() {
     }
 
-    /**
-     * Configuration options for {@link Distance} mappings
-     */
+    /// Configuration options for [Distance] mappings
     public static class DistanceConfiguration {
-        /**
-         * Config option representing inches
-         */
+        /// Config option representing inches
         public static final String INCHES = "inches";
-        /**
-         * Config option representing meters
-         */
+        /// Config option representing meters
         public static final String METERS = "meters";
     }
 
-    /**
-     * Configuration options for the {@link Rotation3d} and {@link Rotation2d} mappings
-     */
+    /// Configuration options for the [Rotation3d] and [Rotation2d] mappings
     public static class RotationConfiguration {
-        /**
-         * Config option representing degrees
-         */
+        /// Config option representing degrees
         public static final String DEGREES = "degrees";
-        /**
-         * Config option representing radians
-         */
+        /// Config option representing radians
         public static final String RADIANS = "radians";
-        /**
-         * Config option representing rotations
-         */
+        /// Config option representing rotations
         public static final String ROTATIONS = "rotations";
     }
 }

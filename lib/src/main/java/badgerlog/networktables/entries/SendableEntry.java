@@ -7,20 +7,16 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
-/**
- * An implementation of an {@link Updater} to allow {@link Sendable Sendables} to be updated properly from NetworkTables
- */
+/// An implementation of an [Updater] to allow [Sendables][Sendable] to be updated properly from NetworkTables
 public final class SendableEntry implements Updater {
 
     private final Sendable sendable;
 
-    /**
-     * Default constructor for {@link SendableEntry}
-     *
-     * @param key      the key for NetworkTables
-     * @param sendable the {@link Sendable} to be put on NetworkTables
-     * @see Sendable
-     */
+    /// Default constructor for [SendableEntry]
+    ///
+    /// @param key      the key for NetworkTables
+    /// @param sendable the [Sendable] to be put on NetworkTables
+    /// @see Sendable
     public SendableEntry(String key, Sendable sendable) {
         this.sendable = sendable;
 
