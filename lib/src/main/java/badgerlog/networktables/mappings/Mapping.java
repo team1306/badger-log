@@ -6,22 +6,26 @@ import lombok.Getter;
 /**
  * Class to map an arbitrary type to a {@link NetworkTableType}
  *
- * @param <FieldType> the starting type
+ * @param <StartType> the starting type
  * @param <NTType>    the {@link Object} form of a NetworkTableType
  */
+@SuppressWarnings("JavadocDeclaration")
 @Getter
-public abstract class Mapping<FieldType, NTType> {
+public abstract class Mapping<StartType, NTType> {
     /**
      * The starting type as a {@link Class}
+     * @return the starting type
      */
-    private final Class<FieldType> fieldType;
+    private final Class<StartType> fieldType;
     /**
      * The {@link NetworkTableType} as a {@link Class}
+     * @return the type on NetworkTables
      */
     private final Class<NTType> tableType;
 
     /**
      * The {@link NetworkTableType} for NetworkTables
+     * @return the NetworkTableType
      */
     private final NetworkTableType networkTableType;
 
@@ -32,7 +36,7 @@ public abstract class Mapping<FieldType, NTType> {
      * @param tableType the type on NetworkTables
      * @param ntType    the {@link NetworkTableType}
      */
-    public Mapping(Class<FieldType> fieldType, Class<NTType> tableType, NetworkTableType ntType) {
+    public Mapping(Class<StartType> fieldType, Class<NTType> tableType, NetworkTableType ntType) {
         this.fieldType = fieldType;
         this.tableType = tableType;
         this.networkTableType = ntType;
@@ -56,7 +60,7 @@ public abstract class Mapping<FieldType, NTType> {
      * @return the value in the NetworkTable type
      * @see UnitMappings
      */
-    public abstract NTType toNT(FieldType fieldValue, String config);
+    public abstract NTType toNT(StartType fieldValue, String config);
 
     /**
      * A function to map a NetworkTable type to the starting type
@@ -66,5 +70,5 @@ public abstract class Mapping<FieldType, NTType> {
      * @return the value in the starting type
      * @see UnitMappings
      */
-    public abstract FieldType toField(NTType ntValue, String config);
+    public abstract StartType toField(NTType ntValue, String config);
 }

@@ -32,15 +32,18 @@ import java.util.concurrent.Executors;
  * 
  * This class is the base class for BadgerLog, providing methods for initialization, updating, and utility functions for NetworkTables.
  * <br>
- * <h4>Requirements for BadgerLog to function correctly</h4>
+ * <h2 style="font-size:13px;">Requirements for BadgerLog to function correctly</h2>
+ * <ul>
  * <li> {@link #initialize(DashboardConfig)} must be called on robot initialization (Robot.robotInit) for BadgerLog to create the publishers and subscribers for NetworkTables.
  * <li> {@link #update()} must be called periodically (Robot.robotPeriodic) for values on NetworkTables to be updated
  * <li> Any values put to NetworkTables with {@link Entry} or {@link #putValue} must have an associated {@link Mapping} or an error will be thrown
- * <br> <br>
+ * </ul><br> <br>
  *
- * <h4>Additional Utilities BadgerLog has</h4>
+ * <h2 style="font-size:13px;">Additional Utilities BadgerLog has</h2>
+ * <ul>
  * <li> Create a {@link Trigger} bound to a NetworkTables boolean for events
  * <li> Put values to NetworkTables at arbitrary times without an Entry annotation and whatever value wanted
+ * </ul>
  */
 public final class Dashboard {
 

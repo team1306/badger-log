@@ -26,6 +26,7 @@ public final class SubtableSubscriber<T> implements Subscriber<T> {
      *
      * @param key    the key for NetworkTables
      * @param struct the {@link} Struct to use for the tables on NetworkTables
+     * @param defaultValue the default value to use for NetworkTables. This gets published immediately after startup
      */
     public SubtableSubscriber(String key, Struct<T> struct, T defaultValue) {
         this.struct = struct;
