@@ -7,7 +7,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-group = 'nukeminecart'
+group = 'team1306'
 
 repositories {
     mavenCentral()
