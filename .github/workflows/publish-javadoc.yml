@@ -1,30 +1,22 @@
-            - name: Deploy - Publish Javadoc
-  # You may pin to the exact commit or the version.
-  # uses: MathieuSoysal/Javadoc-publisher.yml@fda475b197081ba1eca7a1dfadf0c017080a1623
-  uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
-  with:
-    # Java version inside your project
-    java-version: 17 # default is 17
-    # The GitHub token the GitHub repository
-    GITHUB_TOKEN: 
-    # Deploy mode branch or artifact
-    deploy-mode: # default is branch
-    # Branch where the javadoc is hosted
-    javadoc-branch: # optional, default is javadoc
-    # Directory where the javadoc contents should be stored
-    target-folder: # optional, default is .
-    # Java distribution inside your project
-    java-distribution: # optional, default is adopt
-    # Maven or Gradle project
-    project: # optional, default is maven
-    # Custom command to generate the javadoc
-    custom-command: # optional, default is 
-    # Custom subdirectories to upload from
-    subdirectories: # optional
-    # Custom path for the new Javadoc
-    javadoc-source-folder: # optional
-    # Enable or disable deploy of the javadoc to the GitHub Page
-    without-deploy: # optional, default is false
-    # Enable or disable the checkout
-    without-checkout: # optional, default is false
-          
+name: Deploy Javadoc
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # if you have a protection rule on your repository, you'll need to give write permission to the workflow.
+    steps:
+      - name: Deploy JavaDoc 🚀
+        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          javadoc-branch: javadoc
+          java-version: 17
+          target-folder: javadoc
+          project: gradle
