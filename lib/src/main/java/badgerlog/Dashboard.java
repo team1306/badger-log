@@ -72,6 +72,7 @@ public final class Dashboard {
     @SneakyThrows({InterruptedException.class, ExecutionException.class})
     public static void initialize(DashboardConfig config) {
         Dashboard.config = config;
+        defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
         if (isInitialized) return;
 
         defaultTable.getEntry("Dashboard Startup").setBoolean(false);

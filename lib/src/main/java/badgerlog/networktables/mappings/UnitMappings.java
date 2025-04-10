@@ -700,7 +700,7 @@ public final class UnitMappings {
 
             return switch (config) {
                 case VoltageConfiguration.VOLTS -> Volts.of(ntValue);
-                case VoltageConfiguration.MILLIVOLTS -> Volts.of(ntValue);
+                case VoltageConfiguration.MILLIVOLTS -> Millivolts.of(ntValue);
                 default -> BaseUnits.VoltageUnit.of(ntValue);
             };
         }
