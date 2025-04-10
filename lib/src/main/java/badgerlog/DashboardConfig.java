@@ -114,6 +114,10 @@ public final class DashboardConfig {
         /**
          * Publish the struct as a value mapped to a NetworkTableType
          */
-        MAPPING
+        MAPPING,
+        /**
+         * Publish the struct according to the default option
+         */
+        DEFAULT
     }
 }

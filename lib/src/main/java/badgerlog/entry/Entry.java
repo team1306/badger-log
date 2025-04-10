@@ -1,5 +1,8 @@
 package badgerlog.entry;
 
+import badgerlog.DashboardConfig;
+import edu.wpi.first.util.struct.Struct;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,5 +28,12 @@ public @interface Entry {
      * @see EntryType
      */
     EntryType type();
+
+    /**
+     * Type of method to publish a {@link Struct} to NetowrkTables 
+     * @return the method to publish
+     * @see badgerlog.DashboardConfig.StructOptions
+     */
+    DashboardConfig.StructOptions structOptions() default DashboardConfig.StructOptions.DEFAULT;
 }
 

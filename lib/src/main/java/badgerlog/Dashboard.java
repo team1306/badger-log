@@ -8,6 +8,7 @@ import badgerlog.networktables.entries.SendableEntry;
 import badgerlog.networktables.entries.publisher.Publisher;
 import badgerlog.networktables.entries.publisher.PublisherFactory;
 import badgerlog.networktables.entries.publisher.PublisherUpdater;
+import badgerlog.networktables.entries.subscriber.Subscriber;
 import badgerlog.networktables.entries.subscriber.SubscriberFactory;
 import badgerlog.networktables.entries.subscriber.SubscriberUpdater;
 import badgerlog.networktables.entries.subscriber.ValueSubscriber;
@@ -42,14 +43,18 @@ import java.util.concurrent.Executors;
  * <h2 style="font-size:13px;">Additional Utilities BadgerLog has</h2>
  * <ul>
  * <li> Create a {@link Trigger} bound to a NetworkTables boolean for events
- * <li> Put values to NetworkTables at arbitrary times without an Entry annotation and whatever value wanted
+ * <li> Put and get values to NetworkTables from a method
  * </ul>
  */
 public final class Dashboard {
 
     private static final HashMap<String, Updater> ntEntries = new HashMap<>();
     private static final HashMap<String, Publisher<?>> singleUsePublishers = new HashMap<>();
-    private static DashboardConfig config = DashboardConfig.defaultConfig;
+    private static final HashMap<String, Subscriber<?>> singleUseSubscribers = new HashMap<>();
+    /**
+     * The config used by BadgerLog
+     */
+    public static DashboardConfig config = DashboardConfig.defaultConfig;
     /**
      * The base table used by BadgerLog for publishing and subscribing to
      */
@@ -97,15 +102,17 @@ public final class Dashboard {
             var entry = field.getAnnotation(Entry.class);
             var key = entry.key();
             if (key.isEmpty()) key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
+            
+            var structType = entry.structOptions();
 
             String fieldConfig = null;
             if (fieldInfo.hasAnnotation(Config.class)) fieldConfig = field.getAnnotation(Config.class).value();
 
             ntEntries.put(key, switch (entry.type()) {
                 case Publisher ->
-                        new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(config, key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
+                        new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig, structType), () -> DashboardUtil.getFieldValue(field));
                 case Subscriber ->
-                        new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(config, key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
+                        new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig, structType), value -> DashboardUtil.setFieldValue(field, value));
                 case Sendable -> new SendableEntry(key, DashboardUtil.getFieldValue(field));
             });
         }
@@ -178,13 +185,48 @@ public final class Dashboard {
 
         Publisher<T> publisher;
         if (!singleUsePublishers.containsKey(key)) {
-            publisher = (Publisher<T>) PublisherFactory.getPublisherFromValue(Dashboard.config, key, value, config);
+            publisher = PublisherFactory.getPublisherFromValue(key, value, config, DashboardConfig.StructOptions.DEFAULT);
             singleUsePublishers.put(key, publisher);
         } else {
             publisher = (Publisher<T>) singleUsePublishers.get(key);
         }
 
         publisher.publishValue(value);
+    }
+
+    /**
+     * Method to get a generic value from one on NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
+     * @param key the key for NetworkTables
+     * @param defaultValue the default value on NetworkTables
+     * @return the value on NetworkTables
+     * @param <T> the type of be subscribed to
+     * @see #getValue(String, Object, String) 
+     */
+    public static <T> T getValue(String key, T defaultValue) {
+        return getValue(key, defaultValue, null);
+    }
+
+    /**
+     * Method to get a generic value from one on NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
+     * @param key the key for NetworkTables
+     * @param defaultValue the default value on NetworkTables
+     * @param config the config option 
+     * @return the value on NetworkTables
+     * @param <T> the type of be subscribed to
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getValue(String key, T defaultValue, String config) {
+        checkDashboardInitialized();
+        Subscriber<T> subscriber;
+        if (!singleUseSubscribers.containsKey(key)) {
+            subscriber = SubscriberFactory.getSubscriberFromValue(key, defaultValue, config, DashboardConfig.StructOptions.DEFAULT);
+            singleUseSubscribers.put(key, subscriber);
+        }
+        else{
+            subscriber = (Subscriber<T>) singleUseSubscribers.get(key);
+        }
+        
+        return subscriber.retrieveValue();
     }
 
 
