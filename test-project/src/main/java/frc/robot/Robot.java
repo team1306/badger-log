@@ -7,33 +7,29 @@ package frc.robot;
 
 import badgerlog.Dashboard;
 import badgerlog.DashboardConfig;
-import badgerlog.entry.Entry;
-import badgerlog.entry.EntryType;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-
 
 public class Robot extends TimedRobot
 {
     private Command autonomousCommand;
     
     private final RobotContainer robotContainer;
-
-    @Entry(type = EntryType.Publisher)
-    private static Pose2d testMode = new Pose2d(new Translation2d(0, 3), Rotation2d.kZero);
-    
-    @Entry(type = EntryType.Subscriber)
-    private static Pose2d getMode = new Pose2d();
     
     public Robot()
     {
         Dashboard.initialize(DashboardConfig.defaultConfig);
         robotContainer = new RobotContainer();
+        UnitEntries unitEntries = new UnitEntries();
+        StructEntries structEntries = new StructEntries();
+        DashboardMethods dashboardMethods = new DashboardMethods();
+        dashboardMethods.init();
+        addPeriodic(() -> {
+            unitEntries.update();
+            structEntries.update();
+            dashboardMethods.update();
+        }, 0.5);
     }
     
     
@@ -41,7 +37,6 @@ public class Robot extends TimedRobot
     public void robotPeriodic()
     {
         Dashboard.update();
-        System.out.println(getMode);
         CommandScheduler.getInstance().run();
     }
     
