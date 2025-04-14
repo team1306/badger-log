@@ -31,7 +31,7 @@ public class UnitEntries {
     private static AngularVelocity angularVelocity = RotationsPerSecond.of(2);
 
     @Entry(type = EntryType.Subscriber, structOptions = DashboardConfig.StructOptions.MAPPING)
-    @Config(UnitMappings.RotationConfiguration.ROTATIONS)
+    @Config("Definitely a real config")
     private static Rotation2d rotation = Rotation2d.fromDegrees(0);
 
     @Entry(type = EntryType.Sendable)

@@ -2,10 +2,14 @@ package badgerlog.networktables;
 
 import badgerlog.entry.Entry;
 import badgerlog.networktables.mappings.MappingType;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
+import java.sql.Driver;
+import java.util.Arrays;
 
 /**
  * Field utility class used for BadgerLog internally to manipulate {@link Field} values
@@ -57,5 +61,19 @@ public final class DashboardUtil {
         if (DashboardUtil.getFieldValue(field) == null)
             throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be initialized");
         return field;
+    }
+
+    /**
+     * Warns if there is an incorrect configuration value given the list of accepted configs and the type
+     * @param type the type to display
+     * @param config the config to check
+     * @param acceptedConfigs the list of accepted configs
+     */
+    public static void warnIfIncorrectConfig(String type, String config, String... acceptedConfigs) {
+        if (config == null || acceptedConfigs.length == 0) return;
+        if(Arrays.stream(acceptedConfigs).noneMatch((string) -> string.equals(config))){
+            String message = String.format("A configuration with type: %s is incorrect, using default type.\nConfig option: %s\nAccepted config options: %s", type, config, Arrays.toString(acceptedConfigs));
+            DriverStation.reportError(message, false);     
+        }
     }
 }
