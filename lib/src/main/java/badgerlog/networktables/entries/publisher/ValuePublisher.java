@@ -1,6 +1,7 @@
 package badgerlog.networktables.entries.publisher;
 
 import badgerlog.Dashboard;
+import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.Mappings;
 import edu.wpi.first.networktables.GenericPublisher;
@@ -12,7 +13,7 @@ import edu.wpi.first.networktables.NetworkTableType;
  * @param <T> the starting type of the value. This does not have to be a valid {@link NetworkTableType} because if a Mapping exists for the starting type, then it will be converted to one
  */
 public final class ValuePublisher<T> implements Publisher<T> {
-    private final String config;
+    private final Configuration config;
 
     private final Mapping<T, Object> mapping;
 
@@ -26,7 +27,7 @@ public final class ValuePublisher<T> implements Publisher<T> {
      * @param config         the configuration for the {@link Mapping}
      * @see Mappings
      */
-    public ValuePublisher(String key, Class<T> fieldTypeClass, String config) {
+    public ValuePublisher(String key, Class<T> fieldTypeClass, Configuration config) {
         this.config = config;
 
         this.mapping = Mappings.findMapping(fieldTypeClass);

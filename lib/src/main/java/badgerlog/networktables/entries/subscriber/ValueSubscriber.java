@@ -1,6 +1,7 @@
 package badgerlog.networktables.entries.subscriber;
 
 import badgerlog.Dashboard;
+import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.entries.publisher.Publisher;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.Mappings;
@@ -14,7 +15,7 @@ import edu.wpi.first.networktables.NetworkTableType;
  */
 public final class ValueSubscriber<T> implements Subscriber<T>, Publisher<T> {
 
-    private final String config;
+    private final Configuration config;
 
     private final Mapping<T, Object> fieldValueMapping;
     private final GenericEntry entry;
@@ -28,7 +29,7 @@ public final class ValueSubscriber<T> implements Subscriber<T>, Publisher<T> {
      * @param config         the configuration for the {@link Mapping}
      * @see Mappings
      */
-    public ValueSubscriber(String key, Class<T> fieldTypeClass, T initialValue, String config) {
+    public ValueSubscriber(String key, Class<T> fieldTypeClass, T initialValue, Configuration config) {
         this.config = config;
 
         this.fieldValueMapping = Mappings.findMapping(fieldTypeClass);
@@ -46,6 +47,6 @@ public final class ValueSubscriber<T> implements Subscriber<T>, Publisher<T> {
 
     @Override
     public T retrieveValue() {
-        return fieldValueMapping.toField(entry.get().getValue(), config);
+        return fieldValueMapping.toStart(entry.get().getValue(), config);
     }
 }
