@@ -1,5 +1,6 @@
 package badgerlog.networktables.mappings;
 
+import badgerlog.entry.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
 
@@ -32,12 +33,12 @@ public abstract class Mapping<StartType, NTType> {
     /**
      * Construct a new mapping for a starting type and NetworkTable type
      *
-     * @param fieldType the starting type
+     * @param startType the starting type
      * @param tableType the type on NetworkTables
      * @param ntType    the {@link NetworkTableType}
      */
-    public Mapping(Class<StartType> fieldType, Class<NTType> tableType, NetworkTableType ntType) {
-        this.fieldType = fieldType;
+    public Mapping(Class<StartType> startType, Class<NTType> tableType, NetworkTableType ntType) {
+        this.fieldType = startType;
         this.tableType = tableType;
         this.networkTableType = ntType;
     }
@@ -55,12 +56,12 @@ public abstract class Mapping<StartType, NTType> {
     /**
      * A function to map the starting type to a NetworkTable type given a config and value
      *
-     * @param fieldValue the value to map
+     * @param startValue the value to map
      * @param config     the configuration in the form of a {@link String}
      * @return the value in the NetworkTable type
      * @see UnitMappings
      */
-    public abstract NTType toNT(StartType fieldValue, String config);
+    public abstract NTType toNT(StartType startValue, Configuration config);
 
     /**
      * A function to map a NetworkTable type to the starting type
@@ -70,5 +71,5 @@ public abstract class Mapping<StartType, NTType> {
      * @return the value in the starting type
      * @see UnitMappings
      */
-    public abstract StartType toField(NTType ntValue, String config);
+    public abstract StartType toStart(NTType ntValue, Configuration config);
 }

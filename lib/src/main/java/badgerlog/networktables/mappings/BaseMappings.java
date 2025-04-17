@@ -1,5 +1,6 @@
 package badgerlog.networktables.mappings;
 
+import badgerlog.entry.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 
 /**
@@ -15,12 +16,12 @@ public final class BaseMappings {
     public static Mapping<Double, Double> doubleMapping = new Mapping<>(double.class, double.class, NetworkTableType.kDouble) {
 
         @Override
-        public Double toNT(Double fieldValue, String config) {
-            return fieldValue;
+        public Double toNT(Double startValue, Configuration config) {
+            return startValue;
         }
 
         @Override
-        public Double toField(Double ntValue, String config) {
+        public Double toStart(Double ntValue, Configuration config) {
             return ntValue;
         }
     };
@@ -31,12 +32,12 @@ public final class BaseMappings {
     public static Mapping<Double, Double> double1Mapping = new Mapping<>(Double.class, Double.class, NetworkTableType.kDouble) {
 
         @Override
-        public Double toNT(Double fieldValue, String config) {
-            return fieldValue;
+        public Double toNT(Double startValue, Configuration config) {
+            return startValue;
         }
 
         @Override
-        public Double toField(Double ntValue, String config) {
+        public Double toStart(Double ntValue, Configuration config) {
             return ntValue;
         }
     };
@@ -47,12 +48,12 @@ public final class BaseMappings {
     public static Mapping<Boolean, Boolean> booleanMapping = new Mapping<>(boolean.class, boolean.class, NetworkTableType.kBoolean) {
 
         @Override
-        public Boolean toNT(Boolean fieldValue, String config) {
-            return fieldValue;
+        public Boolean toNT(Boolean startValue, Configuration config) {
+            return startValue;
         }
 
         @Override
-        public Boolean toField(Boolean ntValue, String config) {
+        public Boolean toStart(Boolean ntValue, Configuration config) {
             return ntValue;
         }
     };
@@ -63,12 +64,12 @@ public final class BaseMappings {
     public static Mapping<Boolean, Boolean> boolean1Mapping = new Mapping<>(Boolean.class, Boolean.class, NetworkTableType.kBoolean) {
 
         @Override
-        public Boolean toNT(Boolean fieldValue, String config) {
-            return fieldValue;
+        public Boolean toNT(Boolean startValue, Configuration config) {
+            return startValue;
         }
 
         @Override
-        public Boolean toField(Boolean ntValue, String config) {
+        public Boolean toStart(Boolean ntValue, Configuration config) {
             return ntValue;
         }
     };
@@ -79,12 +80,12 @@ public final class BaseMappings {
     public static Mapping<Integer, Double> integerMapping = new Mapping<>(int.class, double.class, NetworkTableType.kDouble) {
 
         @Override
-        public Double toNT(Integer fieldValue, String config) {
-            return fieldValue.doubleValue();
+        public Double toNT(Integer startValue, Configuration config) {
+            return startValue.doubleValue();
         }
 
         @Override
-        public Integer toField(Double ntValue, String config) {
+        public Integer toStart(Double ntValue, Configuration config) {
             return ntValue.intValue();
         }
     };
@@ -95,12 +96,12 @@ public final class BaseMappings {
     public static Mapping<Integer, Double> integer1Mapping = new Mapping<>(Integer.class, Double.class, NetworkTableType.kDouble) {
 
         @Override
-        public Double toNT(Integer fieldValue, String config) {
-            return fieldValue.doubleValue();
+        public Double toNT(Integer startValue, Configuration config) {
+            return startValue.doubleValue();
         }
 
         @Override
-        public Integer toField(Double ntValue, String config) {
+        public Integer toStart(Double ntValue, Configuration config) {
             return ntValue.intValue();
         }
     };
@@ -111,12 +112,12 @@ public final class BaseMappings {
     public static Mapping<String, String> stringMapping = new Mapping<>(String.class, String.class, NetworkTableType.kString) {
 
         @Override
-        public String toNT(String fieldValue, String config) {
-            return fieldValue;
+        public String toNT(String startValue, Configuration config) {
+            return startValue;
         }
 
         @Override
-        public String toField(String ntValue, String config) {
+        public String toStart(String ntValue, Configuration config) {
             return ntValue;
         }
     };
