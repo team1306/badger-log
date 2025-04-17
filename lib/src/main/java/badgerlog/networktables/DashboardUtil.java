@@ -3,16 +3,13 @@ package badgerlog.networktables;
 import badgerlog.entry.Entry;
 import badgerlog.entry.configuration.ConfigHandlerRegistry;
 import badgerlog.entry.configuration.Configuration;
-import badgerlog.entry.configuration.handlers.MultiUnitConversion;
 import badgerlog.networktables.mappings.MappingType;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.sql.Driver;
 import java.util.Arrays;
 
 /**
@@ -69,29 +66,30 @@ public final class DashboardUtil {
 
     /**
      * Warns if there is an incorrect configuration value given the list of accepted configs and the type
-     * @param type the type to display
-     * @param config the config to check
+     *
+     * @param type            the type to display
+     * @param config          the config to check
      * @param acceptedConfigs the list of accepted configs
      */
     public static void warnIfIncorrectConfig(String type, String config, String... acceptedConfigs) {
         if (config == null || acceptedConfigs.length == 0) return;
-        if(Arrays.stream(acceptedConfigs).noneMatch((string) -> string.equals(config))){
+        if (Arrays.stream(acceptedConfigs).noneMatch((string) -> string.equals(config))) {
             String message = String.format("A configuration with type: %s is incorrect, using default type.\nConfig option: %s\nAccepted config options: %s", type, config, Arrays.toString(acceptedConfigs));
-            DriverStation.reportError(message, false);     
+            DriverStation.reportError(message, false);
         }
     }
-    
+
     public static Configuration createConfigurationFromField(Field field) {
         Configuration config = new Configuration();
         Annotation[] annotations = field.getDeclaredAnnotations();
-        for(Annotation annotation : annotations) {
+        for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);
         }
         return config;
     }
-    
+
     private static <T extends Annotation> void handleAnnotation(T annotation, Configuration config) {
-        if(!ConfigHandlerRegistry.hasValidHandler(annotation.annotationType())) return;
+        if (!ConfigHandlerRegistry.hasValidHandler(annotation.annotationType())) return;
         ConfigHandlerRegistry.getHandler((Class<T>) annotation.annotationType()).process(annotation, config);
     }
 }

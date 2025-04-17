@@ -23,14 +23,14 @@ public class TransformMappings {
         @Override
         public Double toNT(Rotation2d startValue, Configuration config) {
             UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
-            
+
             return converter.convertTo(startValue.getMeasure());
         }
 
         @Override
         public Rotation2d toStart(Double ntValue, Configuration config) {
             UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
-            
+
             return new Rotation2d((Angle) converter.convertFrom(ntValue));
         }
     };
@@ -70,7 +70,7 @@ public class TransformMappings {
         @Override
         public double[] toNT(Translation3d startValue, Configuration config) {
             UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
-            
+
             double[] result = new double[3];
             result[0] = converter.convertTo(startValue.getMeasureX());
             result[1] = converter.convertTo(startValue.getMeasureY());
@@ -150,7 +150,7 @@ public class TransformMappings {
             result[0] = startValue.dx;
             result[1] = startValue.dy;
             result[2] = startValue.dz;
-            
+
             result[3] = converter.convertTo(Radians.of(startValue.rx));
             result[4] = converter.convertTo(Radians.of(startValue.ry));
             result[5] = converter.convertTo(Radians.of(startValue.rz));
@@ -162,11 +162,11 @@ public class TransformMappings {
             UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
 
             double dx = ntValue[0], dy = ntValue[1], dz = ntValue[2];
-            
+
             double rx = converter.convertFrom(ntValue[3]).in(Radians);
             double ry = converter.convertFrom(ntValue[4]).in(Radians);
             double rz = converter.convertFrom(ntValue[5]).in(Radians);
-            
+
             return new Twist3d(dx, dy, dz, rx, ry, rz);
         }
     };
@@ -185,20 +185,20 @@ public class TransformMappings {
             result[0] = translationConverter.convertTo(startValue.getMeasureX());
             result[1] = translationConverter.convertTo(startValue.getMeasureY());
             result[2] = rotationConverter.convertTo(startValue.getRotation().getMeasure());
-            
-            return result;   
+
+            return result;
         }
 
         @Override
         public Pose2d toStart(double[] ntValue, Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
-            
+
             Distance x = (Distance) translationConverter.convertFrom(ntValue[0]);
             Distance y = (Distance) translationConverter.convertFrom(ntValue[1]);
 
             Angle rotation = (Angle) rotationConverter.convertFrom(ntValue[2]);
-            
+
             return new Pose2d(x, y, new Rotation2d(rotation));
         }
     };
@@ -211,7 +211,7 @@ public class TransformMappings {
         public double[] toNT(Pose3d startValue, Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
-            
+
             double[] result = new double[6];
             result[0] = translationConverter.convertTo(startValue.getMeasureX());
             result[1] = translationConverter.convertTo(startValue.getMeasureY());
@@ -228,7 +228,7 @@ public class TransformMappings {
         public Pose3d toStart(double[] ntValue, Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
-            
+
             Distance x = (Distance) translationConverter.convertFrom(ntValue[0]);
             Distance y = (Distance) translationConverter.convertFrom(ntValue[1]);
             Distance z = (Distance) translationConverter.convertFrom(ntValue[2]);

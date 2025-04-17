@@ -11,5 +11,6 @@ import java.lang.annotation.*;
 
 public @interface UnitConversion {
     String value();
+
     String converterId() default "";
 }

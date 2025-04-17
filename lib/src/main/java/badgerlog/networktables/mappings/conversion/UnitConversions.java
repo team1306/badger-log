@@ -23,7 +23,8 @@ public class UnitConversions {
     }
 
     public static double convert(double value, String fromUnit, String toUnit) {
-        if(units.get(fromUnit) == null || units.get(toUnit) == null) throw new IllegalArgumentException(String.format("Unit types: (%s) and (%s) may not exist", fromUnit, toUnit));
+        if (units.get(fromUnit) == null || units.get(toUnit) == null)
+            throw new IllegalArgumentException(String.format("Unit types: (%s) and (%s) may not exist", fromUnit, toUnit));
         return convert(value, units.get(fromUnit), units.get(toUnit));
     }
 
@@ -46,24 +47,26 @@ public class UnitConversions {
             }
         };
     }
-    
+
     public static <T extends Unit> UnitConverter<T> createConverter(String toUnit) {
-        if(units.get(toUnit) == null) throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", toUnit));
+        if (units.get(toUnit) == null)
+            throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", toUnit));
         return createConverter((T) units.get(toUnit));
     }
-    
-    public static UnitConverter<DistanceUnit> initializeDistanceConverter(UnitConverter<DistanceUnit> converter){
+
+    public static UnitConverter<DistanceUnit> initializeDistanceConverter(UnitConverter<DistanceUnit> converter) {
         return initializeUnitConverter(converter, Meters);
     }
 
-    public static UnitConverter<AngleUnit> initializeRotationConverter(UnitConverter<AngleUnit> converter){
+    public static UnitConverter<AngleUnit> initializeRotationConverter(UnitConverter<AngleUnit> converter) {
         return initializeUnitConverter(converter, Radians);
     }
-    
-    public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit){
-        if(converter == null) return createConverter(defaultUnit);
+
+    public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit) {
+        if (converter == null) return createConverter(defaultUnit);
         Measure<T> converterValue = converter.convertFrom(0);
-        if(!converterValue.baseUnit().equivalent(defaultUnit.getBaseUnit())) throw new IllegalArgumentException(String.format("Base unit types: (%s) and (%s) do not match", converterValue.baseUnit().name(), defaultUnit.getBaseUnit().name()));
+        if (!converterValue.baseUnit().equivalent(defaultUnit.getBaseUnit()))
+            throw new IllegalArgumentException(String.format("Base unit types: (%s) and (%s) do not match", converterValue.baseUnit().name(), defaultUnit.getBaseUnit().name()));
         else return converter;
     }
 } 

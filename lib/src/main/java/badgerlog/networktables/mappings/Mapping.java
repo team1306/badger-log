@@ -15,17 +15,20 @@ import lombok.Getter;
 public abstract class Mapping<StartType, NTType> {
     /**
      * The starting type as a {@link Class}
+     *
      * @return the starting type
      */
     private final Class<StartType> fieldType;
     /**
      * The {@link NetworkTableType} as a {@link Class}
+     *
      * @return the type on NetworkTables
      */
     private final Class<NTType> tableType;
 
     /**
      * The {@link NetworkTableType} for NetworkTables
+     *
      * @return the NetworkTableType
      */
     private final NetworkTableType networkTableType;

@@ -27,7 +27,7 @@ public final class StructValueEntry<T> implements Subscriber<T>, Publisher<T> {
         entry = Dashboard.defaultTable.getStructTopic(key, struct).getEntry(defaultValue);
         publishValue(defaultValue);
     }
-    
+
     @Override
     public void publishValue(T value) {
         entry.set(value);

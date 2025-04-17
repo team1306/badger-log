@@ -1,7 +1,6 @@
 package badgerlog.networktables.entries.subscriber;
 
 import badgerlog.Dashboard;
-import badgerlog.DashboardConfig;
 import badgerlog.StructOptions;
 import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.entries.StructValueEntry;
@@ -19,10 +18,10 @@ public final class SubscriberFactory {
     /**
      * Factory method to create a {@link Subscriber} from existing mappings and implementations of Subscriber
      *
-     * @param key             the key for the subscriber on NetworkTables
-     * @param value           the initial value for the subscriber--gets put to NetworkTables as the default value
-     * @param config          the configuration for value entries
-     * @param <T>             the starting type before mapping
+     * @param key    the key for the subscriber on NetworkTables
+     * @param value  the initial value for the subscriber--gets put to NetworkTables as the default value
+     * @param config the configuration for value entries
+     * @param <T>    the starting type before mapping
      * @return a Subscriber with the correct initialization
      * @see ValueSubscriber
      */
@@ -34,7 +33,7 @@ public final class SubscriberFactory {
         if (StructSerializable.class.isAssignableFrom(valueTypeClass)) {
             Struct<T> struct = (Struct<T>) valueTypeClass.getField("struct").get(null);
             StructOptions option = config.getStructOptions() == null ? Dashboard.config.getStructOptions() : config.getStructOptions();
-            
+
             return switch (option) {
                 case STRUCT -> new StructValueEntry<>(key, struct, value);
                 case SUB_TABLE -> new SubtableSubscriber<>(key, struct, value);

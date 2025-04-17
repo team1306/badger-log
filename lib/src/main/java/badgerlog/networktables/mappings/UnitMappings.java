@@ -4,7 +4,8 @@ import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.mappings.conversion.UnitConversions;
 import badgerlog.networktables.mappings.conversion.UnitConverter;
 import edu.wpi.first.networktables.NetworkTableType;
-import edu.wpi.first.units.*;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.*;
 
 import static edu.wpi.first.units.Units.*;
@@ -14,7 +15,7 @@ import static edu.wpi.first.units.Units.*;
  */
 public final class UnitMappings {
 
-    
+
     /**
      * Mapping of {@link Distance} to {@link Double}
      */
@@ -134,7 +135,7 @@ public final class UnitMappings {
      */
     @MappingType
     public static Mapping<Temperature, Double> temperatureMapping = createMeasureMapping(Celsius, Temperature.class);
-    
+
     private static <T extends Unit, N extends Measure<T>> Mapping<N, Double> createMeasureMapping(T defaultUnit, Class<N> measureType) {
         return new Mapping<>(measureType, double.class, NetworkTableType.kDouble) {
             @Override

@@ -13,7 +13,7 @@ import lombok.Getter;
  * <li>structOptions: The type of {@link Publisher} to use for a {@link Struct}.
  * <li>basePackages: The base package for ClassGraph to scan through.
  * </ul>
- * 
+ *
  * @see StructOptions
  */
 @Getter
@@ -43,19 +43,22 @@ public final class DashboardConfig {
 
     /**
      * Get the base key for BadgerLog on NetworkTables
+     *
      * @return the key for the table on NetworkTables
      */
     private String baseTableKey = "BadgerLog";
 
     /**
      * Get the options to publish {@link Struct} to NetworkTables
-     * @see StructOptions
+     *
      * @return the StructOptions to use
+     * @see StructOptions
      */
     private StructOptions structOptions = StructOptions.SUB_TABLE;
 
     /**
      * Get the list of packages to scan for on initialization
+     *
      * @return an array of packages to scan
      */
     private String[] basePackages = {"frc.robot"};
@@ -99,5 +102,5 @@ public final class DashboardConfig {
         return this;
     }
 
-    
+
 }

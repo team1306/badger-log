@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 /**
- * 
  * This class is the base class for BadgerLog, providing methods for initialization, updating, and utility functions for NetworkTables.
  * <br>
  * <h2 style="font-size:13px;">Requirements for BadgerLog to function correctly</h2>
@@ -102,15 +101,16 @@ public final class Dashboard {
             var field = DashboardUtil.checkFieldValidity(fieldInfo);
 
             var entry = field.getAnnotation(Entry.class);
-            if(entry == null) {
+            if (entry == null) {
                 DriverStation.reportError("No entry found for field: " + field.getName(), true);
                 continue;
             }
             var fieldConfig = DashboardUtil.createConfigurationFromField(field);
             String key;
-            if (fieldConfig.getKey() == null || fieldConfig.getKey().isBlank()) key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
+            if (fieldConfig.getKey() == null || fieldConfig.getKey().isBlank())
+                key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
             else key = fieldConfig.getKey();
-            
+
             ntEntries.put(key, switch (entry.value()) {
                 case Publisher ->
                         new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
@@ -157,7 +157,7 @@ public final class Dashboard {
      */
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         checkDashboardInitialized();
-        
+
         return getNetworkTablesButton(key, eventLoop)
                 .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
@@ -199,11 +199,12 @@ public final class Dashboard {
 
     /**
      * Method to get a generic value from one on NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
-     * @param key the key for NetworkTables
+     *
+     * @param key          the key for NetworkTables
      * @param defaultValue the default value on NetworkTables
+     * @param <T>          the type of be subscribed to
      * @return the value on NetworkTables
-     * @param <T> the type of be subscribed to
-     * @see #getValue(String, Object, Configuration) 
+     * @see #getValue(String, Object, Configuration)
      */
     public static <T> T getValue(String key, T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
@@ -211,11 +212,12 @@ public final class Dashboard {
 
     /**
      * Method to get a generic value from one on NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
-     * @param key the key for NetworkTables
+     *
+     * @param key          the key for NetworkTables
      * @param defaultValue the default value on NetworkTables
-     * @param config the config option 
+     * @param config       the config option
+     * @param <T>          the type of be subscribed to
      * @return the value on NetworkTables
-     * @param <T> the type of be subscribed to
      */
     @SuppressWarnings("unchecked")
     public static <T> T getValue(String key, T defaultValue, Configuration config) {
@@ -224,11 +226,10 @@ public final class Dashboard {
         if (!singleUseSubscribers.containsKey(key)) {
             subscriber = SubscriberFactory.getSubscriberFromValue(key, defaultValue, config);
             singleUseSubscribers.put(key, subscriber);
-        }
-        else{
+        } else {
             subscriber = (Subscriber<T>) singleUseSubscribers.get(key);
         }
-        
+
         return subscriber.retrieveValue();
     }
 

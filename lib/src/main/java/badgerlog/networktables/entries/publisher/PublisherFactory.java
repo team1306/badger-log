@@ -1,7 +1,6 @@
 package badgerlog.networktables.entries.publisher;
 
 import badgerlog.Dashboard;
-import badgerlog.DashboardConfig;
 import badgerlog.StructOptions;
 import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.entries.StructValueEntry;
@@ -19,10 +18,10 @@ public final class PublisherFactory {
     /**
      * Factory method to create a {@link Publisher} from existing mappings and implementations of Publisher
      *
-     * @param key             the key for the publisher on NetworkTables
-     * @param value           the initial value for the publisher
-     * @param config          the configuration for value entries
-     * @param <T>             the starting type before mapping
+     * @param key    the key for the publisher on NetworkTables
+     * @param value  the initial value for the publisher
+     * @param config the configuration for value entries
+     * @param <T>    the starting type before mapping
      * @return a {@link Publisher} with the correct initialization
      * @see ValuePublisher
      */
@@ -34,7 +33,7 @@ public final class PublisherFactory {
         if (StructSerializable.class.isAssignableFrom(valueTypeClass)) {
             Struct<T> struct = (Struct<T>) valueTypeClass.getField("struct").get(null);
             StructOptions option = config.getStructOptions() == null ? Dashboard.config.getStructOptions() : config.getStructOptions();
-            
+
             return switch (option) {
                 case STRUCT -> new StructValueEntry<>(key, struct, value);
                 case SUB_TABLE -> new SubtablePublisher<>(key, struct);
