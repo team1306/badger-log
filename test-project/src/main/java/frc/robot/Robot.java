@@ -7,9 +7,20 @@ package frc.robot;
 
 import badgerlog.Dashboard;
 import badgerlog.DashboardConfig;
+import badgerlog.StructOptions;
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
+import badgerlog.entry.configuration.handlers.Key;
+import badgerlog.entry.configuration.handlers.StructType;
+import badgerlog.entry.configuration.handlers.UnitConversion;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import static edu.wpi.first.units.Units.Hertz;
 
 public class Robot extends TimedRobot
 {
@@ -17,19 +28,30 @@ public class Robot extends TimedRobot
     
     private final RobotContainer robotContainer;
     
+    @Entry(EntryType.Publisher)
+    @Key("testkey")
+    @UnitConversion("Millihertz")
+    private static Frequency test = Hertz.of(1);
+    
+    @Entry(EntryType.Publisher)
+    @UnitConversion(value = "Inch", converterId = "translation")
+    @UnitConversion(value = "Rotation", converterId = "rotation")
+    @StructType(StructOptions.MAPPING)
+    private static Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
+    
     public Robot()
     {
         Dashboard.initialize(DashboardConfig.defaultConfig);
         robotContainer = new RobotContainer();
-        UnitEntries unitEntries = new UnitEntries();
-        StructEntries structEntries = new StructEntries();
-        DashboardMethods dashboardMethods = new DashboardMethods();
-        dashboardMethods.init();
-        addPeriodic(() -> {
-            unitEntries.update();
-            structEntries.update();
-            dashboardMethods.update();
-        }, 0.5);
+//        UnitEntries unitEntries = new UnitEntries();
+//        StructEntries structEntries = new StructEntries();
+//        DashboardMethods dashboardMethods = new DashboardMethods();
+//        dashboardMethods.init();
+//        addPeriodic(() -> {
+//            unitEntries.update();
+//            structEntries.update();
+//            dashboardMethods.update();
+//        }, 0.5);
     }
     
     
