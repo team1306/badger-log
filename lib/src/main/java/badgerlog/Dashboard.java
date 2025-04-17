@@ -1,7 +1,7 @@
 package badgerlog;
 
-import badgerlog.entry.Config;
 import badgerlog.entry.Entry;
+import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.DashboardUtil;
 import badgerlog.networktables.Updater;
 import badgerlog.networktables.entries.SendableEntry;
@@ -17,6 +17,7 @@ import badgerlog.networktables.mappings.MappingType;
 import badgerlog.networktables.mappings.Mappings;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -101,19 +102,20 @@ public final class Dashboard {
             var field = DashboardUtil.checkFieldValidity(fieldInfo);
 
             var entry = field.getAnnotation(Entry.class);
-            var key = entry.key();
-            if (key.isEmpty()) key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
+            if(entry == null) {
+                DriverStation.reportError("No entry found for field: " + field.getName(), true);
+                continue;
+            }
+            var fieldConfig = DashboardUtil.createConfigurationFromField(field);
+            String key;
+            if (fieldConfig.getKey() == null || fieldConfig.getKey().isBlank()) key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
+            else key = fieldConfig.getKey();
             
-            var structType = entry.structOptions();
-
-            String fieldConfig = null;
-            if (fieldInfo.hasAnnotation(Config.class)) fieldConfig = field.getAnnotation(Config.class).value();
-
-            ntEntries.put(key, switch (entry.type()) {
+            ntEntries.put(key, switch (entry.value()) {
                 case Publisher ->
-                        new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig, structType), () -> DashboardUtil.getFieldValue(field));
+                        new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
                 case Subscriber ->
-                        new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig, structType), value -> DashboardUtil.setFieldValue(field, value));
+                        new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
                 case Sendable -> new SendableEntry(key, DashboardUtil.getFieldValue(field));
             });
         }
@@ -166,10 +168,10 @@ public final class Dashboard {
      * @param key   the key for NetworkTables
      * @param value the value to be published
      * @param <T>   the type to be published
-     * @see #putValue(String, Object, String)
+     * @see #putValue(String, Object, Configuration)
      */
     public static <T> void putValue(String key, T value) {
-        putValue(key, value, null);
+        putValue(key, value, new Configuration());
     }
 
     /**
@@ -181,12 +183,12 @@ public final class Dashboard {
      * @param <T>    the type to be published
      */
     @SuppressWarnings("unchecked")
-    public static <T> void putValue(String key, T value, String config) {
+    public static <T> void putValue(String key, T value, Configuration config) {
         checkDashboardInitialized();
 
         Publisher<T> publisher;
         if (!singleUsePublishers.containsKey(key)) {
-            publisher = PublisherFactory.getPublisherFromValue(key, value, config, DashboardConfig.StructOptions.DEFAULT);
+            publisher = PublisherFactory.getPublisherFromValue(key, value, config);
             singleUsePublishers.put(key, publisher);
         } else {
             publisher = (Publisher<T>) singleUsePublishers.get(key);
@@ -201,10 +203,10 @@ public final class Dashboard {
      * @param defaultValue the default value on NetworkTables
      * @return the value on NetworkTables
      * @param <T> the type of be subscribed to
-     * @see #getValue(String, Object, String) 
+     * @see #getValue(String, Object, Configuration) 
      */
     public static <T> T getValue(String key, T defaultValue) {
-        return getValue(key, defaultValue, null);
+        return getValue(key, defaultValue, new Configuration());
     }
 
     /**
@@ -216,11 +218,11 @@ public final class Dashboard {
      * @param <T> the type of be subscribed to
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getValue(String key, T defaultValue, String config) {
+    public static <T> T getValue(String key, T defaultValue, Configuration config) {
         checkDashboardInitialized();
         Subscriber<T> subscriber;
         if (!singleUseSubscribers.containsKey(key)) {
-            subscriber = SubscriberFactory.getSubscriberFromValue(key, defaultValue, config, DashboardConfig.StructOptions.DEFAULT);
+            subscriber = SubscriberFactory.getSubscriberFromValue(key, defaultValue, config);
             singleUseSubscribers.put(key, subscriber);
         }
         else{
