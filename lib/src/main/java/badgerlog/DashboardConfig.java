@@ -99,25 +99,5 @@ public final class DashboardConfig {
         return this;
     }
 
-    /**
-     * Options for changing how {@link Struct} are published to NetworkTables
-     */
-    public enum StructOptions {
-        /**
-         * Publish the struct as is and registering the schema with NetworkTables
-         */
-        STRUCT,
-        /**
-         * Publish the struct as a collection of subtables
-         */
-        SUB_TABLE,
-        /**
-         * Publish the struct as a value mapped to a NetworkTableType
-         */
-        MAPPING,
-        /**
-         * Publish the struct according to the default option
-         */
-        DEFAULT
-    }
+    
 }
