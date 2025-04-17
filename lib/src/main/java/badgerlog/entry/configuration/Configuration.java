@@ -1,7 +1,6 @@
 package badgerlog.entry.configuration;
 
 import badgerlog.StructOptions;
-import badgerlog.entry.configuration.handlers.UseTypes;
 import badgerlog.networktables.mappings.conversion.UnitConverter;
 import edu.wpi.first.units.Unit;
 import lombok.Getter;
@@ -16,7 +15,6 @@ public class Configuration {
     private final HashMap<String, UnitConverter<?>> converters = new HashMap<>();
     private String key = null;
     private StructOptions structOptions = null;
-    private UseTypes useType = null;
 
     public <T extends Unit> @Nullable UnitConverter<T> getConverter(String id) {
         return (UnitConverter<T>) converters.get(id);
@@ -41,10 +39,6 @@ public class Configuration {
         return this;
     }
 
-    public Configuration withUseType(UseTypes useType) {
-        this.useType = useType;
-        return this;
-    }
 
     public Configuration withConfiguration(String key, String value) {
         this.configurations.put(key, value);

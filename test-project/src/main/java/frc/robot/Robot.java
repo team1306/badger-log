@@ -10,11 +10,10 @@ import badgerlog.DashboardConfig;
 import badgerlog.StructOptions;
 import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
-import badgerlog.entry.configuration.handlers.Key;
-import badgerlog.entry.configuration.handlers.StructType;
-import badgerlog.entry.configuration.handlers.UnitConversion;
+import badgerlog.entry.configuration.handlers.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,6 +38,9 @@ public class Robot extends TimedRobot
     @StructType(StructOptions.MAPPING)
     private static Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
     
+    @Entry(EntryType.Publisher)
+    private static double tester = 0;
+    
     public Robot()
     {
         Dashboard.initialize(DashboardConfig.defaultConfig);
@@ -60,6 +62,9 @@ public class Robot extends TimedRobot
     {
         Dashboard.update();
         CommandScheduler.getInstance().run();
+        pose2d = pose2d.plus(new Transform2d(0, Math.random(), Rotation2d.k180deg));
+        tester+= 0.1;
+        test = test.plus(Hertz.of(0.001));
     }
     
     

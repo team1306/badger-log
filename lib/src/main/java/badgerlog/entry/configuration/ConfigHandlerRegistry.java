@@ -12,7 +12,6 @@ public class ConfigHandlerRegistry {
     static {
         registerHandler(StructType.class, new StructTypeHandler());
         registerHandler(UnitConversion.class, new UnitConversionHandler());
-        registerHandler(UseType.class, new UseTypeHandler());
         registerHandler(MultiUnitConversion.class, new MultiUnitConversionHandler());
         registerHandler(Key.class, new KeyHandler());
     }

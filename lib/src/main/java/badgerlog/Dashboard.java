@@ -17,6 +17,7 @@ import badgerlog.networktables.mappings.MappingType;
 import badgerlog.networktables.mappings.Mappings;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -102,7 +103,7 @@ public final class Dashboard {
 
             var entry = field.getAnnotation(Entry.class);
             if (entry == null) {
-                DriverStation.reportError("No entry found for field: " + field.getName(), true);
+                DriverStation.reportError("No entry annotation found for field: " + field.getName(), true);
                 continue;
             }
             var fieldConfig = DashboardUtil.createConfigurationFromField(field);
@@ -232,7 +233,11 @@ public final class Dashboard {
 
         return subscriber.retrieveValue();
     }
-
+    
+    public static void putSendable(String key, Sendable sendable) {
+        if(ntEntries.containsKey(key)) return;
+        ntEntries.put(key, new SendableEntry(key, sendable));
+    }
 
     private static void checkDashboardInitialized() {
         if (!isInitialized)
