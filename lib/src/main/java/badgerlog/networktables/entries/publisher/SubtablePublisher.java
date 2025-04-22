@@ -1,5 +1,6 @@
 package badgerlog.networktables.entries.publisher;
 
+import com.google.common.base.Splitter;
 import edu.wpi.first.util.struct.Struct;
 
 import java.nio.ByteBuffer;
@@ -59,10 +60,9 @@ public final class SubtablePublisher<T> implements Publisher<T> {
             createPublishers(nestedStruct, currentKey + "/" + nestedStruct.getTypeName());
         }
 
-        for (String part : baseStruct.getSchema().split(";")) {
+        for (String part : Splitter.on(";").splitToList(baseStruct.getSchema())) {
             if (!part.startsWith("double")) continue;
-
-            publishers.add(new ValuePublisher<>(currentKey + "/" + part.split(" ")[1], double.class, null));
+            publishers.add(new ValuePublisher<>(currentKey + "/" + Splitter.on(" ").splitToList(part).get(1), double.class, null));
         }
     }
 }

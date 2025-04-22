@@ -3,6 +3,9 @@ package badgerlog.networktables.mappings;
 import badgerlog.entry.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
+import org.jetbrains.annotations.Contract;
+
+import javax.annotation.Nonnull;
 
 /**
  * Class to map an arbitrary type to a {@link NetworkTableType}
@@ -40,7 +43,7 @@ public abstract class Mapping<StartType, NTType> {
      * @param tableType the type on NetworkTables
      * @param ntType    the {@link NetworkTableType}
      */
-    public Mapping(Class<StartType> startType, Class<NTType> tableType, NetworkTableType ntType) {
+    public Mapping(@Nonnull Class<StartType> startType, @Nonnull Class<NTType> tableType, @Nonnull NetworkTableType ntType) {
         this.fieldType = startType;
         this.tableType = tableType;
         this.networkTableType = ntType;
@@ -52,8 +55,9 @@ public abstract class Mapping<StartType, NTType> {
      * @param fieldType the starting type
      * @return if this {@link Mapping} matches the type given
      */
+    @Contract("null -> false")
     public boolean matches(Class<?> fieldType) {
-        return this.fieldType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.fieldType);
+        return fieldType != null && (this.fieldType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.fieldType));
     }
 
     /**
@@ -64,7 +68,7 @@ public abstract class Mapping<StartType, NTType> {
      * @return the value in the NetworkTable type
      * @see UnitMappings
      */
-    public abstract NTType toNT(StartType startValue, Configuration config);
+    public abstract NTType toNT(@Nonnull StartType startValue, @Nonnull Configuration config);
 
     /**
      * A function to map a NetworkTable type to the starting type
@@ -74,5 +78,5 @@ public abstract class Mapping<StartType, NTType> {
      * @return the value in the starting type
      * @see UnitMappings
      */
-    public abstract StartType toStart(NTType ntValue, Configuration config);
+    public abstract StartType toStart(@Nonnull NTType ntValue, @Nonnull Configuration config);
 }

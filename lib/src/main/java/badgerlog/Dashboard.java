@@ -27,6 +27,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -71,7 +72,7 @@ public final class Dashboard {
      * @param config the configuration for BadgerLog to use
      */
     @SneakyThrows({InterruptedException.class, ExecutionException.class})
-    public static void initialize(DashboardConfig config) {
+    public static void initialize(@Nonnull DashboardConfig config) {
         Dashboard.config = config;
         defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
         if (isInitialized) return;
@@ -117,7 +118,7 @@ public final class Dashboard {
                         new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
                 case Subscriber ->
                         new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
-                case Sendable -> new SendableEntry(key, DashboardUtil.getFieldValue(field));
+                case Sendable -> new SendableEntry(key, (Sendable) DashboardUtil.getFieldValue(field));
             });
         }
         result.close();
@@ -141,7 +142,7 @@ public final class Dashboard {
      * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
      * @return the Trigger
      */
-    public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
+    public static Trigger getNetworkTablesButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
         checkDashboardInitialized();
 
         var subscriber = new ValueSubscriber<>(key, boolean.class, false, null);
@@ -156,7 +157,7 @@ public final class Dashboard {
      * @return the Trigger that auto resets the NetworkTables value after 0.25s
      * @see #getNetworkTablesButton
      */
-    public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
+    public static Trigger getAutoResettingButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
         checkDashboardInitialized();
 
         return getNetworkTablesButton(key, eventLoop)
@@ -171,7 +172,7 @@ public final class Dashboard {
      * @param <T>   the type to be published
      * @see #putValue(String, Object, Configuration)
      */
-    public static <T> void putValue(String key, T value) {
+    public static <T> void putValue(@Nonnull String key, @Nonnull T value) {
         putValue(key, value, new Configuration());
     }
 
@@ -184,7 +185,7 @@ public final class Dashboard {
      * @param <T>    the type to be published
      */
     @SuppressWarnings("unchecked")
-    public static <T> void putValue(String key, T value, Configuration config) {
+    public static <T> void putValue(@Nonnull String key, @Nonnull T value, @Nonnull Configuration config) {
         checkDashboardInitialized();
 
         Publisher<T> publisher;
@@ -207,7 +208,7 @@ public final class Dashboard {
      * @return the value on NetworkTables
      * @see #getValue(String, Object, Configuration)
      */
-    public static <T> T getValue(String key, T defaultValue) {
+    public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
     }
 
@@ -221,7 +222,7 @@ public final class Dashboard {
      * @return the value on NetworkTables
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getValue(String key, T defaultValue, Configuration config) {
+    public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue, @Nonnull Configuration config) {
         checkDashboardInitialized();
         Subscriber<T> subscriber;
         if (!singleUseSubscribers.containsKey(key)) {
@@ -234,7 +235,7 @@ public final class Dashboard {
         return subscriber.retrieveValue();
     }
     
-    public static void putSendable(String key, Sendable sendable) {
+    public static void putSendable(@Nonnull String key, @Nonnull Sendable sendable) {
         if(ntEntries.containsKey(key)) return;
         ntEntries.put(key, new SendableEntry(key, sendable));
     }

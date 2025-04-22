@@ -4,32 +4,13 @@ plugins {
     id("io.freefair.lombok") version "8.12.2.1"
     id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.+'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id("net.ltgt.errorprone") version "4.2.0"
 }
 
 group = 'team1306'
 
 repositories {
     mavenCentral()
-}
-
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-}
-
-test {
-    useJUnitPlatform()
-}
-
-tasks.withType(Javadoc) {
-    options {
-        docTitle = "BadgerLog Javadoc"
-    }
-}
-
-tasks.withType(JavaCompile) {
-    options.compilerArgs << '-Xlint:processing'
 }
 
 if (project.hasProperty('releaseMode')) {
@@ -52,6 +33,12 @@ dependencies {
 
     compileOnly 'com.google.auto.service:auto-service:1.1.1'
     annotationProcessor 'com.google.auto.service:auto-service:1.1.1'
+
+    errorprone("com.google.errorprone:error_prone_core:2.37.0")
+    implementation 'org.jetbrains:annotations:24.0.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
 publishing {
@@ -80,6 +67,20 @@ jar {
         }
     }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:processing'
+}
+
+tasks.withType(Javadoc) {
+    options {
+        docTitle = "BadgerLog Javadoc"
+    }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 apply plugin: 'groovy'

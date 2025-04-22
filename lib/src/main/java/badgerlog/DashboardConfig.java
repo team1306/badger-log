@@ -5,6 +5,8 @@ import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 
+import javax.annotation.Nonnull;
+
 /**
  * Configuration options for BadgerLog.
  * <br>
@@ -73,7 +75,7 @@ public final class DashboardConfig {
      * @return the instance it was called with for method chaining
      * @see DashboardConfig
      */
-    public DashboardConfig withBaseTableKey(String defaultTableKey) {
+    public DashboardConfig withBaseTableKey(@Nonnull String defaultTableKey) {
         this.baseTableKey = defaultTableKey;
         return this;
     }
@@ -85,7 +87,7 @@ public final class DashboardConfig {
      * @return the instance it was called with for method chaining
      * @see StructOptions
      */
-    public DashboardConfig withStructOptions(StructOptions structOptions) {
+    public DashboardConfig withStructOptions(@Nonnull StructOptions structOptions) {
         this.structOptions = structOptions;
         return this;
     }

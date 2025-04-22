@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.*;
+import org.jetbrains.annotations.NotNull;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -139,13 +140,14 @@ public final class UnitMappings {
     private static <T extends Unit, N extends Measure<T>> Mapping<N, Double> createMeasureMapping(T defaultUnit, Class<N> measureType) {
         return new Mapping<>(measureType, double.class, NetworkTableType.kDouble) {
             @Override
-            public Double toNT(N startValue, Configuration config) {
+            public Double toNT(@NotNull N startValue, @NotNull Configuration config) {
                 UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config.getDefaultConverter(), defaultUnit);
                 return converter.convertTo(startValue);
             }
 
             @Override
-            public N toStart(Double ntValue, Configuration config) {
+            @SuppressWarnings("unchecked") // N has to be able to cast to Measure<T> to fulfill the generic requirement
+            public N toStart(@NotNull Double ntValue, @NotNull Configuration config) {
                 UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config.getDefaultConverter(), defaultUnit);
                 return (N) converter.convertFrom(ntValue);
             }

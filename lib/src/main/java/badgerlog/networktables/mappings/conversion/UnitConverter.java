@@ -3,8 +3,10 @@ package badgerlog.networktables.mappings.conversion;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 
-public interface UnitConverter<T extends Unit> {
-    double convertTo(Measure<T> value);
+import javax.annotation.Nonnull;
 
-    Measure<T> convertFrom(double value);
+public interface UnitConverter<T extends Unit> {
+    double convertTo(@Nonnull Measure<T> value);
+
+    @Nonnull Measure<T> convertFrom(double value);
 }

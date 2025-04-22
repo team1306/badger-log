@@ -64,7 +64,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 }
             }
         }
-        return true;
+        return false;
     }
 
     private void printErrorMessage(String message, Element element) {

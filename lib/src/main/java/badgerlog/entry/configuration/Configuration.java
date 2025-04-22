@@ -7,21 +7,26 @@ import lombok.Getter;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
-import java.util.Map;
 
-@Getter
 public class Configuration {
-    private final Map<String, String> configurations = new HashMap<>();
+    private final HashMap<String, String> configurations = new HashMap<>();
     private final HashMap<String, UnitConverter<?>> converters = new HashMap<>();
+    @Getter
     private String key = null;
+    @Getter
     private StructOptions structOptions = null;
 
+    @SuppressWarnings("unchecked") // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping 
     public <T extends Unit> @Nullable UnitConverter<T> getConverter(String id) {
         return (UnitConverter<T>) converters.get(id);
     }
 
     public <T extends Unit> @Nullable UnitConverter<T> getDefaultConverter() {
         return getConverter("");
+    }
+    
+    public @Nullable String getConfiguration(String key) {
+        return configurations.get(key);
     }
 
     public Configuration withKey(String key) {
