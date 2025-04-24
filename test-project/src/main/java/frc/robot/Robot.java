@@ -39,7 +39,7 @@ public class Robot extends TimedRobot
     private static Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
     
     @Entry(EntryType.Publisher)
-    private static double tester = 0;
+    private static double[] tester = {1, 2};
     
     public Robot()
     {
@@ -63,7 +63,6 @@ public class Robot extends TimedRobot
         Dashboard.update();
         CommandScheduler.getInstance().run();
         pose2d = pose2d.plus(new Transform2d(0, Math.random(), Rotation2d.k180deg));
-        tester+= 0.1;
         test = test.plus(Hertz.of(0.001));
     }
     
