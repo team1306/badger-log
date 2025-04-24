@@ -64,7 +64,7 @@ import java.util.concurrent.Executors;
  * <h2>Usage Requirements</h2>
  * <ul>
  *   <li>All types used with {@link #putValue} or {@link #getValue} must have a registered {@link Mapping}.</li>
- *   <li>Fields annotated with {@link Entry} must be non-final and static for auto-registration.</li>
+ *   <li>Fields annotated with {@link Entry} must be non-final, static, and initialized for auto-registration.</li>
  *   <li>NetworkTables keys must be unique to avoid conflicts.</li>
  * </ul>
  *
@@ -108,17 +108,14 @@ public final class Dashboard {
      *   <li>Automatic creation of publishers/subscribers for discovered fields</li>
      *   <li>Creation of type mappings for NetworkTables data conversions</li>
      * </ul>
-     *
-     * <h3>Requirements</h3>
+     * <p>
      * Must be called exactly once during robot initialization (typically in {@code Robot.robotInit}).
+     * <br /> <br />
+     * Requires all fields annotated with {@code Entry} or {@code MappingType} to be initialized, non-final and static. Access level does not matter. Package scanning
+     * configuration in {@code DashboardConfig} must include all packages with dashboard-related fields.
      *
      * @param config The configuration object
      * @throws IllegalStateException If annotated fields are improperly configured (uninitialized, non-static, or final)
-     * @throws ExecutionException    If classpath scanning fails to complete
-     * @throws InterruptedException  If thread interrupts occur during initialization
-     * @apiNote Requires all annotated fields to be initialized, non-final and static. Access level does not matter. Package scanning
-     * configuration in {@code DashboardConfig} must include all packages with dashboard-related fields.
-     * @implNote Not thread-safe - must be called from main robot thread during initialization phase
      * @see Entry
      * @see MappingType
      */
@@ -310,13 +307,12 @@ public final class Dashboard {
      *
      * <p><strong>Recommended Approach:</strong> Prefer using {@code @Entry(EntryType.Sendable)}
      * on Sendable fields for automatic discovery and lifecycle management.</p>
+     * <p>
+     * Subsequent calls with same key are ignored. Sendables added this way persist until application shutdown.
      *
      * @param key      The NetworkTables entry key
      * @param sendable The Sendable object to publish
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
-     * @apiNote Subsequent calls with same key are ignored. Sendables added this way persist until application shutdown.
-     * @implNote Does not require explicit update calls - Sendable entries automatically
-     * synchronize through WPILib's SendableRegistry
      * @see Entry
      */
     public static void putSendable(@Nonnull String key, @Nonnull Sendable sendable) {
