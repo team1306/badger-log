@@ -53,11 +53,11 @@ public final class DashboardUtil {
     public static Field checkFieldValidity(@Nonnull FieldInfo fieldInfo) {
         var field = fieldInfo.loadClassAndGetField();
         if (!fieldInfo.isStatic())
-            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be static");
+            throw new IllegalStateException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be static");
         if (fieldInfo.isFinal())
-            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must not be final");
+            throw new IllegalStateException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must not be final");
         if (DashboardUtil.getFieldValue(field) == null)
-            throw new IllegalArgumentException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be initialized");
+            throw new IllegalStateException("The field " + fieldInfo.getName() + " in " + fieldInfo.getClassName() + " must be initialized");
         return field;
     }
 

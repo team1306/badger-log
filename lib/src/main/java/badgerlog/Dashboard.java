@@ -33,20 +33,53 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 /**
- * This class is the base class for BadgerLog, providing methods for initialization, updating, and utility functions for NetworkTables.
- * <br>
- * <h2 style="font-size:13px;">Requirements for BadgerLog to function correctly</h2>
- * <ul>
- * <li> {@link #initialize(DashboardConfig)} must be called on robot initialization (Robot.robotInit) for BadgerLog to create the publishers and subscribers for NetworkTables.
- * <li> {@link #update()} must be called periodically (Robot.robotPeriodic) for values on NetworkTables to be updated
- * <li> Any values put to NetworkTables with {@link Entry} or {@link #putValue} must have an associated {@link Mapping} or an error will be thrown
- * </ul><br> <br>
+ * The {@code Dashboard} class serves as the main component of BadgerLog, providing a utility
+ * for interacting with WPILib's NetworkTables. It is intended as a modern replacement
+ * for WPILib's {@code SmartDashboard} with enhanced functionality.
+ * It facilitates automatic discovery and synchronization of
+ * fields annotated with {@link Entry}, manages publishers and subscribers, and offers utilities for
+ * NetworkTables events. This class is designed for static use and must be properly initialized
+ * before any operations.
  *
- * <h2 style="font-size:13px;">Additional Utilities BadgerLog has</h2>
+ * <h2>Key Functionalities</h2>
  * <ul>
- * <li> Create a {@link Trigger} bound to a NetworkTables boolean for events
- * <li> Put and get values to NetworkTables from a method
+ *   <li><b>Automatic Field Registration:</b> Discovers fields annotated with {@link Entry} and maps them
+ *       to NetworkTables entries as publishers, subscribers, or Sendable objects.</li>
+ *   <li><b>Organization of Entries:</b> Organizes fields annotated with {@link Entry} into subtables according to the containing class's name.</li>
+ *   <li><b>Type Mappings:</b> Uses {@link Mapping} configurations to map any type to a valid NetworkTable type.</li>
+ *   <li><b>Event Triggers:</b> Creates {@link Trigger} instances bound to NetworkTables boolean entries
+ *       for event logic.</li>
+ *   <li><b>Direct Interaction:</b> Provides methods like {@link #putValue} and {@link #getValue}
+ *       for easy switch from {@code SmartDashboard}.</li>
  * </ul>
+ *
+ * <h2>Initialization and Lifecycle</h2>
+ * <ul>
+ *   <li>{@link #initialize(DashboardConfig)} must be called during robot initialization (e.g., in
+ *       {@code Robot.robotInit}) to scan for annotated fields and set up NetworkTables entries.</li>
+ *   <li>{@link #update()} must be invoked periodically (e.g., in {@code Robot.robotPeriodic}) to refresh
+ *       NetworkTables values.</li>
+ * </ul>
+ *
+ * <h2>Usage Requirements</h2>
+ * <ul>
+ *   <li>All types used with {@link #putValue} or {@link #getValue} must have a registered {@link Mapping}.</li>
+ *   <li>Fields annotated with {@link Entry} must be non-final and static for auto-registration.</li>
+ *   <li>NetworkTables keys must be unique to avoid conflicts.</li>
+ * </ul>
+ *
+ * <h2>Example Use Cases</h2>
+ * <ul>
+ *   <li>Publishing sensor data to the dashboard via annotated fields.</li>
+ *   <li>Creating a trigger to execute commands when a boolean value changes in NetworkTables.</li>
+ * </ul>
+ *
+ * @see Entry
+ * @see Mapping
+ * @see Publisher
+ * @see Subscriber
+ * @see Trigger
+ * @see DashboardConfig
  */
 public final class Dashboard {
 
@@ -67,9 +100,27 @@ public final class Dashboard {
     }
 
     /**
-     * Initialize method used to register all the type mappings and find all fields annotated with {@link Entry}. This should be called on robot startup, usually Robot.robotInit
+     * Initializes BadgerLog.
+     * This method performs one-time setup including:
+     * <ul>
+     *   <li>Configuration of BadgerLog base table using provided {@link DashboardConfig}</li>
+     *   <li>Classpath scanning for fields annotated with {@link Entry} and {@link MappingType}</li>
+     *   <li>Automatic creation of publishers/subscribers for discovered fields</li>
+     *   <li>Creation of type mappings for NetworkTables data conversions</li>
+     * </ul>
      *
-     * @param config the configuration for BadgerLog to use
+     * <h3>Requirements</h3>
+     * Must be called exactly once during robot initialization (typically in {@code Robot.robotInit}).
+     *
+     * @param config The configuration object
+     * @throws IllegalStateException If annotated fields are improperly configured (uninitialized, non-static, or final)
+     * @throws ExecutionException    If classpath scanning fails to complete
+     * @throws InterruptedException  If thread interrupts occur during initialization
+     * @apiNote Requires all annotated fields to be initialized, non-final and static. Access level does not matter. Package scanning
+     * configuration in {@code DashboardConfig} must include all packages with dashboard-related fields.
+     * @implNote Not thread-safe - must be called from main robot thread during initialization phase
+     * @see Entry
+     * @see MappingType
      */
     @SneakyThrows({InterruptedException.class, ExecutionException.class})
     public static void initialize(@Nonnull DashboardConfig config) {
@@ -128,7 +179,10 @@ public final class Dashboard {
     }
 
     /**
-     * Method to update all values from BadgerLog in NetworkTables. This should be called in a periodic method, usually Robot.robotPeriodic
+     * Updates all registered NetworkTables entries with current values. This method must be called
+     * periodically (typically in {@code Robot.robotPeriodic}) to update fields and NetworkTable values.
+     *
+     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      */
     public static void update() {
         checkDashboardInitialized();
@@ -136,11 +190,14 @@ public final class Dashboard {
     }
 
     /**
-     * Method to get a {@link Trigger} bound to a NetworkTables boolean to all for a 'button' on NetworkTables
+     * Creates a {@link Trigger} bound to a boolean NetworkTables entry.
      *
-     * @param key       the key for the subscriber
-     * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
-     * @return the Trigger
+     * @param key       The NetworkTables entry key
+     * @param eventLoop The {@link EventLoop} to associate with the trigger for event polling
+     * @return A trigger bound to the boolean NetworkTables entry's state
+     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
+     * @see Trigger
+     * @see EventLoop
      */
     public static Trigger getNetworkTablesButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
         checkDashboardInitialized();
@@ -150,12 +207,14 @@ public final class Dashboard {
     }
 
     /**
-     * Method to get a {@link Trigger} that auto resets after 0.25s
+     * Creates a {@link Trigger} that automatically resets its associated boolean NetworkTables entry
+     * to {@code false} 0.25 seconds after activation.
      *
-     * @param key       the key for the subscriber
-     * @param eventLoop the {@link EventLoop} for the Trigger to be bound to
-     * @return the Trigger that auto resets the NetworkTables value after 0.25s
-     * @see #getNetworkTablesButton
+     * @param key       The NetworkTables entry key
+     * @param eventLoop The {@link EventLoop} to associate with the trigger for event polling
+     * @return A trigger that automatically resets the NetworkTables value after activation
+     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
+     * @see #getNetworkTablesButton(String, EventLoop)
      */
     public static Trigger getAutoResettingButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
         checkDashboardInitialized();
@@ -165,24 +224,30 @@ public final class Dashboard {
     }
 
     /**
-     * Method to put a generic value to NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown
+     * Immediately publish a value to NetworkTables using the specified key using the default configuration.
      *
-     * @param key   the key for NetworkTables
-     * @param value the value to be published
-     * @param <T>   the type to be published
+     * @param key   The NetworkTables entry key
+     * @param value The value to publish.
+     * @param <T>   The data type to publish
+     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #putValue(String, Object, Configuration)
+     * @see Mapping
+     * @see Configuration
      */
     public static <T> void putValue(@Nonnull String key, @Nonnull T value) {
         putValue(key, value, new Configuration());
     }
 
     /**
-     * Method to put a generic value to NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
+     * Immediately publish a value to NetworkTables using the specified key.
      *
-     * @param key    the key for NetworkTables
-     * @param value  the value to be published
-     * @param config configuration options for {@link Mapping} types
-     * @param <T>    the type to be published
+     * @param key    The NetworkTables entry key
+     * @param value  The value to publish.
+     * @param config Configuration parameters
+     * @param <T>    The data type to publish
+     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
+     * @see #putValue(String, Object)
+     * @see PublisherFactory
      */
     @SuppressWarnings("unchecked")
     public static <T> void putValue(@Nonnull String key, @Nonnull T value, @Nonnull Configuration config) {
@@ -200,26 +265,31 @@ public final class Dashboard {
     }
 
     /**
-     * Method to get a generic value from one on NetworkTables at the specified key. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
+     * Retrieves a value from NetworkTables using the default configuration.
      *
-     * @param key          the key for NetworkTables
-     * @param defaultValue the default value on NetworkTables
-     * @param <T>          the type of be subscribed to
-     * @return the value on NetworkTables
+     * @param key          The NetworkTables entry key to read
+     * @param defaultValue Fallback value if the entry is not present on NetworkTables
+     * @param <T>          The data type to subscribe to
+     * @return The current NetworkTables value or {@code defaultValue} on failure
+     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object, Configuration)
+     * @see SubscriberFactory
      */
     public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
     }
 
     /**
-     * Method to get a generic value from one on NetworkTables at the specified key. A configuration value for the mapping may be provided, but can be null. The type must have a registered mapping or be of struct type, otherwise an error will be thrown.
+     * Retrieves a value from NetworkTables with custom configuration options. Allows control
+     * over value freshness requirements and type-specific deserialization behavior.
      *
-     * @param key          the key for NetworkTables
-     * @param defaultValue the default value on NetworkTables
-     * @param config       the config option
-     * @param <T>          the type of be subscribed to
-     * @return the value on NetworkTables
+     * @param key          The NetworkTables entry key to read
+     * @param defaultValue Fallback value if the entry is not present on NetworkTables
+     * @param config       Configuration parameters
+     * @param <T>          The data type to subscribe to
+     * @return The current NetworkTables value or {@code defaultValue} on failure
+     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
+     * @see #getValue(String, Object)
      */
     @SuppressWarnings("unchecked")
     public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue, @Nonnull Configuration config) {
@@ -234,9 +304,23 @@ public final class Dashboard {
 
         return subscriber.retrieveValue();
     }
-    
+
+    /**
+     * Manually registers a {@link Sendable} object with NetworkTables.
+     *
+     * <p><strong>Recommended Approach:</strong> Prefer using {@code @Entry(EntryType.Sendable)}
+     * on Sendable fields for automatic discovery and lifecycle management.</p>
+     *
+     * @param key      The NetworkTables entry key
+     * @param sendable The Sendable object to publish
+     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
+     * @apiNote Subsequent calls with same key are ignored. Sendables added this way persist until application shutdown.
+     * @implNote Does not require explicit update calls - Sendable entries automatically
+     * synchronize through WPILib's SendableRegistry
+     * @see Entry
+     */
     public static void putSendable(@Nonnull String key, @Nonnull Sendable sendable) {
-        if(ntEntries.containsKey(key)) return;
+        if (ntEntries.containsKey(key)) return;
         ntEntries.put(key, new SendableEntry(key, sendable));
     }
 
