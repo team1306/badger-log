@@ -11,12 +11,17 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import org.jetbrains.annotations.NotNull;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
+/**
+ * Collection of predefined {@link Mapping} implementations for converting geometry classes to/from {@code double} and {@code double[]} values.
+ */
 @SuppressWarnings("DuplicatedCode")
 public class TransformMappings {
     /**
-     * Mapping of {@link Rotation2d} to {@link Double}
+     * Maps {@link Rotation2d} to a Double representing the angle.
+     * Converted using {@link UnitConversions#initializeRotationConverter}.
      */
     @MappingType
     public static Mapping<Rotation2d, Double> rotation2dDoubleMapping = new Mapping<>(Rotation2d.class, double.class, NetworkTableType.kDouble) {
@@ -37,7 +42,8 @@ public class TransformMappings {
     };
 
     /**
-     * Mapping of {@link Rotation3d} to {@link Double}[]
+     * Maps {@link Rotation3d} to a double[3] array: [X-axis rotation, Y-axis rotation, Z-axis rotation].
+     * Converted using {@link UnitConversions#initializeRotationConverter}.
      */
     @MappingType
     public static Mapping<Rotation3d, double[]> rotation3dToDoubleArrayMapping = new Mapping<>(Rotation3d.class, double[].class, NetworkTableType.kDoubleArray) {
@@ -64,7 +70,8 @@ public class TransformMappings {
     };
 
     /**
-     * Mapping of {@link Translation3d} to {@link Double}[]
+     * Maps {@link Translation3d} to a double[3] array: [X translation, Y translation, Z translation].
+     * Converted using {@link UnitConversions#initializeDistanceConverter}.
      */
     @MappingType
     public static Mapping<Translation3d, double[]> translation3dToDoubleArrayMapping = new Mapping<>(Translation3d.class, double[].class, NetworkTableType.kDoubleArray) {
@@ -91,7 +98,8 @@ public class TransformMappings {
     };
 
     /**
-     * Mapping of {@link Translation2d} to {@link Double}[]
+     * Maps {@link Translation2d} to a double[2] array: [X translation, Y translation].
+     * Converted using {@link UnitConversions#initializeDistanceConverter}.
      */
     @MappingType
     public static Mapping<Translation2d, double[]> translation2dToDoubleArrayMapping = new Mapping<>(Translation2d.class, double[].class, NetworkTableType.kDoubleArray) {
@@ -116,64 +124,87 @@ public class TransformMappings {
     };
 
     /**
-     * Mapping of {@link Twist2d} to {@link Double}[]
+     * Maps {@link Twist2d} to a double[3] array in the order: 
+     * [X translation, Y translation, theta rotation].
+     * <p>
+     * Linear components (dx/dy) use the "translation" {@link UnitConverter}.
+     * Angular component (dtheta) uses the "rotation" {@link UnitConverter}.
      */
     @MappingType
     public static Mapping<Twist2d, double[]> twist2dToDoubleArrayMapping = new Mapping<>(Twist2d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@NotNull Twist2d startValue, @NotNull Configuration config) {
-            UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
+            UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
+            UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 
             double[] result = new double[3];
-            result[0] = startValue.dx;
-            result[1] = startValue.dy;
-            result[2] = converter.convertTo(Radians.of(startValue.dtheta));
+            result[0] = translationConverter.convertTo(Meters.of(startValue.dx));
+            result[1] = translationConverter.convertTo(Meters.of(startValue.dy));
+            result[2] = rotationConverter.convertTo(Radians.of(startValue.dtheta));
             return result;
         }
 
         @Override
         public Twist2d toStart(double @NotNull [] ntValue, @NotNull Configuration config) {
-            UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
+            UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
+            UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 
-            return new Twist2d(ntValue[0], ntValue[1], converter.convertFrom(ntValue[3]).in(Radians));
+            return new Twist2d(
+                    translationConverter.convertFrom(ntValue[0]).in(Meters),
+                    translationConverter.convertFrom(ntValue[1]).in(Meters),
+                    rotationConverter.convertFrom(ntValue[2]).in(Radians)
+            );
         }
     };
+
     /**
-     * Mapping of {@link Twist3d} to {@link Double}[]
+     * Maps {@link Twist3d} to a double[6] array in the order:
+     * [X translation, Y translation, Z translation,
+     *  X-axis rotation, Y-axis rotation, Z-axis rotation].
+     * <p>
+     * Linear components (dx/dy/dz) use the "translation" {@link UnitConverter}.
+     * Angular components (rx/ry/rz) use the "rotation" {@link UnitConverter}.
      */
     @MappingType
     public static Mapping<Twist3d, double[]> twist3dToDoubleArrayMapping = new Mapping<>(Twist3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@NotNull Twist3d startValue, @NotNull Configuration config) {
-            UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
-
+            UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
+            UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
+            
             double[] result = new double[6];
-            result[0] = startValue.dx;
-            result[1] = startValue.dy;
-            result[2] = startValue.dz;
+            result[0] = translationConverter.convertTo(Meters.of(startValue.dx));
+            result[1] = translationConverter.convertTo(Meters.of(startValue.dy));
+            result[2] = translationConverter.convertTo(Meters.of(startValue.dz));
 
-            result[3] = converter.convertTo(Radians.of(startValue.rx));
-            result[4] = converter.convertTo(Radians.of(startValue.ry));
-            result[5] = converter.convertTo(Radians.of(startValue.rz));
+            result[3] = rotationConverter.convertTo(Radians.of(startValue.rx));
+            result[4] = rotationConverter.convertTo(Radians.of(startValue.ry));
+            result[5] = rotationConverter.convertTo(Radians.of(startValue.rz));
             return result;
         }
 
         @Override
         public Twist3d toStart(double @NotNull [] ntValue, @NotNull Configuration config) {
-            UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
+            UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
+            UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 
-            double dx = ntValue[0], dy = ntValue[1], dz = ntValue[2];
+            double dx = translationConverter.convertFrom(ntValue[0]).in(Meters);
+            double dy = translationConverter.convertFrom(ntValue[1]).in(Meters);
+            double dz = translationConverter.convertFrom(ntValue[2]).in(Meters);
 
-            double rx = converter.convertFrom(ntValue[3]).in(Radians);
-            double ry = converter.convertFrom(ntValue[4]).in(Radians);
-            double rz = converter.convertFrom(ntValue[5]).in(Radians);
+            double rx = rotationConverter.convertFrom(ntValue[3]).in(Radians);
+            double ry = rotationConverter.convertFrom(ntValue[4]).in(Radians);
+            double rz = rotationConverter.convertFrom(ntValue[5]).in(Radians);
 
             return new Twist3d(dx, dy, dz, rx, ry, rz);
         }
     };
 
     /**
-     * Mapping of {@link Pose2d} to {@link Double}[]
+     * Maps {@link Pose2d} to a double[3] array: [X translation, Y translation, theta rotation].
+     * <p>
+     * Linear components use the "translation" {@link UnitConverter}.
+     * Angular components use the "rotation" {@link UnitConverter}.
      */
     @MappingType
     public static Mapping<Pose2d, double[]> pose2dToDoubleArrayMapping = new Mapping<>(Pose2d.class, double[].class, NetworkTableType.kDoubleArray) {
@@ -203,8 +234,13 @@ public class TransformMappings {
             return new Pose2d(x, y, new Rotation2d(rotation));
         }
     };
+
     /**
-     * Mapping of {@link Pose3d} to {@link Double}[]
+     * Maps {@link Pose3d} to a double[6] array:
+     * [X translation, Y translation, Z translation, X-axis rotation, Y-axis rotation, Z-axis rotation].
+     * <p>
+     * Linear components use the "translation" {@link UnitConverter}.
+     * Angular components use the "rotation" {@link UnitConverter}.
      */
     @MappingType
     public static Mapping<Pose3d, double[]> pose3dToDoubleArrayMapping = new Mapping<>(Pose3d.class, double[].class, NetworkTableType.kDoubleArray) {

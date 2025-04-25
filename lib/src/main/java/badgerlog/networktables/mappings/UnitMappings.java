@@ -14,7 +14,7 @@ import static edu.wpi.first.units.Units.*;
 
 /**
  * Collection of predefined {@link Mapping} implementations for converting unit-based {@link Measure}
- * types to/from NetworkTables {@link Double} values.
+ * types to/from {@link Double} values.
  */
 public final class UnitMappings {
 
