@@ -1,67 +1,45 @@
 package badgerlog;
 
-import badgerlog.networktables.entries.publisher.Publisher;
-import edu.wpi.first.util.struct.Struct;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
 
 /**
- * Configuration options for BadgerLog.
- * <br>
- * <ul>
- * <li>baseTablekey: The base table for NetworkTables, will not be under any table.
- * <li>structOptions: The type of {@link Publisher} to use for a {@link Struct}.
- * <li>basePackages: The base package for ClassGraph to scan through.
- * </ul>
- *
- * @see StructOptions
+ * Configuration for customizing BadgerLog's NetworkTables integration and package scanning.
  */
 @Getter
 public final class DashboardConfig {
 
     /**
-     * The default configuration for BadgerLog.
-     * <ul>
-     * <li> Base Table Key: "BadgerLog"
-     * <li> Struct Options: StructOptions.SUB_TABLE
-     * <li> Base Package: "frc.robot"
-     * </ul>
+     * Default configuration with base table "BadgerLog", SUB_TABLE struct handling, and "frc.robot" package scanning.
      */
     public static final DashboardConfig defaultConfig = new DashboardConfig();
 
     /**
-     * The configuration for easy use with other {@link SmartDashboard}
-     * <ul>
-     * <li> Base Table Key: "SmartDashboard"
-     * <li> Struct Options: StructOptions.STRUCT
-     * <li> Base Package: "frc.robot"
-     * </ul>
+     * Preconfigured for similar configuration to SmartDashboard methods: base table "SmartDashboard", STRUCT type handling.
      */
     public static final DashboardConfig smartDashboardConfig = new DashboardConfig()
             .withStructOptions(StructOptions.STRUCT)
             .withBaseTableKey("SmartDashboard");
 
     /**
-     * Get the base key for BadgerLog on NetworkTables
+     * The root key for the NetworkTables table where entries are published.
      *
-     * @return the key for the table on NetworkTables
+     * @return String - Current base table key value
      */
     private String baseTableKey = "BadgerLog";
 
     /**
-     * Get the options to publish {@link Struct} to NetworkTables
+     * Defines how struct data types are published to NetworkTables.
      *
-     * @return the StructOptions to use
-     * @see StructOptions
+     * @return StructOptions - Current struct serialization strategy
      */
     private StructOptions structOptions = StructOptions.SUB_TABLE;
 
     /**
-     * Get the list of packages to scan for on initialization
+     * Base Java packages to scan for annotated fields during initialization.
      *
-     * @return an array of packages to scan
+     * @return String[] - Array of packages being scanned
      */
     private String[] basePackages = {"frc.robot"};
 
@@ -69,11 +47,10 @@ public final class DashboardConfig {
     }
 
     /**
-     * Change the baseTableKey to the one provided
+     * Sets the root NetworkTables table key for entries.
      *
-     * @param defaultTableKey the base table key
-     * @return the instance it was called with for method chaining
-     * @see DashboardConfig
+     * @param defaultTableKey New base table key (e.g., "SmartDashboard")
+     * @return This config instance for chaining
      */
     public DashboardConfig withBaseTableKey(@Nonnull String defaultTableKey) {
         this.baseTableKey = defaultTableKey;
@@ -81,11 +58,10 @@ public final class DashboardConfig {
     }
 
     /**
-     * Change the structOptions to the one provided
+     * Defines how struct data types are published to NetworkTables.
      *
-     * @param structOptions the options for publishing structs
-     * @return the instance it was called with for method chaining
-     * @see StructOptions
+     * @param structOptions Publishing strategy (MAPPING, SUB_TABLE, or STRUCT)
+     * @return This config instance for chaining
      */
     public DashboardConfig withStructOptions(@Nonnull StructOptions structOptions) {
         this.structOptions = structOptions;
@@ -93,11 +69,10 @@ public final class DashboardConfig {
     }
 
     /**
-     * Change the basePackages to the ones provided
+     * Specifies packages to scan for annotated fields during initialization.
      *
-     * @param defaultPackages the default packages for ClassGraph to scan through
-     * @return the instance it was called with for method chaining
-     * @see DashboardConfig
+     * @param defaultPackages Package names to scan (e.g., "frc.robot")
+     * @return This config instance for chaining
      */
     public DashboardConfig withBasePackages(String... defaultPackages) {
         this.basePackages = defaultPackages;

@@ -7,6 +7,7 @@
     </list>
     <writeAnnotations>
       <writeAnnotation name="badgerlog.entry.Entry" />
+      <writeAnnotation name="badgerlog.networktables.mappings.MappingType" />
     </writeAnnotations>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

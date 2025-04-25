@@ -16,7 +16,13 @@ import javax.tools.Diagnostic;
 import java.util.Set;
 
 /**
- * Annotation processor for BadgerLog. Verifies that each field annotated with {@link Entry} or {@link MappingType} is static, non-final, and conforms to the type restriction
+ * Annotation processor for BadgerLog that validates fields annotated with {@link Entry} or {@link MappingType}.
+ * <p>
+ * Ensures annotated fields are declared as {@code static}, non-{@code final}, and that fields annotated with
+ * {@link MappingType} are of the correct type. Generates compilation errors for violations.
+ * <p>
+ * This processor is automatically registered via {@link AutoService} and processes all annotations
+ * under the {@code badgerlog} package.
  */
 @SupportedAnnotationTypes(
         "badgerlog.*")
