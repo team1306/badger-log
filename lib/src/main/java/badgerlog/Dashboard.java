@@ -49,7 +49,7 @@ import java.util.concurrent.Executors;
  *   <li><b>Type Mappings:</b> Uses {@link Mapping} configurations to map any type to a valid NetworkTable type.</li>
  *   <li><b>Event Triggers:</b> Creates {@link Trigger} instances bound to NetworkTables boolean entries
  *       for event logic.</li>
- *   <li><b>Utilities:</b> Provides methods like {@link #putValue} and {@link #getValue} that uses {@code Mappings} for an easier switch from {@code SmartDashboard}.</li>
+ *   <li><b>Utilities:</b> Provides methods like {@link #putValue} and {@link #getValue} that use {@code Mapping} configurations.</li>
  * </ul>
  *
  * <h2>Initialization and Lifecycle</h2>
@@ -64,13 +64,7 @@ import java.util.concurrent.Executors;
  * <ul>
  *   <li>All types used with {@link #putValue} or {@link #getValue} must have a registered {@link Mapping}.</li>
  *   <li>Fields annotated with {@link Entry} must be non-final, static, and initialized for auto-registration.</li>
- *   <li>NetworkTables keys must be unique to avoid conflicts.</li>
- * </ul>
- *
- * <h2>Example Use Cases</h2>
- * <ul>
- *   <li>Publishing sensor data to the dashboard via annotated fields.</li>
- *   <li>Creating a trigger to execute commands when a boolean value changes in NetworkTables.</li>
+ *   <li>NetworkTables keys must be unique to avoid type conflicts.</li>
  * </ul>
  *
  * @see Entry
@@ -220,7 +214,7 @@ public final class Dashboard {
     }
 
     /**
-     * Immediately publish a value to NetworkTables using the specified key using the default configuration.
+     * Publish a value to NetworkTables using the default configuration.
      *
      * @param key   The NetworkTables entry key
      * @param value The value to publish.
@@ -235,7 +229,7 @@ public final class Dashboard {
     }
 
     /**
-     * Immediately publish a value to NetworkTables using the specified key.
+     * Publish a value to NetworkTables with custom configuration options.
      *
      * @param key    The NetworkTables entry key
      * @param value  The value to publish.
@@ -265,8 +259,8 @@ public final class Dashboard {
      *
      * @param key          The NetworkTables entry key to read
      * @param defaultValue Fallback value if the entry is not present on NetworkTables
-     * @param <T>          The data type to subscribe to
-     * @return The current NetworkTables value or {@code defaultValue} on failure
+     * @param <T>          The data type to convert to after retrieval from NetworkTables
+     * @return The current NetworkTables value
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object, Configuration)
      * @see SubscriberFactory
@@ -276,14 +270,13 @@ public final class Dashboard {
     }
 
     /**
-     * Retrieves a value from NetworkTables with custom configuration options. Allows control
-     * over value freshness requirements and type-specific deserialization behavior.
+     * Retrieves a value from NetworkTables with custom configuration options.
      *
      * @param key          The NetworkTables entry key to read
-     * @param defaultValue Fallback value if the entry is not present on NetworkTables
+     * @param defaultValue Initial value if the entry is not present
      * @param config       Configuration parameters
-     * @param <T>          The data type to subscribe to
-     * @return The current NetworkTables value or {@code defaultValue} on failure
+     * @param <T>          The data type to convert to after retrieval from NetworkTables
+     * @return The current NetworkTables value
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object)
      */
@@ -307,7 +300,7 @@ public final class Dashboard {
      * <p><strong>Recommended Approach:</strong> Prefer using {@code @Entry(EntryType.Sendable)}
      * on Sendable fields for automatic discovery and lifecycle management.</p>
      * <p>
-     * Subsequent calls with same key are ignored. Sendables added this way persist until application shutdown.
+     * Subsequent calls with same key are ignored.
      *
      * @param key      The NetworkTables entry key
      * @param sendable The Sendable object to publish
