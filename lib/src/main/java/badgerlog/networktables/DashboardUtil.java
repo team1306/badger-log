@@ -1,9 +1,7 @@
 package badgerlog.networktables;
 
-import badgerlog.entry.Entry;
 import badgerlog.entry.configuration.ConfigHandlerRegistry;
 import badgerlog.entry.configuration.Configuration;
-import badgerlog.networktables.mappings.MappingType;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 
@@ -12,7 +10,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 /**
- * Field utility class used for BadgerLog internally to manipulate {@link Field} values
+ * Utility class for internal BadgerLog operations involving field manipulation via reflection.
+ * Provides methods to get/set static field values, validate field constraints (static, non-final, initialized),
+ * and generate {@link Configuration} objects by processing field annotations using registered handlers.
+ * <p>
+ * This class is not meant to be instantiated and operates exclusively using static methods.
  */
 public final class DashboardUtil {
 
@@ -20,10 +22,10 @@ public final class DashboardUtil {
     }
 
     /**
-     * Gets the value on the provided {@link Field}
+     * Retrieves the value of a static field via reflection.
      *
-     * @param field        the Field to get from
-     * @return the value on the field, cast to the provided type
+     * @param field the static field to read
+     * @return the current value of the field
      */
     @SneakyThrows({IllegalAccessException.class, IllegalArgumentException.class})
     public static Object getFieldValue(@Nonnull Field field) {
@@ -32,23 +34,23 @@ public final class DashboardUtil {
     }
 
     /**
-     * Sets the value on the provided {@link Field} to the specified value
+     * Sets the value of a static field via reflection.
      *
-     * @param field        the Field to set
-     * @param value        the value to set the Field to
-     * @param <FieldValue> the type on the Field. Implicitly assumed that the type matches the type on the field
+     * @param field the static field to modify
+     * @param value the new value to assign
      */
     @SneakyThrows({IllegalAccessException.class})
-    public static <FieldValue> void setFieldValue(@Nonnull Field field, FieldValue value) {
+    public static void setFieldValue(@Nonnull Field field, Object value) {
         field.setAccessible(true);
         field.set(null, value);
     }
 
     /**
-     * Verify that the provided {@link FieldInfo} matches the requirements for a field annotated with {@link Entry} or {@link MappingType}
+     * Validates that a field meets BadgerLog requirements: static, non-final, and initialized.
      *
-     * @param fieldInfo the FieldInfo for the field
-     * @return the loaded {@link Field}
+     * @param fieldInfo the field metadata to validate
+     * @return the validated {@link Field} object
+     * @throws IllegalStateException if the field is non-static, final, or uninitialized
      */
     public static Field checkFieldValidity(@Nonnull FieldInfo fieldInfo) {
         var field = fieldInfo.loadClassAndGetField();
@@ -61,6 +63,13 @@ public final class DashboardUtil {
         return field;
     }
 
+    /**
+     * Generates a {@link Configuration} by processing annotations on a field.
+     * Uses registered handlers from {@link ConfigHandlerRegistry} to interpret annotations.
+     *
+     * @param field the annotated field to process
+     * @return a configuration populated with data from the field's annotations
+     */
     public static Configuration createConfigurationFromField(@Nonnull Field field) {
         Configuration config = new Configuration();
         Annotation[] annotations = field.getDeclaredAnnotations();
