@@ -6,133 +6,155 @@ import badgerlog.networktables.mappings.conversion.UnitConverter;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
 import org.jetbrains.annotations.NotNull;
 
 import static edu.wpi.first.units.Units.*;
 
 /**
- * Collection of {@link Mapping Mappings} for NetworkTables, includes all implementations of {@link Measure}, rotation, translation, twist, and pose mappings
+ * Collection of predefined {@link Mapping} implementations for converting unit-based {@link Measure}
+ * types to/from NetworkTables {@link Double} values.
  */
 public final class UnitMappings {
 
 
     /**
-     * Mapping of {@link Distance} to {@link Double}
+     * Maps {@link Distance} measures to NetworkTables double values.
+     * Uses {@link Units#Meters} as the base unit.
      */
     @MappingType
     public static Mapping<Distance, Double> distanceMapping = createMeasureMapping(Meters, Distance.class);
 
     /**
-     * Mapping of {@link Angle} to {@link Double}
+     * Maps {@link Angle} measures to NetworkTables double values.
+     * Uses {@link Units#Radians} as the base unit.
      */
     @MappingType
     public static Mapping<Angle, Double> angleMapping = createMeasureMapping(Radians, Angle.class);
 
     /**
-     * Mapping of {@link Time} to {@link Double}
+     * Maps {@link Time} measures to NetworkTables double values.
+     * Uses {@link Units#Seconds} as the base unit.
      */
     @MappingType
     public static Mapping<Time, Double> timeMapping = createMeasureMapping(Seconds, Time.class);
 
     /**
-     * Mapping of {@link LinearVelocity} to {@link Double}
+     * Maps {@link LinearVelocity} measures to NetworkTables double values.
+     * Uses {@link Units#MetersPerSecond} as the base unit.
      */
     @MappingType
     public static Mapping<LinearVelocity, Double> linearVelocityMapping = createMeasureMapping(MetersPerSecond, LinearVelocity.class);
 
     /**
-     * Mapping of {@link AngularVelocity} to {@link Double}
+     * Maps {@link AngularVelocity} measures to NetworkTables double values.
+     * Uses {@link Units#RadiansPerSecond} as the base unit.
      */
     @MappingType
     public static Mapping<AngularVelocity, Double> angularVelocityMapping = createMeasureMapping(RadiansPerSecond, AngularVelocity.class);
 
     /**
-     * Mapping of {@link Frequency} to {@link Double}
+     * Maps {@link Frequency} measures to NetworkTables double values.
+     * Uses {@link Units#Hertz} as the base unit.
      */
     @MappingType
     public static Mapping<Frequency, Double> frequencyMapping = createMeasureMapping(Hertz, Frequency.class);
 
     /**
-     * Mapping of {@link LinearAcceleration} to {@link Double}
+     * Maps {@link LinearAcceleration} measures to NetworkTables double values.
+     * Uses {@link Units#MetersPerSecondPerSecond} as the base unit.
      */
     @MappingType
     public static Mapping<LinearAcceleration, Double> linearAccelerationMapping = createMeasureMapping(MetersPerSecondPerSecond, LinearAcceleration.class);
 
     /**
-     * Mapping of {@link AngularAcceleration} to {@link Double}
+     * Maps {@link AngularAcceleration} measures to NetworkTables double values.
+     * Uses {@link Units#RadiansPerSecondPerSecond} as the base unit.
      */
     @MappingType
     public static Mapping<AngularAcceleration, Double> angularAccelerationMapping = createMeasureMapping(RadiansPerSecondPerSecond, AngularAcceleration.class);
 
     /**
-     * Mapping of {@link Mass} to {@link Double}
+     * Maps {@link Mass} measures to NetworkTables double values.
+     * Uses {@link Units#Kilograms} as the base unit.
      */
     @MappingType
     public static Mapping<Mass, Double> massMapping = createMeasureMapping(Kilograms, Mass.class);
 
     /**
-     * Mapping of {@link Force} to {@link Double}
+     * Maps {@link Force} measures to NetworkTables double values.
+     * Uses {@link Units#Newtons} as the base unit.
      */
     @MappingType
     public static Mapping<Force, Double> forceMapping = createMeasureMapping(Newtons, Force.class);
 
     /**
-     * Mapping of {@link Torque} to {@link Double}
+     * Maps {@link Torque} measures to NetworkTables double values.
+     * Uses {@link Units#NewtonMeters} as the base unit.
      */
     @MappingType
     public static Mapping<Torque, Double> torqueMapping = createMeasureMapping(NewtonMeter, Torque.class);
 
     /**
-     * Mapping of {@link LinearMomentum} to {@link Double}
+     * Maps {@link LinearMomentum} measures to NetworkTables double values.
+     * Uses {@link Units#KilogramMetersPerSecond} as the base unit.
      */
     @MappingType
     public static Mapping<LinearMomentum, Double> linearMomentumMapping = createMeasureMapping(KilogramMetersPerSecond, LinearMomentum.class);
 
     /**
-     * Mapping of {@link AngularMomentum} to {@link Double}
+     * Maps {@link AngularMomentum} measures to NetworkTables double values.
+     * Uses {@link Units#KilogramMetersSquaredPerSecond} as the base unit.
      */
     @MappingType
     public static Mapping<AngularMomentum, Double> angularMomentumMapping = createMeasureMapping(KilogramMetersSquaredPerSecond, AngularMomentum.class);
 
     /**
-     * Mapping of {@link MomentOfInertia} to {@link Double}
+     * Maps {@link MomentOfInertia} measures to NetworkTables double values.
+     * Uses {@link Units#KilogramSquareMeters} as the base unit.
      */
     @MappingType
     public static Mapping<MomentOfInertia, Double> momentOfInertiaMapping = createMeasureMapping(KilogramSquareMeters, MomentOfInertia.class);
 
     /**
-     * Mapping of {@link Voltage} to {@link Double}
+     * Maps {@link Voltage} measures to NetworkTables double values.
+     * Uses {@link Units#Volts} as the base unit.
      */
     @MappingType
     public static Mapping<Voltage, Double> voltageMapping = createMeasureMapping(Volts, Voltage.class);
 
     /**
-     * Mapping of {@link Current} to {@link Double}
+     * Maps {@link Current} measures to NetworkTables double values.
+     * Uses {@link Units#Amps} as the base unit.
      */
     @MappingType
     public static Mapping<Current, Double> currentMapping = createMeasureMapping(Amps, Current.class);
 
     /**
-     * Mapping of {@link Resistance} to {@link Double}
+     * Maps {@link Resistance} measures to NetworkTables double values.
+     * Uses {@link Units#Ohms} as the base unit.
      */
     @MappingType
     public static Mapping<Resistance, Double> resistanceMapping = createMeasureMapping(Ohms, Resistance.class);
 
     /**
-     * Mapping of {@link Energy} to {@link Double}
+     * Maps {@link Energy} measures to NetworkTables double values.
+     * Uses {@link Units#Joules} as the base unit.
      */
     @MappingType
     public static Mapping<Energy, Double> energyMapping = createMeasureMapping(Joules, Energy.class);
 
     /**
-     * Mapping of {@link Power} to {@link Double}
+     * Maps {@link Power} measures to NetworkTables double values.
+     * Uses {@link Units#Watts} as the base unit.
      */
     @MappingType
     public static Mapping<Power, Double> powerMapping = createMeasureMapping(Watts, Power.class);
 
     /**
-     * Mapping of {@link Temperature} to {@link Double}
+     * Maps {@link Temperature} measures to NetworkTables double values.
+     * Uses {@link Units#Celsius} as the base unit.
      */
     @MappingType
     public static Mapping<Temperature, Double> temperatureMapping = createMeasureMapping(Celsius, Temperature.class);
