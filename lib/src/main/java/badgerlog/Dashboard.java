@@ -34,11 +34,11 @@ import java.util.concurrent.Executors;
 
 /**
  * The {@code Dashboard} class serves as the main component of BadgerLog, providing a utility
- * for interacting with WPILib's NetworkTables. It is intended as a modern replacement
- * for WPILib's {@code SmartDashboard} with enhanced functionality.
+ * for interacting with NetworkTables. It is intended as a modern replacement
+ * for {@code SmartDashboard} with enhanced functionality.
  * It facilitates automatic discovery and synchronization of
  * fields annotated with {@link Entry}, manages publishers and subscribers, and offers utilities for
- * NetworkTables events. This class is designed for static use and must be properly initialized
+ * NetworkTables events. This class is designed for static use and must be initialized
  * before any operations.
  *
  * <h2>Key Functionalities</h2>
@@ -49,15 +49,14 @@ import java.util.concurrent.Executors;
  *   <li><b>Type Mappings:</b> Uses {@link Mapping} configurations to map any type to a valid NetworkTable type.</li>
  *   <li><b>Event Triggers:</b> Creates {@link Trigger} instances bound to NetworkTables boolean entries
  *       for event logic.</li>
- *   <li><b>Direct Interaction:</b> Provides methods like {@link #putValue} and {@link #getValue}
- *       for easy switch from {@code SmartDashboard}.</li>
+ *   <li><b>Utilities:</b> Provides methods like {@link #putValue} and {@link #getValue} that uses {@code Mappings} for an easier switch from {@code SmartDashboard}.</li>
  * </ul>
  *
  * <h2>Initialization and Lifecycle</h2>
  * <ul>
- *   <li>{@link #initialize(DashboardConfig)} must be called during robot initialization (e.g., in
+ *   <li>{@link #initialize(DashboardConfig)} must be called during robot initialization (usually in
  *       {@code Robot.robotInit}) to scan for annotated fields and set up NetworkTables entries.</li>
- *   <li>{@link #update()} must be invoked periodically (e.g., in {@code Robot.robotPeriodic}) to refresh
+ *   <li>{@link #update()} must be invoked periodically (usually in {@code Robot.robotPeriodic}) to refresh
  *       NetworkTables values.</li>
  * </ul>
  *
