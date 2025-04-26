@@ -60,7 +60,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Rotation3d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Rotation3d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
 
             Angle x = (Angle) converter.convertFrom(ntValue[0]);
@@ -88,7 +88,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Translation3d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Translation3d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
 
             Distance x = (Distance) converter.convertFrom(ntValue[0]);
@@ -115,7 +115,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Translation2d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Translation2d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
 
             Distance x = (Distance) converter.convertFrom(ntValue[0]);
@@ -146,7 +146,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Twist2d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Twist2d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 
@@ -185,7 +185,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Twist3d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Twist3d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 
@@ -223,7 +223,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Pose2d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Pose2d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 
@@ -263,7 +263,7 @@ public class TransformMappings {
         }
 
         @Override
-        public Pose3d toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public Pose3d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
             UnitConverter<AngleUnit> rotationConverter = UnitConversions.initializeRotationConverter(config.getConverter("rotation"));
 

@@ -1,7 +1,6 @@
 package badgerlog.entry.configuration;
 
 import badgerlog.entry.configuration.handlers.*;
-import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
@@ -27,7 +26,6 @@ public class ConfigHandlerRegistry {
         return (ConfigHandler<T>) handlers.get(annotationType);
     }
 
-    @Contract("null -> false")
     public static boolean hasValidHandler(Class<?> annotationType) {
         return annotationType != null && handlers.containsKey(annotationType) && handlers.get(annotationType) != null;
     }

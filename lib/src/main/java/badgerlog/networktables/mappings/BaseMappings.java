@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
  * Collection of {@link Mapping Mappings} for NetworkTables, includes only {@link Double}, {@link Boolean}, {@link Integer}, and {@link String} mappings
  */
 public final class BaseMappings {
-    
+
     @MappingType
     public static Mapping<Double, Double> doubleMapping = new Mapping<>(double.class, double.class, NetworkTableType.kDouble) {
 
@@ -23,7 +23,7 @@ public final class BaseMappings {
             return ntValue;
         }
     };
-    
+
     @MappingType
     public static Mapping<Double, Double> double1Mapping = new Mapping<>(Double.class, Double.class, NetworkTableType.kDouble) {
 
@@ -51,7 +51,7 @@ public final class BaseMappings {
             return ntValue;
         }
     };
- 
+
     @MappingType
     public static Mapping<Float, Float> float1Mapping = new Mapping<>(Float.class, Float.class, NetworkTableType.kFloat) {
 
@@ -79,7 +79,7 @@ public final class BaseMappings {
             return ntValue;
         }
     };
-  
+
     @MappingType
     public static Mapping<Boolean, Boolean> boolean1Mapping = new Mapping<>(Boolean.class, Boolean.class, NetworkTableType.kBoolean) {
 
@@ -93,7 +93,7 @@ public final class BaseMappings {
             return ntValue;
         }
     };
-   
+
     @MappingType
     public static Mapping<Integer, Integer> integerMapping = new Mapping<>(int.class, int.class, NetworkTableType.kInteger) {
 
@@ -121,7 +121,7 @@ public final class BaseMappings {
             return ntValue;
         }
     };
-    
+
     @MappingType
     public static Mapping<String, String> stringMapping = new Mapping<>(String.class, String.class, NetworkTableType.kString) {
 
@@ -135,59 +135,59 @@ public final class BaseMappings {
             return ntValue;
         }
     };
-    
+
     @MappingType
     public static Mapping<double[], double[]> doubleArrayMapping = new Mapping<>(double[].class, double[].class, NetworkTableType.kDoubleArray) {
 
         @Override
-        public double[] toNT(double @Nonnull [] startValue, @Nonnull Configuration config) {
+        public double[] toNT(@Nonnull double[] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public double[] toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public double[] toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
-    
+
     @MappingType
     public static Mapping<boolean[], boolean[]> booleanArrayMapping = new Mapping<>(boolean[].class, boolean[].class, NetworkTableType.kBooleanArray) {
 
         @Override
-        public boolean[] toNT(boolean @Nonnull [] startValue, @Nonnull Configuration config) {
+        public boolean[] toNT(@Nonnull boolean[] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public boolean[] toStart(boolean @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public boolean[] toStart(@Nonnull boolean[] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
-    
+
     @MappingType
     public static Mapping<String[], String[]> stringArrayMapping = new Mapping<>(String[].class, String[].class, NetworkTableType.kStringArray) {
 
         @Override
-        public String[] toNT(String @Nonnull [] startValue, @Nonnull Configuration config) {
+        public String[] toNT(@Nonnull String[] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public String[] toStart(String @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public String[] toStart(@Nonnull String[] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
-    
+
     @MappingType
     public static Mapping<float[], float[]> floatArrayMapping = new Mapping<>(float[].class, float[].class, NetworkTableType.kFloatArray) {
 
         @Override
-        public float[] toNT(float @Nonnull [] startValue, @Nonnull Configuration config) {
+        public float[] toNT(@Nonnull float[] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public float[] toStart(float @Nonnull [] ntValue, @Nonnull Configuration config) {
+        public float[] toStart(@Nonnull float[] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
