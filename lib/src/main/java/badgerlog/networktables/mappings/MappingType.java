@@ -6,7 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark fields for collection. Any fields marked with this must be of type {@link Mapping}
+ * Annotation indicating that a field should be automatically collected and registered as {@code Mappings}.
+ *
+ * <p>
+ * Fields marked with this annotation must be of type {@link Mapping}. This annotation
+ * <p>
+ * is retained at runtime and can only be applied to fields.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

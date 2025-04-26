@@ -35,7 +35,6 @@ dependencies {
     annotationProcessor 'com.google.auto.service:auto-service:1.1.1'
 
     errorprone("com.google.errorprone:error_prone_core:2.37.0")
-    implementation 'org.jetbrains:annotations:24.0.0'
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

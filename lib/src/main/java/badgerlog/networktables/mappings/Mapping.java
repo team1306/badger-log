@@ -3,45 +3,49 @@ package badgerlog.networktables.mappings;
 import badgerlog.entry.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
-import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nonnull;
 
 /**
- * Class to map an arbitrary type to a {@link NetworkTableType}
+ * Abstract base class defining bidirectional conversions between an arbitrary type and a NetworkTables-compatible type.
+ * <p>
+ * Subclasses must implement {@link #toNT} and {@link #toStart} to provide type conversion logic. Each mapping
+ * associates a type ({@code StartType}) with a {@link NetworkTableType} and its object representation ({@code NTType}).
+ * Used in conjunction with {@link Mappings} for centralized registration and lookup.
  *
- * @param <StartType> the starting type
- * @param <NTType>    the {@link Object} form of a NetworkTableType
+ * @param <StartType> Source type for conversions
+ * @param <NTType>    NetworkTables-compatible type
  */
 @SuppressWarnings("JavadocDeclaration")
 @Getter
 public abstract class Mapping<StartType, NTType> {
     /**
-     * The starting type as a {@link Class}
+     * The starting class type being mapped from/to.
      *
-     * @return the starting type
+     * @return the class object representing the source type
      */
     private final Class<StartType> fieldType;
+
     /**
-     * The {@link NetworkTableType} as a {@link Class}
+     * The NetworkTables-compatible class type.
      *
-     * @return the type on NetworkTables
+     * @return the class object representing the NetworkTable-compatible type
      */
     private final Class<NTType> tableType;
 
     /**
-     * The {@link NetworkTableType} for NetworkTables
+     * {@link NetworkTableType} enum value corresponding to {@code NTType}.
      *
-     * @return the NetworkTableType
+     * @return the NetworkTableType enum constant
      */
     private final NetworkTableType networkTableType;
 
     /**
-     * Construct a new mapping for a starting type and NetworkTable type
+     * Constructs a mapping between a starting type and a NetworkTables type.
      *
-     * @param startType the starting type
-     * @param tableType the type on NetworkTables
-     * @param ntType    the {@link NetworkTableType}
+     * @param startType Starting type to map
+     * @param tableType NetworkTables-compatible type class
+     * @param ntType    {@link NetworkTableType} enum value
      */
     public Mapping(@Nonnull Class<StartType> startType, @Nonnull Class<NTType> tableType, @Nonnull NetworkTableType ntType) {
         this.fieldType = startType;
@@ -50,33 +54,30 @@ public abstract class Mapping<StartType, NTType> {
     }
 
     /**
-     * Check if the type of field matches another. It is assumed that there is only have one mapping per starting type
+     * Checks whether this mapping supports a given type via assignability.
      *
-     * @param fieldType the starting type
-     * @return if this {@link Mapping} matches the type given
+     * @param fieldType Type to check compatibility with {@link #fieldType}
+     * @return {@code true} if {@code fieldType} is assignable to/from this mapping's {@code StartType}
      */
-    @Contract("null -> false")
     public boolean matches(Class<?> fieldType) {
         return fieldType != null && (this.fieldType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.fieldType));
     }
 
     /**
-     * A function to map the starting type to a NetworkTable type given a config and value
+     * Converts a {@code StartType} value to its NetworkTables-compatible form.
      *
-     * @param startValue the value to map
-     * @param config     the configuration in the form of a {@link String}
-     * @return the value in the NetworkTable type
-     * @see UnitMappings
+     * @param startValue Value to convert
+     * @param config     Configuration context for the conversion
+     * @return Converted value as a {@code NTType}
      */
     public abstract NTType toNT(@Nonnull StartType startValue, @Nonnull Configuration config);
 
     /**
-     * A function to map a NetworkTable type to the starting type
+     * Converts a NetworkTables-compatible value back to the original {@code StartType}.
      *
-     * @param ntValue the value given by NetworkTables
-     * @param config  the configuration in the form of a string
-     * @return the value in the starting type
-     * @see UnitMappings
+     * @param ntValue NetworkTable value to convert
+     * @param config  Configuration context for the conversion
+     * @return Converted value as a {@code StartType}
      */
     public abstract StartType toStart(@Nonnull NTType ntValue, @Nonnull Configuration config);
 }

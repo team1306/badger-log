@@ -2,7 +2,8 @@ package badgerlog.networktables.mappings;
 
 import badgerlog.entry.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 /**
  * Collection of {@link Mapping Mappings} for NetworkTables, includes only {@link Double}, {@link Boolean}, {@link Integer}, and {@link String} mappings
@@ -13,12 +14,12 @@ public final class BaseMappings {
     public static Mapping<Double, Double> doubleMapping = new Mapping<>(double.class, double.class, NetworkTableType.kDouble) {
 
         @Override
-        public Double toNT(@NotNull Double startValue, @NotNull Configuration config) {
+        public Double toNT(@Nonnull Double startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Double toStart(@NotNull Double ntValue, @NotNull Configuration config) {
+        public Double toStart(@Nonnull Double ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -27,12 +28,12 @@ public final class BaseMappings {
     public static Mapping<Double, Double> double1Mapping = new Mapping<>(Double.class, Double.class, NetworkTableType.kDouble) {
 
         @Override
-        public Double toNT(@NotNull Double startValue, @NotNull Configuration config) {
+        public Double toNT(@Nonnull Double startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Double toStart(@NotNull Double ntValue, @NotNull Configuration config) {
+        public Double toStart(@Nonnull Double ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -41,12 +42,12 @@ public final class BaseMappings {
     public static Mapping<Float, Float> floatMapping = new Mapping<>(float.class, float.class, NetworkTableType.kFloat) {
 
         @Override
-        public Float toNT(@NotNull Float startValue, @NotNull Configuration config) {
+        public Float toNT(@Nonnull Float startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Float toStart(@NotNull Float ntValue, @NotNull Configuration config) {
+        public Float toStart(@Nonnull Float ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -55,12 +56,12 @@ public final class BaseMappings {
     public static Mapping<Float, Float> float1Mapping = new Mapping<>(Float.class, Float.class, NetworkTableType.kFloat) {
 
         @Override
-        public Float toNT(@NotNull Float startValue, @NotNull Configuration config) {
+        public Float toNT(@Nonnull Float startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Float toStart(@NotNull Float ntValue, @NotNull Configuration config) {
+        public Float toStart(@Nonnull Float ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -69,12 +70,12 @@ public final class BaseMappings {
     public static Mapping<Boolean, Boolean> booleanMapping = new Mapping<>(boolean.class, boolean.class, NetworkTableType.kBoolean) {
 
         @Override
-        public Boolean toNT(@NotNull Boolean startValue, @NotNull Configuration config) {
+        public Boolean toNT(@Nonnull Boolean startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Boolean toStart(@NotNull Boolean ntValue, @NotNull Configuration config) {
+        public Boolean toStart(@Nonnull Boolean ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -83,12 +84,12 @@ public final class BaseMappings {
     public static Mapping<Boolean, Boolean> boolean1Mapping = new Mapping<>(Boolean.class, Boolean.class, NetworkTableType.kBoolean) {
 
         @Override
-        public Boolean toNT(@NotNull Boolean startValue, @NotNull Configuration config) {
+        public Boolean toNT(@Nonnull Boolean startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Boolean toStart(@NotNull Boolean ntValue, @NotNull Configuration config) {
+        public Boolean toStart(@Nonnull Boolean ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -97,12 +98,12 @@ public final class BaseMappings {
     public static Mapping<Integer, Integer> integerMapping = new Mapping<>(int.class, int.class, NetworkTableType.kInteger) {
 
         @Override
-        public Integer toNT(@NotNull Integer startValue, @NotNull Configuration config) {
+        public Integer toNT(@Nonnull Integer startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Integer toStart(@NotNull Integer ntValue, @NotNull Configuration config) {
+        public Integer toStart(@Nonnull Integer ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -111,12 +112,12 @@ public final class BaseMappings {
     public static Mapping<Integer, Integer> integer1Mapping = new Mapping<>(Integer.class, Integer.class, NetworkTableType.kInteger) {
 
         @Override
-        public Integer toNT(@NotNull Integer startValue, @NotNull Configuration config) {
+        public Integer toNT(@Nonnull Integer startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public Integer toStart(@NotNull Integer ntValue, @NotNull Configuration config) {
+        public Integer toStart(@Nonnull Integer ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -125,12 +126,12 @@ public final class BaseMappings {
     public static Mapping<String, String> stringMapping = new Mapping<>(String.class, String.class, NetworkTableType.kString) {
 
         @Override
-        public String toNT(@NotNull String startValue, @NotNull Configuration config) {
+        public String toNT(@Nonnull String startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public String toStart(@NotNull String ntValue, @NotNull Configuration config) {
+        public String toStart(@Nonnull String ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -139,12 +140,12 @@ public final class BaseMappings {
     public static Mapping<double[], double[]> doubleArrayMapping = new Mapping<>(double[].class, double[].class, NetworkTableType.kDoubleArray) {
 
         @Override
-        public double[] toNT(double @NotNull [] startValue, @NotNull Configuration config) {
+        public double[] toNT(double @Nonnull [] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public double[] toStart(double @NotNull [] ntValue, @NotNull Configuration config) {
+        public double[] toStart(double @Nonnull [] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -153,12 +154,12 @@ public final class BaseMappings {
     public static Mapping<boolean[], boolean[]> booleanArrayMapping = new Mapping<>(boolean[].class, boolean[].class, NetworkTableType.kBooleanArray) {
 
         @Override
-        public boolean[] toNT(boolean @NotNull [] startValue, @NotNull Configuration config) {
+        public boolean[] toNT(boolean @Nonnull [] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public boolean[] toStart(boolean @NotNull [] ntValue, @NotNull Configuration config) {
+        public boolean[] toStart(boolean @Nonnull [] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -167,12 +168,12 @@ public final class BaseMappings {
     public static Mapping<String[], String[]> stringArrayMapping = new Mapping<>(String[].class, String[].class, NetworkTableType.kStringArray) {
 
         @Override
-        public String[] toNT(String @NotNull [] startValue, @NotNull Configuration config) {
+        public String[] toNT(String @Nonnull [] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public String[] toStart(String @NotNull [] ntValue, @NotNull Configuration config) {
+        public String[] toStart(String @Nonnull [] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };
@@ -181,12 +182,12 @@ public final class BaseMappings {
     public static Mapping<float[], float[]> floatArrayMapping = new Mapping<>(float[].class, float[].class, NetworkTableType.kFloatArray) {
 
         @Override
-        public float[] toNT(float @NotNull [] startValue, @NotNull Configuration config) {
+        public float[] toNT(float @Nonnull [] startValue, @Nonnull Configuration config) {
             return startValue;
         }
 
         @Override
-        public float[] toStart(float @NotNull [] ntValue, @NotNull Configuration config) {
+        public float[] toStart(float @Nonnull [] ntValue, @Nonnull Configuration config) {
             return ntValue;
         }
     };

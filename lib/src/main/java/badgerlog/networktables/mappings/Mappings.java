@@ -6,13 +6,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Class containing a list of all {@link Mapping Mappings} for every registered type and providing methods to find specific mappings.
+ * A registry of all registered {@link Mapping} instances and utilities to locate them by type.
+ * <p>
+ * This class maintains a static collection of mappings that are automatically populated from
+ * fields annotated with {@link MappingType}. Provides lookup methods to retrieve
+ * specific mappings and their associated NetworkTable types.
  */
 public final class Mappings {
     /**
-     * A Set containing all the registered mappings
-     *
-     * @see MappingType
+     * A static collection of all registered mappings. Fields annotated with {@link MappingType}
+     * <p>
+     * are automatically added to this set. This set is used to look up mappings by type.
      */
     public static final Set<Mapping<?, ?>> mappings = new HashSet<>();
 
@@ -20,27 +24,29 @@ public final class Mappings {
     }
 
     /**
-     * Find a {@link Mapping} from a type class. It is assumed that only one mapping per class type is created, and will throw an error if there are more than one present
+     * Retrieves the unique {@link Mapping} associated with the specified starting type.
      *
-     * @param type        the {@link Class} representing
-     * @param <FieldType> the type on the field
-     * @param <NTType>    the {@link Object} representation of a {@link NetworkTableType}
-     * @return the Mapping with the specified input type, and a valid NetworkTableType
+     * @param type        the class of the start type to search for
+     * @param <StartType> the starting type
+     * @return the unique mapping for the given start type
+     * @throws IllegalArgumentException if no mapping or multiple mappings exist for {@code type}
      */
-    @SuppressWarnings("unchecked")
-    public static <FieldType, NTType> Mapping<FieldType, NTType> findMapping(Class<FieldType> type) {
+    @SuppressWarnings("unchecked") // Mapping must have the correct type 
+    public static <StartType> Mapping<StartType, Object> findMapping(Class<StartType> type) {
         var filteredMappings = mappings.stream().filter(mapping -> mapping.matches(type)).toList();
         if (filteredMappings.isEmpty()) throw new IllegalArgumentException("No mapping found for " + type);
         if (filteredMappings.size() > 1) throw new IllegalArgumentException("Multiple mapping found for " + type);
 
-        return (Mapping<FieldType, NTType>) filteredMappings.get(0);
+        return (Mapping<StartType, Object>) filteredMappings.get(0);
     }
 
     /**
-     * Finds the {@link NetworkTableType} given a class type
+     * Finds the {@link NetworkTableType} associated with the specified class type.
      *
-     * @param type the type as a {@link Class}
-     * @return the NetworkTableType
+     * @param type the class type to search for
+     * @return the corresponding NetworkTable type
+     * @throws IllegalArgumentException if no mapping or multiple mappings exist for {@code type}
+     * @see #findMapping(Class)
      */
     public static NetworkTableType findMappingType(Class<?> type) {
         return findMapping(type).getNetworkTableType();
