@@ -6,10 +6,12 @@ The easiest annotation-based NetworkTables utility. A modern replacement for Sma
 
 # About
 
-The why behind this project. SmartDashboard provides some methods,
+The why behind this project. 
+
+SmartDashboard provides some methods,
 but it lacks a lot of functionality desirable in a robot program.
 It's methods end up taking up space in a ` periodic ` method,
-which looks bad and leads to forgetting what to update.
+which looks bad and isn't great for code quality
 
 Our team explored other logging utilities.
 
