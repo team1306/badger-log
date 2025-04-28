@@ -31,12 +31,10 @@ Our team explored other logging utilities.
 * Requires a whole setup
 * Only subscribe to a double entry
 
-Annotations are cool right? Badgerlog is entirely based off an annotation-based configuration system.  
-
-No more
-`SmartDashboard.putDouble`. Say hello to `@Entry`
-
 # Overview
+
+"Annotations are cool right?"
+- Badgerlog is entirely based off an annotation-based configuration system.
 
 "Where are the specific typed methods?"
 
@@ -56,9 +54,9 @@ No more
 ## Features
 
 * Automatic creation of NetworkTables entries from annotations
-  * Publishers
-  * Subscribers
-  * Sendables
+  * `Publishers`
+  * `Subscribers`
+  * `Sendables`
 * Support for any type*
 * Multiple methods for struct support
   * As a mapping (double or double array)
