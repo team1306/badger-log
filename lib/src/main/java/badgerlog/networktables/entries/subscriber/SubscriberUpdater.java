@@ -5,9 +5,10 @@ import badgerlog.networktables.entries.Updater;
 import java.util.function.Consumer;
 
 /**
- * Updater class for a {@link Subscriber}
+ * Automates periodic consumption of NetworkTables values by linking a {@link Subscriber} with a value {@link Consumer}.
+ * Implements the {@link Updater} interface to enable scheduled updates, typically used in loops or timed tasks.
  *
- * @param <T> the starting type of the values
+ * @param <T> Type of data being consumed
  */
 public final class SubscriberUpdater<T> implements Updater {
 
@@ -15,10 +16,10 @@ public final class SubscriberUpdater<T> implements Updater {
     private final Consumer<T> valueConsumer;
 
     /**
-     * Default constructor for {@link SubscriberUpdater}
+     * Constructs an updater that bridges a subscriber and a value processor.
      *
-     * @param subscriber    the {@link Subscriber} to use
-     * @param valueConsumer the {@link Consumer} for the value from NetworkTables to be set to
+     * @param subscriber    Source of NetworkTables values
+     * @param valueConsumer Receiver for retrieved values
      */
     public SubscriberUpdater(Subscriber<T> subscriber, Consumer<T> valueConsumer) {
         this.subscriber = subscriber;

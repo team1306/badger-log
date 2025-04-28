@@ -5,9 +5,10 @@ import badgerlog.networktables.entries.Updater;
 import java.util.function.Supplier;
 
 /**
- * Updater class for a {@link Publisher}
+ * Automates periodic value publication to NetworkTables by linking a {@link Publisher} with a value {@link Supplier}.
+ * Implements the {@link Updater} interface to enable scheduled updates, typically used in loops or timed tasks.
  *
- * @param <T> the starting type of the values
+ * @param <T> Type of data being published
  */
 public final class PublisherUpdater<T> implements Updater {
 
@@ -15,10 +16,10 @@ public final class PublisherUpdater<T> implements Updater {
     private final Supplier<T> valueSupplier;
 
     /**
-     * Default constructor for {@link PublisherUpdater}
+     * Constructs an updater that bridges a publisher and a dynamic value source.
      *
-     * @param publisher     the {@link Publisher} to use
-     * @param valueSupplier the {@link Supplier} for the value to be put to NetworkTables
+     * @param publisher     Target for value publishing
+     * @param valueSupplier Provider of current values to publish
      */
     public PublisherUpdater(Publisher<T> publisher, Supplier<T> valueSupplier) {
         this.publisher = publisher;
