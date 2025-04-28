@@ -17,7 +17,6 @@ import static edu.wpi.first.units.Units.*;
  */
 public final class UnitMappings {
 
-
     /**
      * Maps {@link Distance} measures to NetworkTables double values.
      * Uses {@link Units#Meters} as the base unit.

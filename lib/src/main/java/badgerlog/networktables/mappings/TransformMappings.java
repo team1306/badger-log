@@ -17,7 +17,7 @@ import static edu.wpi.first.units.Units.Radians;
  * Collection of predefined {@link Mapping} implementations for converting geometry classes to/from {@code double} and {@code double[]} values.
  */
 @SuppressWarnings("DuplicatedCode")
-public class TransformMappings {
+public final class TransformMappings {
     /**
      * Maps {@link Rotation2d} to a Double representing the angle.
      * Converted using {@link UnitConversions#initializeRotationConverter}.
@@ -276,4 +276,7 @@ public class TransformMappings {
             return new Pose3d(new Translation3d(x, y, z), new Rotation3d(rotationX, rotationY, rotationZ));
         }
     };
+
+    private TransformMappings() {
+    }
 }

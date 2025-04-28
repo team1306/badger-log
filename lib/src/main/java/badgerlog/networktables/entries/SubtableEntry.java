@@ -80,7 +80,7 @@ public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
 
         for (String part : Splitter.on(";").splitToList(baseStruct.getSchema())) {
             if (!part.startsWith("double")) continue;
-            entries.add(new ValueEntry<>(currentKey + "/" + Splitter.on(" ").splitToList(part).get(1), double.class, buffer.getDouble(), Configuration.defaultConfiguration));
+            entries.add(new ValueEntry<>(currentKey + "/" + Splitter.on(" ").splitToList(part).get(1), double.class, buffer.getDouble(), new Configuration()));
         }
     }
 }

@@ -19,7 +19,7 @@ import static edu.wpi.first.units.Units.Radians;
  * of type-safe unit converters. Maintains a registry of available units loaded via reflection
  * from {@link Units}.
  */
-public class UnitConversions {
+public final class UnitConversions { // todo could possibly replace with wpilib units if structured properly
     /**
      * Static registry of available units, keyed by their {@link Unit#name()}.
      * <p>
@@ -34,6 +34,9 @@ public class UnitConversions {
                 .map(DashboardUtil::getFieldValue)
                 .map(Unit.class::cast)
                 .collect(HashMap::new, (map, unit) -> map.put(unit.name(), unit), HashMap::putAll);
+    }
+
+    private UnitConversions() {
     }
 
     /**
@@ -60,6 +63,8 @@ public class UnitConversions {
      * @param value    Numeric value to convert
      * @param fromUnit Source unit instance
      * @param toUnit   Target unit instance
+     * @param <T> the starting unit
+     * @param <N> the ending unit
      * @return Converted value in target unit
      * @throws IllegalArgumentException If units are incompatible (different base types)
      */
@@ -73,6 +78,7 @@ public class UnitConversions {
      * Creates a {@link UnitConverter} for a specific unit type.
      *
      * @param toUnit Unit to convert to/from
+     * @param <T> a converter using the specified unit
      * @return Converter instance for the specified unit
      */
     public static <T extends Unit> UnitConverter<T> createConverter(@Nonnull T toUnit) {
@@ -129,6 +135,7 @@ public class UnitConversions {
      *
      * @param converter   Existing converter (null uses defaultUnit)
      * @param defaultUnit Fallback unit type if converter is null
+     * @param <T> the unit to use
      * @return Validated or newly created converter
      */
     public static <T extends Unit> @Nonnull UnitConverter<T> initializeUnitConverter(@Nullable UnitConverter<T> converter, @Nonnull T defaultUnit) {

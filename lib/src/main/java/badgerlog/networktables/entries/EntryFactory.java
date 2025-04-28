@@ -15,7 +15,10 @@ import lombok.SneakyThrows;
  * <p>Handles both struct-based data (via {@link StructSerializable}) and generic values with type mappings.
  */
 @SuppressWarnings("DuplicatedCode") // TODO work on structure later
-public class EntryFactory {
+public final class EntryFactory {
+    private EntryFactory() {
+    }
+
     /**
      * Creates a {@link Publisher} optimized for the value type and configuration.
      * Implementation selection logic:

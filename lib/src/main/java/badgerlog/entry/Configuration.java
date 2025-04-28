@@ -13,21 +13,31 @@ import java.util.HashMap;
  * Container class for storing configuration settings and unit converters.
  * Supports chained method calls for building configurations.
  */
+@SuppressWarnings("JavadocDeclaration")
 public class Configuration {
     private final HashMap<String, String> configurations = new HashMap<>();
     private final HashMap<String, UnitConverter<?>> converters = new HashMap<>();
+    /**
+     * The key for NetworkTables
+     *
+     * @return the key used for the entry on NetworkTables
+     */
     @Getter
     private String key = null;
+
+    /**
+     * The method for publishing/subscribing structs to NetworkTables
+     *
+     * @return the method used for struct handling
+     */
     @Getter
     private StructOptions structOptions = null;
-
-    public static Configuration defaultConfiguration = new Configuration();
-
 
     /**
      * Retrieves a unit converter by its identifier.
      *
-     * @param id The converter identifier (empty string for default)
+     * @param id  The converter identifier (empty string for default)
+     * @param <T> the type for the converter to be cast to
      * @return The associated converter, or null if not found
      */
     @SuppressWarnings("unchecked")
@@ -39,6 +49,7 @@ public class Configuration {
     /**
      * Retrieves the default unit converter.
      *
+     * @param <T> the type for the converter to be cast to
      * @return The default converter, or null if not set
      */
     public <T extends Unit> @Nullable UnitConverter<T> getDefaultConverter() {

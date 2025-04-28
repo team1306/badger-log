@@ -11,7 +11,7 @@ import java.util.Map;
  * Registry for mapping annotation types to their configuration handlers.
  * Provides static methods to register and retrieve handlers.
  */
-public class ConfigHandlerRegistry {
+public final class ConfigHandlerRegistry {
     private static final Map<Class<? extends Annotation>, ConfigHandler<?>> handlers = new HashMap<>();
 
     static {
@@ -21,11 +21,15 @@ public class ConfigHandlerRegistry {
         registerHandler(Key.class, new KeyHandler());
     }
 
+    private ConfigHandlerRegistry() {
+    }
+
     /**
      * Registers a handler for a specific annotation type.
      *
      * @param annotationType The annotation class to register
      * @param handler        The handler to process the annotation
+     * @param <T>            the type of the handler
      */
     public static <T extends Annotation> void registerHandler(@Nonnull Class<T> annotationType, @Nonnull ConfigHandler<T> handler) {
         handlers.put(annotationType, handler);
@@ -35,6 +39,7 @@ public class ConfigHandlerRegistry {
      * Retrieves the handler for a given annotation type.
      *
      * @param annotationType The annotation class to look up
+     * @param <T>            the type of the handler
      * @return The associated handler, or null if not found
      */
     @SuppressWarnings("unchecked") // Cast not possible to fail, since handlers are registered with the same type

@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Millihertz;
 
 public class Robot extends TimedRobot
 {
@@ -65,7 +66,7 @@ public class Robot extends TimedRobot
         Dashboard.update();
         CommandScheduler.getInstance().run();
         pose2d = pose2d.plus(new Transform2d(0, Math.random(), Rotation2d.k180deg));
-        test = test.plus(Hertz.of(0.001));
+        test = test.plus(Millihertz.of(0.1));
     }
     
     

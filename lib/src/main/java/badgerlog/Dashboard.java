@@ -183,7 +183,7 @@ public final class Dashboard {
     public static Trigger getNetworkTablesButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
         checkDashboardInitialized();
 
-        var subscriber = new ValueEntry<>(key, boolean.class, false, Configuration.defaultConfiguration);
+        var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 

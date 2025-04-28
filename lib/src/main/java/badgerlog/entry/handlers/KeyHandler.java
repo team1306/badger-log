@@ -6,7 +6,7 @@ import badgerlog.entry.Configuration;
 /**
  * Handles {@link Key} annotations by setting the key in the configuration.
  */
-public class KeyHandler implements ConfigHandler<Key> {
+public final class KeyHandler implements ConfigHandler<Key> {
     @Override
     public void process(Key annotation, Configuration config) {
         config.withKey(annotation.value());
