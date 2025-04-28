@@ -1,8 +1,6 @@
 package badgerlog.networktables.entries;
 
 import badgerlog.Dashboard;
-import badgerlog.networktables.entries.publisher.Publisher;
-import badgerlog.networktables.entries.subscriber.Subscriber;
 import edu.wpi.first.networktables.StructEntry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;

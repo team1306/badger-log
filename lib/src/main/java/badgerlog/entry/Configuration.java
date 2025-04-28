@@ -1,7 +1,7 @@
 package badgerlog.entry;
 
 import badgerlog.StructOptions;
-import badgerlog.networktables.mappings.conversion.UnitConverter;
+import badgerlog.networktables.mappings.UnitConverter;
 import edu.wpi.first.units.Unit;
 import lombok.Getter;
 

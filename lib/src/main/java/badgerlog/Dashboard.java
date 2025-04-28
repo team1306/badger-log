@@ -2,14 +2,7 @@ package badgerlog;
 
 import badgerlog.entry.Configuration;
 import badgerlog.entry.Entry;
-import badgerlog.networktables.entries.EntryFactory;
-import badgerlog.networktables.entries.SendableEntry;
-import badgerlog.networktables.entries.Updater;
-import badgerlog.networktables.entries.ValueEntry;
-import badgerlog.networktables.entries.publisher.Publisher;
-import badgerlog.networktables.entries.publisher.PublisherUpdater;
-import badgerlog.networktables.entries.subscriber.Subscriber;
-import badgerlog.networktables.entries.subscriber.SubscriberUpdater;
+import badgerlog.networktables.entries.*;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.MappingType;
 import badgerlog.networktables.mappings.Mappings;

@@ -1,8 +1,6 @@
 package badgerlog.networktables.entries;
 
 import badgerlog.entry.Configuration;
-import badgerlog.networktables.entries.publisher.Publisher;
-import badgerlog.networktables.entries.subscriber.Subscriber;
 import com.google.common.base.Splitter;
 import edu.wpi.first.util.struct.Struct;
 

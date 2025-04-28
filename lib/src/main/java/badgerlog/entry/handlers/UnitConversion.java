@@ -1,7 +1,7 @@
 package badgerlog.entry.handlers;
 
 import badgerlog.entry.Configurable;
-import badgerlog.networktables.mappings.conversion.UnitConversions;
+import badgerlog.networktables.mappings.UnitConversions;
 
 import java.lang.annotation.*;
 

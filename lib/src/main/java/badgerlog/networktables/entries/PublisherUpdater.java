@@ -1,6 +1,4 @@
-package badgerlog.networktables.entries.publisher;
-
-import badgerlog.networktables.entries.Updater;
+package badgerlog.networktables.entries;
 
 import java.util.function.Supplier;
 

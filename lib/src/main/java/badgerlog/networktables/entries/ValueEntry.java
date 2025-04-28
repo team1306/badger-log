@@ -2,8 +2,6 @@ package badgerlog.networktables.entries;
 
 import badgerlog.Dashboard;
 import badgerlog.entry.Configuration;
-import badgerlog.networktables.entries.publisher.Publisher;
-import badgerlog.networktables.entries.subscriber.Subscriber;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.Mappings;
 import edu.wpi.first.networktables.GenericEntry;

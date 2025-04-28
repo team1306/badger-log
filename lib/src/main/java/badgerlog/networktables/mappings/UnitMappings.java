@@ -1,8 +1,6 @@
 package badgerlog.networktables.mappings;
 
 import badgerlog.entry.Configuration;
-import badgerlog.networktables.mappings.conversion.UnitConversions;
-import badgerlog.networktables.mappings.conversion.UnitConverter;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;

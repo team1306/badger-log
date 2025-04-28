@@ -2,8 +2,8 @@ package badgerlog.entry.handlers;
 
 import badgerlog.entry.ConfigHandler;
 import badgerlog.entry.Configuration;
-import badgerlog.networktables.mappings.conversion.UnitConversions;
-import badgerlog.networktables.mappings.conversion.UnitConverter;
+import badgerlog.networktables.mappings.UnitConversions;
+import badgerlog.networktables.mappings.UnitConverter;
 
 /**
  * Handles {@link UnitConversion} annotations by creating and registering converters.
