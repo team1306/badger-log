@@ -1,5 +1,4 @@
-# BadgerLog
-
+<img src="badgerlog-logo-banner.png">
 The easiest FRC loggging solution
 
 ## Use
