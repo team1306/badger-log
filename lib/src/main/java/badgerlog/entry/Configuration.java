@@ -1,4 +1,4 @@
-package badgerlog.entry.configuration;
+package badgerlog.entry;
 
 import badgerlog.StructOptions;
 import badgerlog.networktables.mappings.conversion.UnitConverter;
@@ -30,7 +30,8 @@ public class Configuration {
      * @param id The converter identifier (empty string for default)
      * @return The associated converter, or null if not found
      */
-    @SuppressWarnings("unchecked") // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping 
+    @SuppressWarnings("unchecked")
+    // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping 
     public <T extends Unit> @Nullable UnitConverter<T> getConverter(String id) {
         return (UnitConverter<T>) converters.get(id);
     }

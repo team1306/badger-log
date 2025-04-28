@@ -1,4 +1,4 @@
-package badgerlog.entry.configuration;
+package badgerlog.entry;
 
 import java.lang.annotation.Annotation;
 

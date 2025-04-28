@@ -1,6 +1,6 @@
-package badgerlog.entry.configuration;
+package badgerlog.entry;
 
-import badgerlog.entry.configuration.handlers.*;
+import badgerlog.entry.handlers.*;
 
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;

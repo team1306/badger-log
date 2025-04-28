@@ -1,6 +1,6 @@
-package badgerlog.entry.configuration.handlers;
+package badgerlog.entry.handlers;
 
-import badgerlog.entry.configuration.Configurable;
+import badgerlog.entry.Configurable;
 import badgerlog.networktables.mappings.conversion.UnitConversions;
 
 import java.lang.annotation.*;
@@ -25,6 +25,7 @@ public @interface UnitConversion {
 
     /**
      * Unique identifier for the converter (empty for default)
+     *
      * @return converter ID string
      */
     String converterId() default "";

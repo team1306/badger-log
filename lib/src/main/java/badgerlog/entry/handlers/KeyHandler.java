@@ -1,7 +1,7 @@
-package badgerlog.entry.configuration.handlers;
+package badgerlog.entry.handlers;
 
-import badgerlog.entry.configuration.ConfigHandler;
-import badgerlog.entry.configuration.Configuration;
+import badgerlog.entry.ConfigHandler;
+import badgerlog.entry.Configuration;
 
 /**
  * Handles {@link Key} annotations by setting the key in the configuration.

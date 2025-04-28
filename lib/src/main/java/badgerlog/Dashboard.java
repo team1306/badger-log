@@ -1,7 +1,7 @@
 package badgerlog;
 
+import badgerlog.entry.Configuration;
 import badgerlog.entry.Entry;
-import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.entries.EntryFactory;
 import badgerlog.networktables.entries.SendableEntry;
 import badgerlog.networktables.entries.Updater;

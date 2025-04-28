@@ -1,7 +1,7 @@
 package badgerlog;
 
-import badgerlog.entry.configuration.ConfigHandlerRegistry;
-import badgerlog.entry.configuration.Configuration;
+import badgerlog.entry.ConfigHandlerRegistry;
+import badgerlog.entry.Configuration;
 import io.github.classgraph.FieldInfo;
 import lombok.SneakyThrows;
 

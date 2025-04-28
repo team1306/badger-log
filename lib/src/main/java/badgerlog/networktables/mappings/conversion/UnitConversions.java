@@ -1,6 +1,6 @@
 package badgerlog.networktables.mappings.conversion;
 
-import badgerlog.networktables.DashboardUtil;
+import badgerlog.DashboardUtil;
 import edu.wpi.first.units.*;
 
 import javax.annotation.Nonnull;

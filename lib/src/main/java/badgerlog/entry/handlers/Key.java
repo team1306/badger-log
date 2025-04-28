@@ -1,6 +1,6 @@
-package badgerlog.entry.configuration.handlers;
+package badgerlog.entry.handlers;
 
-import badgerlog.entry.configuration.Configurable;
+import badgerlog.entry.Configurable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

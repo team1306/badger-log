@@ -1,6 +1,6 @@
 package badgerlog.networktables.mappings;
 
-import badgerlog.entry.configuration.Configuration;
+import badgerlog.entry.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 
 import javax.annotation.Nonnull;

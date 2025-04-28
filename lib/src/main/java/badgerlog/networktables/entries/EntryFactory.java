@@ -2,7 +2,7 @@ package badgerlog.networktables.entries;
 
 import badgerlog.Dashboard;
 import badgerlog.StructOptions;
-import badgerlog.entry.configuration.Configuration;
+import badgerlog.entry.Configuration;
 import badgerlog.networktables.entries.publisher.Publisher;
 import badgerlog.networktables.entries.subscriber.Subscriber;
 import edu.wpi.first.util.struct.Struct;
