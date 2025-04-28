@@ -1,19 +1,21 @@
 package badgerlog.entry;
 
 /**
- * The type of NetworkTable entry
+ * Specifies the type of interaction for NetworkTables entries.
  */
 public enum EntryType {
     /**
-     * Publish a value to NetworkTables from the field value
+     * Publishes a field value to NetworkTables.
      */
     Publisher,
+
     /**
-     * Subscribe (get) a value from NetworkTables and update the field value
+     * Subscribes to a NetworkTables value and updates the field.
      */
     Subscriber,
+
     /**
-     * Sendable is an interface for use to put and get values in a more concise way
+     * Uses the Sendable interface for simplified value exchange.
      */
     Sendable
 }

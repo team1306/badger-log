@@ -6,16 +6,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used for publishing or subscribing to a value from NetworkTables
+ * Annotation to mark fields for publishing or subscribing to NetworkTables entries.
+ * Specifies the interaction type (Publisher, Subscriber, or Sendable) for the annotated field.
+ *
+ * @see EntryType
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface Entry {
     /**
-     * Type of NetworkTable Entry. (Publisher, Subscriber, Sendable)
-     *
-     * @return the entry type
-     * @see EntryType
+     * Specifies the interaction type for the annotated field.
+     * @return The {@code EntryType} for this field
      */
     EntryType value();
 }
