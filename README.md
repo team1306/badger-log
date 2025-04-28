@@ -2,9 +2,9 @@
 
 [![](https://jitpack.io/v/team1306/badger-log.svg)](https://jitpack.io/#team1306/badger-log)
 
-The easiest annotation-based NetworkTables utility.
+The easiest annotation-based NetworkTables utility. A modern replacement for SmartDashboard.
 
-## About
+# About
 
 The why behind this project. SmartDashboard provides some methods,
 but it lacks a lot of functionality desirable in a robot program.
@@ -16,7 +16,7 @@ Our team explored other logging utilities.
 [DogLog](https://github.com/jonahsnider/doglog)
 
 * Supports only base Java types
-* No NetworkTables subscribing
+* No subscribing to NetworkTables values
 
 [Epilogue](https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-annotations.html)
 
@@ -29,17 +29,16 @@ Our team explored other logging utilities.
 * Requires a whole setup
 * Only subscribe to a double entry
 
-Badgerlog is a modern alternative to SmartDashboard, utilizing annotations on fields for creation of NetworkTables
-entries.
-
-Annotations are cool right? Badgerlog is entirely based off an annotation-based configuration system.
+Annotations are cool right? Badgerlog is entirely based off an annotation-based configuration system.  
 
 No more
 `SmartDashboard.putDouble`. Say hello to `@Entry`
 
+# Overview
+
 "Where are the specific typed methods?"
 
-- They don't exist. Any type can have a mapping created for it, no matter its complexity
+- They don't exist. The entry is created at runtime, so type is found then.
 
 "What about structs?"
 
