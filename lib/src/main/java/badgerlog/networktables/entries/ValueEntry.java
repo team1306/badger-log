@@ -1,19 +1,23 @@
-package badgerlog.networktables.entries.subscriber;
+package badgerlog.networktables.entries;
 
 import badgerlog.Dashboard;
 import badgerlog.entry.configuration.Configuration;
 import badgerlog.networktables.entries.publisher.Publisher;
+import badgerlog.networktables.entries.subscriber.Subscriber;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.Mappings;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableType;
 
+import javax.annotation.Nonnull;
+
 /**
- * {@link Subscriber} implementing the basic subscribing functions with a {@link Mapping}. It is also a {@link Publisher} to make it easier to get the default value and find the key easier.
+ * Dual-purpose subscriber/publisher for generic values using type mappings. Third struct handling method, combining
+ * publication and subscription for value management. Handles type conversions through the {@link Mapping} system.
  *
- * @param <T> the starting type of the value. This does not have to be a valid {@link NetworkTableType} because if a Mapping exists for the starting type, then it will be converted to one
+ * @param <T> Source data type before conversion via {@link Mapping}
  */
-public final class ValueSubscriber<T> implements Subscriber<T>, Publisher<T> {
+public final class ValueEntry<T> implements Subscriber<T>, Publisher<T> {
 
     private final Configuration config;
 
@@ -21,15 +25,14 @@ public final class ValueSubscriber<T> implements Subscriber<T>, Publisher<T> {
     private final GenericEntry entry;
 
     /**
-     * Default constructor for {@link ValueSubscriber}
+     * Creates a subscriber/publisher pair with initial value.
      *
-     * @param key            the key for NetworkTables
-     * @param fieldTypeClass the {@link Class} type of the value
-     * @param initialValue   the initial value for NetworkTables
-     * @param config         the configuration for the {@link Mapping}
-     * @see Mappings
+     * @param key            NetworkTables entry key
+     * @param fieldTypeClass Starting class of the source type
+     * @param initialValue   Default value to initialize NetworkTable entry
+     * @param config         Configuration for mapping behavior
      */
-    public ValueSubscriber(String key, Class<T> fieldTypeClass, T initialValue, Configuration config) {
+    public ValueEntry(@Nonnull String key, @Nonnull Class<T> fieldTypeClass, @Nonnull T initialValue, @Nonnull Configuration config) {
         this.config = config;
 
         this.fieldValueMapping = Mappings.findMapping(fieldTypeClass);

@@ -2,16 +2,14 @@ package badgerlog;
 
 import badgerlog.entry.Entry;
 import badgerlog.entry.configuration.Configuration;
-import badgerlog.networktables.DashboardUtil;
-import badgerlog.networktables.Updater;
+import badgerlog.networktables.entries.EntryFactory;
 import badgerlog.networktables.entries.SendableEntry;
+import badgerlog.networktables.entries.Updater;
+import badgerlog.networktables.entries.ValueEntry;
 import badgerlog.networktables.entries.publisher.Publisher;
-import badgerlog.networktables.entries.publisher.PublisherFactory;
 import badgerlog.networktables.entries.publisher.PublisherUpdater;
 import badgerlog.networktables.entries.subscriber.Subscriber;
-import badgerlog.networktables.entries.subscriber.SubscriberFactory;
 import badgerlog.networktables.entries.subscriber.SubscriberUpdater;
-import badgerlog.networktables.entries.subscriber.ValueSubscriber;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.MappingType;
 import badgerlog.networktables.mappings.Mappings;
@@ -156,9 +154,9 @@ public final class Dashboard {
 
             ntEntries.put(key, switch (entry.value()) {
                 case Publisher ->
-                        new PublisherUpdater<>(PublisherFactory.getPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
+                        new PublisherUpdater<>(EntryFactory.createPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
                 case Subscriber ->
-                        new SubscriberUpdater<>(SubscriberFactory.getSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
+                        new SubscriberUpdater<>(EntryFactory.createSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
                 case Sendable -> new SendableEntry(key, (Sendable) DashboardUtil.getFieldValue(field));
             });
         }
@@ -192,7 +190,7 @@ public final class Dashboard {
     public static Trigger getNetworkTablesButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
         checkDashboardInitialized();
 
-        var subscriber = new ValueSubscriber<>(key, boolean.class, false, null);
+        var subscriber = new ValueEntry<>(key, boolean.class, false, Configuration.defaultConfiguration);
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
@@ -237,7 +235,6 @@ public final class Dashboard {
      * @param <T>    The data type to publish
      * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #putValue(String, Object)
-     * @see PublisherFactory
      */
     @SuppressWarnings("unchecked")
     public static <T> void putValue(@Nonnull String key, @Nonnull T value, @Nonnull Configuration config) {
@@ -245,7 +242,7 @@ public final class Dashboard {
 
         Publisher<T> publisher;
         if (!singleUsePublishers.containsKey(key)) {
-            publisher = PublisherFactory.getPublisherFromValue(key, value, config);
+            publisher = EntryFactory.createPublisherFromValue(key, value, config);
             singleUsePublishers.put(key, publisher);
         } else {
             publisher = (Publisher<T>) singleUsePublishers.get(key);
@@ -263,7 +260,6 @@ public final class Dashboard {
      * @return The current NetworkTables value
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object, Configuration)
-     * @see SubscriberFactory
      */
     public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
@@ -285,7 +281,7 @@ public final class Dashboard {
         checkDashboardInitialized();
         Subscriber<T> subscriber;
         if (!singleUseSubscribers.containsKey(key)) {
-            subscriber = SubscriberFactory.getSubscriberFromValue(key, defaultValue, config);
+            subscriber = EntryFactory.createSubscriberFromValue(key, defaultValue, config);
             singleUseSubscribers.put(key, subscriber);
         } else {
             subscriber = (Subscriber<T>) singleUseSubscribers.get(key);

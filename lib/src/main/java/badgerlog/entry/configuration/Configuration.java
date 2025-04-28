@@ -16,6 +16,9 @@ public class Configuration {
     @Getter
     private StructOptions structOptions = null;
 
+    public static Configuration defaultConfiguration = new Configuration();
+    
+
     @SuppressWarnings("unchecked") // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping 
     public <T extends Unit> @Nullable UnitConverter<T> getConverter(String id) {
         return (UnitConverter<T>) converters.get(id);

@@ -1,15 +1,16 @@
 package badgerlog.networktables.entries.subscriber;
 
 /**
- * Interface for a subscriber getting values from NetworkTables
+ * Defines a subscriber interface for retrieving typed values from NetworkTables.
+ * Implementations handle type conversion from a valid NetworkTable types to starting types.
  *
- * @param <T> the starting type before mapping
+ * @param <T> The source data type before conversion
  */
 public interface Subscriber<T> {
     /**
-     * Get a value from NetworkTables
+     * Fetches and converts the current value from NetworkTables.
      *
-     * @return the value from NetworkTables, converted to the starting type
+     * @return The latest value from NetworkTables, converted to type {@code T}
      */
     T retrieveValue();
 }

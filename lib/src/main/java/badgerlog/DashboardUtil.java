@@ -1,4 +1,4 @@
-package badgerlog.networktables;
+package badgerlog;
 
 import badgerlog.entry.configuration.ConfigHandlerRegistry;
 import badgerlog.entry.configuration.Configuration;

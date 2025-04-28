@@ -1,6 +1,6 @@
 package badgerlog.networktables.entries.subscriber;
 
-import badgerlog.networktables.Updater;
+import badgerlog.networktables.entries.Updater;
 
 import java.util.function.Consumer;
 

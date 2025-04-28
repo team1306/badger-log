@@ -1,15 +1,16 @@
 package badgerlog.networktables.entries.publisher;
 
 /**
- * Interface for a publisher putting values to NetworkTables
+ * Defines a publisher interface for sending typed values to NetworkTables.
+ * Implementations handle type conversion from a starting type to a valid NetworkTable type.
  *
- * @param <T> the starting type before mapping
+ * @param <T> The source data type before conversion
  */
 public interface Publisher<T> {
     /**
-     * Publish a value to NetworkTables
+     * Publishes a value to NetworkTables, performing necessary type conversions.
      *
-     * @param value the starting value to publish, may be converted to correspond to a NetworkTables type
+     * @param value The value to send, in its original type {@code T}
      */
     void publishValue(T value);
 }

@@ -1,27 +1,27 @@
 package badgerlog.networktables.entries;
 
 import badgerlog.Dashboard;
-import badgerlog.networktables.Updater;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
+import javax.annotation.Nonnull;
+
 /**
- * An implementation of an {@link Updater} to allow {@link Sendable Sendables} to be updated properly from NetworkTables
+ * Handles publishing and updating {@link Sendable} objects in NetworkTables.Synchronizes Sendable data through periodic updates.
  */
 public final class SendableEntry implements Updater {
 
     private final Sendable sendable;
 
     /**
-     * Default constructor for {@link SendableEntry}
+     * Creates a Sendable entry and publishes it to a NetworkTables subtable.
      *
-     * @param key      the key for NetworkTables
-     * @param sendable the {@link Sendable} to be put on NetworkTables
-     * @see Sendable
+     * @param key      NetworkTables key path for the Sendable data
+     * @param sendable The {@link Sendable} object to publish
      */
-    public SendableEntry(String key, Sendable sendable) {
+    public SendableEntry(@Nonnull String key, @Nonnull Sendable sendable) {
         this.sendable = sendable;
 
         NetworkTable dataTable = Dashboard.defaultTable.getSubTable(key);

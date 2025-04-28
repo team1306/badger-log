@@ -1,4 +1,4 @@
-package badgerlog.networktables;
+package badgerlog.networktables.entries;
 
 /**
  * Interface defining objects capable of synchronizing data with NetworkTables.
