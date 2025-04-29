@@ -27,7 +27,7 @@ public final class DashboardConfig {
      *
      * @return String - Current base table key value
      */
-    private String baseTableKey = "BadgerLog";
+    private String baseTableKey = "Badgerlog";
 
     /**
      * Defines how struct data types are published to NetworkTables.
