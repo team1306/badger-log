@@ -31,26 +31,6 @@ Our team explored other logging utilities.
 * Requires a whole setup
 * Only subscribe to a double entry
 
-# Overview
-
-"Annotations are cool right?"
-- Badgerlog is entirely based off an annotation-based configuration system.
-
-"Where are the specific typed methods?"
-
-- They don't exist. The entry is created at runtime, so type is found then.
-
-"What about structs?"
-
-- There are 3 methods for struct typed NetworkTables entries:
-  - Struct (registers the schema)
-  - Mapping
-  - Subtable (creates a bunch of subtables according to the schema)
-
-"Why are Badgerlog's units better"
-
-- Any `Measure` type can have units specified, which converts it to that when creating the double entry.
-
 ## Features
 
 * Automatic creation of NetworkTables entries from annotations
