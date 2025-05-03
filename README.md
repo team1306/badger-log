@@ -2,34 +2,40 @@
 
 [![](https://jitpack.io/v/team1306/badger-log.svg)](https://jitpack.io/#team1306/badger-log)
 
-The easiest annotation-based NetworkTables utility. A modern replacement for SmartDashboard.
+The easiest annotation-based NetworkTables utility.
 
 # About
 
-The why behind this project. 
+Our team was frustrated with the lack of utilities available to teams to utilize the NetworkTables API.
 
-SmartDashboard provides some methods,
-but it lacks a lot of functionality desirable in a robot program.
-It's methods end up taking up space in a ` periodic ` method,
-which looks bad and isn't great for code quality
+We explored alternatives and found them to lack a key feature that we wanted.
 
-Our team explored other logging utilities.
+`SmartDashboard` is an option provided in WPILib
+
+* Needs method calls to work
+* Explicit types in methods
+* No `Struct` objects
+* No custom types
+
+Seeing this, we explored other NetworkTables utilities.
 
 [DogLog](https://github.com/jonahsnider/doglog)
 
 * Supports only base Java types
-* No subscribing to NetworkTables values
+* Data logging focused
+* Not annotation based
 
 [Epilogue](https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-annotations.html)
 
 * Only supports publishing
-* Only WPILib types
-* Impossible to convert `Measure` units
+* Impossible to convert units
+* Difficult to create a new type for the system
 
 [AdvantageKit](https://github.com/Mechanical-Advantage/AdvantageKit)
 
 * Requires a whole setup
 * Only subscribe to a double entry
+* Not annotation based
 
 ## Features
 
@@ -52,6 +58,6 @@ Our team explored other logging utilities.
 Add a vendor dependency
 ` https://raw.githubusercontent.com/team1306/badger-log/master/vendordep.json `
 
-Add `annotationProcessor 'com.github.team1306:badger-log:2025.1.4'` to dependencies in `build.gradle`
+Add `annotationProcessor 'com.github.team1306:badger-log:2025.1.4'` to `dependencies` in `build.gradle`
 
 Check out the [Wiki](https://github.com/team1306/badger-log/wiki) for tutorials and usage examples 
