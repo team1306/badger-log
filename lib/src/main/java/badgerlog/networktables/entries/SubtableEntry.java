@@ -1,7 +1,6 @@
 package badgerlog.networktables.entries;
 
 import badgerlog.entry.Configuration;
-import com.google.common.base.Splitter;
 import edu.wpi.first.util.struct.Struct;
 
 import java.nio.ByteBuffer;
@@ -78,9 +77,9 @@ public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
             createEntries(nestedStruct, currentKey + "/" + nestedStruct.getTypeName());
         }
 
-        for (String part : Splitter.on(";").splitToList(baseStruct.getSchema())) {
+        for (String part : baseStruct.getSchema().split(";", -1)) {
             if (!part.startsWith("double")) continue;
-            entries.add(new ValueEntry<>(currentKey + "/" + Splitter.on(" ").splitToList(part).get(1), double.class, buffer.getDouble(), new Configuration()));
+            entries.add(new ValueEntry<>(currentKey + "/" + part.split(" ", 2)[1], double.class, buffer.getDouble(), new Configuration()));
         }
     }
 }

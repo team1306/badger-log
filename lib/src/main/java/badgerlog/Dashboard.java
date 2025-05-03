@@ -222,7 +222,7 @@ public final class Dashboard {
     /**
      * Publish a value to NetworkTables with custom configuration options.
      *
-     * @param key    The NetworkTables entry key
+     * @param key    The NetworkTables entry key, will ignore config one
      * @param value  The value to publish.
      * @param config Configuration parameters
      * @param <T>    The data type to publish
@@ -247,8 +247,8 @@ public final class Dashboard {
     /**
      * Retrieves a value from NetworkTables using the default configuration.
      *
-     * @param key          The NetworkTables entry key to read
-     * @param defaultValue Fallback value if the entry is not present on NetworkTables
+     * @param key          The NetworkTables entry key, will ignore config one
+     * @param defaultValue Initial value if the entry is not present
      * @param <T>          The data type to convert to after retrieval from NetworkTables
      * @return The current NetworkTables value
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
