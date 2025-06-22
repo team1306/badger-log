@@ -32,7 +32,7 @@ public class Robot extends TimedRobot
     
     @Entry(EntryType.Publisher)
     @Key("testkey")
-    @UnitConversion("Millihertz")
+    @UnitConversion("mHz")
     private static Frequency test = Hertz.of(1);
     
     @Entry(EntryType.Publisher)

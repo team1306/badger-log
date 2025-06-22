@@ -5,9 +5,9 @@ import edu.wpi.first.units.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -19,21 +19,35 @@ import static edu.wpi.first.units.Units.Radians;
  * of type-safe unit converters. Maintains a registry of available units loaded via reflection
  * from {@link Units}.
  */
-public final class UnitConversions { // todo could possibly replace with wpilib units if structured properly
+public final class UnitConversions {
     /**
-     * Static registry of available units, keyed by their {@link Unit#name()}.
+     * Static registry of available units.
      * <p>
      * Populated at class initialization by reflecting over fields in {@link Units}.
      */
-    public static final Map<String, Unit> units;
+    public static final Map<String, Unit> units = new HashMap<>();
 
     static {
-        var fields = Units.class.getFields();
+        Field[] fields = Units.class.getFields();
 
-        units = Arrays.stream(fields)
+        HashMap<Unit, Set<String>> parts = Arrays.stream(fields)
+                .collect(Collectors.toSet())
+                .stream()
                 .map(DashboardUtil::getFieldValue)
                 .map(Unit.class::cast)
-                .collect(HashMap::new, (map, unit) -> map.put(unit.name(), unit), HashMap::putAll);
+                .collect(HashMap::new, (map, unit) -> map.put(unit, new HashSet<>()), HashMap::putAll);
+
+        for (Field field : fields) {
+            Unit unit = (Unit) DashboardUtil.getFieldValue(field);
+            parts.get(unit).add(unit.name().toLowerCase(Locale.ROOT));
+            parts.get(unit).add(unit.symbol().toLowerCase(Locale.ROOT));
+            parts.get(unit).add(field.getName().toLowerCase(Locale.ROOT));
+        }
+
+        for (Unit part : parts.keySet()) {
+            Set<String> aliases = parts.get(part);
+            aliases.forEach(alias -> units.put(alias, part));
+        }
     }
 
     private UnitConversions() {
@@ -50,6 +64,9 @@ public final class UnitConversions { // todo could possibly replace with wpilib 
      * @throws IllegalArgumentException If units are incompatible (different base types)
      */
     public static double convert(double value, @Nonnull String fromUnit, @Nonnull String toUnit) {
+        toUnit = toUnit.toLowerCase(Locale.ROOT);
+        fromUnit = fromUnit.toLowerCase(Locale.ROOT);
+
         if (units.get(fromUnit) == null)
             throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", fromUnit));
         if (units.get(toUnit) == null)
@@ -63,8 +80,8 @@ public final class UnitConversions { // todo could possibly replace with wpilib 
      * @param value    Numeric value to convert
      * @param fromUnit Source unit instance
      * @param toUnit   Target unit instance
-     * @param <T> the starting unit
-     * @param <N> the ending unit
+     * @param <T>      the starting unit
+     * @param <N>      the ending unit
      * @return Converted value in target unit
      * @throws IllegalArgumentException If units are incompatible (different base types)
      */
@@ -78,7 +95,7 @@ public final class UnitConversions { // todo could possibly replace with wpilib 
      * Creates a {@link UnitConverter} for a specific unit type.
      *
      * @param toUnit Unit to convert to/from
-     * @param <T> a converter using the specified unit
+     * @param <T>    a converter using the specified unit
      * @return Converter instance for the specified unit
      */
     public static <T extends Unit> UnitConverter<T> createConverter(@Nonnull T toUnit) {
@@ -105,6 +122,8 @@ public final class UnitConversions { // todo could possibly replace with wpilib 
      * @throws IllegalArgumentException If unit name is not registered
      */
     public static @Nonnull UnitConverter<?> createConverter(@Nonnull String toUnit) {
+        toUnit = toUnit.toLowerCase(Locale.ROOT);
+
         if (units.get(toUnit) == null)
             throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", toUnit));
         return createConverter(units.get(toUnit));
@@ -135,7 +154,7 @@ public final class UnitConversions { // todo could possibly replace with wpilib 
      *
      * @param converter   Existing converter (null uses defaultUnit)
      * @param defaultUnit Fallback unit type if converter is null
-     * @param <T> the unit to use
+     * @param <T>         the unit to use
      * @return Validated or newly created converter
      */
     public static <T extends Unit> @Nonnull UnitConverter<T> initializeUnitConverter(@Nullable UnitConverter<T> converter, @Nonnull T defaultUnit) {
