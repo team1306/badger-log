@@ -43,6 +43,10 @@ public class Robot extends TimedRobot
     
     @Entry(EntryType.Publisher)
     private static double[] tester = {1, 2};
+
+    @Entry(EntryType.Publisher)
+    @StructType(StructOptions.SUB_TABLE)
+    private static Rotation2d rotation = Rotation2d.fromDegrees(180);
     
     public Robot()
     {

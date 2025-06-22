@@ -54,6 +54,7 @@ public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
 
     @Override
     public void publishValue(T value) {
+        buffer.clear();
         struct.pack(buffer, value);
 
         buffer.rewind();
