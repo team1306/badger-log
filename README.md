@@ -58,6 +58,6 @@ Seeing this, we explored other NetworkTables utilities.
 Add a vendor dependency
 ` https://raw.githubusercontent.com/team1306/badger-log/master/vendordep.json `
 
-Add `annotationProcessor 'com.github.team1306:badger-log:2025.2.2'` to `dependencies` in `build.gradle`
+Add `annotationProcessor 'com.github.team1306:badger-log:2025.2.2.1'` to `dependencies` in `build.gradle`
 
 Check out the [Wiki](https://github.com/team1306/badger-log/wiki) for tutorials and usage examples 
