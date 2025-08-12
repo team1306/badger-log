@@ -4,6 +4,8 @@ import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
 import badgerlog.entry.handlers.Key;
 import badgerlog.entry.handlers.UnitConversion;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -52,6 +54,22 @@ public class ShortCompare {
 
             SmartDashboard.putNumber("SmartDashboardComparison/targetHeightMeters", targetHeightMeters.in(Meters));
             SmartDashboard.putNumber("SmartDashboardComparison/currentHeight", currentHeight.in(Inches));
+        }
+    }
+
+    public static class NetworkTablesComparison extends SubsystemBase {
+        private static double conversionFactor = 54.75 / 140.83;
+
+        private static NetworkTableEntry conversionFactorEntry = NetworkTableInstance.getDefault()
+                .getEntry("NetworkTablesComparison/conversionFactor");
+
+        public NetworkTablesComparison() {
+            conversionFactorEntry.setDouble(conversionFactor);
+        }
+
+        @Override
+        public void periodic() {
+            conversionFactor = conversionFactorEntry.getDouble(conversionFactor);
         }
     }
 }
