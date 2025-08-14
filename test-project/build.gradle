@@ -3,6 +3,7 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "idea"
+    id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
 }
 
 def javaVersion = JavaVersion.VERSION_17
@@ -78,6 +79,9 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
+    implementation 'org.aspectj:aspectjtools:1.9.24'
+    implementation 'org.aspectj:aspectjrt:1.9.20'
+    aspect files("../lib/build/libs/lib.jar")
 
     testImplementation platform("org.junit:junit-bom:5.11.4")
     testImplementation "org.junit.jupiter:junit-jupiter-api"
