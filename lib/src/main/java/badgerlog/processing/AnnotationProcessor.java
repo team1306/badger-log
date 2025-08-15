@@ -1,6 +1,6 @@
-package badgerlog;
+package badgerlog.processing;
 
-import badgerlog.entry.Entry;
+import badgerlog.annotations.Entry;
 import badgerlog.networktables.mappings.MappingType;
 import com.google.auto.service.AutoService;
 

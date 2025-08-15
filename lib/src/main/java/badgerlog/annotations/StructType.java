@@ -1,7 +1,7 @@
-package badgerlog.entry.handlers;
+package badgerlog.annotations;
 
-import badgerlog.StructOptions;
-import badgerlog.entry.Configurable;
+import badgerlog.annotations.configuration.Configurable;
+import badgerlog.annotations.configuration.StructTypeHandler;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

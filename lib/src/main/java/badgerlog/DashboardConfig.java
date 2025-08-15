@@ -1,5 +1,6 @@
 package badgerlog;
 
+import badgerlog.annotations.StructOptions;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;

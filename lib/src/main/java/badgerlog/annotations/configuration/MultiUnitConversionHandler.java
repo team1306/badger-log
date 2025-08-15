@@ -1,7 +1,7 @@
-package badgerlog.entry.handlers;
+package badgerlog.annotations.configuration;
 
-import badgerlog.entry.ConfigHandler;
-import badgerlog.entry.Configuration;
+import badgerlog.annotations.MultiUnitConversion;
+import badgerlog.annotations.UnitConversion;
 
 /**
  * Handles {@link MultiUnitConversion} annotations by registering multiple converters.

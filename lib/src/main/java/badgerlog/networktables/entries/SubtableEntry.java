@@ -1,6 +1,6 @@
 package badgerlog.networktables.entries;
 
-import badgerlog.entry.Configuration;
+import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
 
 import java.nio.ByteBuffer;

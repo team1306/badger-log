@@ -1,7 +1,6 @@
-package badgerlog.entry.handlers;
+package badgerlog.annotations.configuration;
 
-import badgerlog.entry.ConfigHandler;
-import badgerlog.entry.Configuration;
+import badgerlog.annotations.StructType;
 
 /**
  * Handles {@link StructType} annotations by applying struct options to configuration.

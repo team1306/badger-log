@@ -1,7 +1,6 @@
-package badgerlog.entry.handlers;
+package badgerlog.annotations.configuration;
 
-import badgerlog.entry.ConfigHandler;
-import badgerlog.entry.Configuration;
+import badgerlog.annotations.UnitConversion;
 import badgerlog.networktables.mappings.UnitConversions;
 import badgerlog.networktables.mappings.UnitConverter;
 

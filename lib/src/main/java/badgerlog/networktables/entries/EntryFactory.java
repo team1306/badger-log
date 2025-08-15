@@ -1,8 +1,8 @@
 package badgerlog.networktables.entries;
 
 import badgerlog.Dashboard;
-import badgerlog.StructOptions;
-import badgerlog.entry.Configuration;
+import badgerlog.annotations.StructOptions;
+import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import lombok.SneakyThrows;

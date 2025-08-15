@@ -1,6 +1,6 @@
 package badgerlog.networktables.mappings;
 
-import badgerlog.entry.Configuration;
+import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
 

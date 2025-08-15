@@ -1,6 +1,6 @@
-package badgerlog.entry;
+package badgerlog.annotations.configuration;
 
-import badgerlog.StructOptions;
+import badgerlog.annotations.StructOptions;
 import badgerlog.networktables.mappings.UnitConverter;
 import edu.wpi.first.units.Unit;
 import lombok.Getter;

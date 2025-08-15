@@ -1,4 +1,4 @@
-package badgerlog.entry;
+package badgerlog.annotations;
 
 /**
  * Specifies the type of interaction for NetworkTables entries.

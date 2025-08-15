@@ -21,12 +21,12 @@
  * <ul>
  *   <li>Declarative programming model using annotations. Examples include:
  *     <ul>
- *       <li>{@link badgerlog.entry.Entry} - Mark fields for NT publishing/subscribing</li>
- *       <li>{@link badgerlog.entry.handlers.Key} - Custom NT keys</li>
- *       <li>{@link badgerlog.entry.handlers.UnitConversion} - Unit specifications</li>
+ *       <li>{@link badgerlog.annotations.Entry} - Mark fields for NT publishing/subscribing</li>
+ *       <li>{@link badgerlog.annotations.Key} - Custom NT keys</li>
+ *       <li>{@link badgerlog.annotations.UnitConversion} - Unit specifications</li>
  *     </ul>
  *   </li>
- *   <li>Three struct handling modes via {@link badgerlog.StructOptions}:
+ *   <li>Three struct handling modes via {@link badgerlog.annotations.StructOptions}:
  *     <ul>
  *       <li>Direct struct serialization</li>
  *       <li>Subtable</li>
@@ -34,7 +34,7 @@
  *     </ul>
  *   </li>
  *   <li>Automatic reflection-based field registration</li>
- *   <li>Compile-time validation through {@link badgerlog.AnnotationProcessor}</li>
+ *   <li>Compile-time validation through {@link badgerlog.processing.AnnotationProcessor}</li>
  * </ul>
  */
 package badgerlog;

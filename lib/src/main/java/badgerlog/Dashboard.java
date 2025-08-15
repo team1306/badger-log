@@ -1,7 +1,7 @@
 package badgerlog;
 
-import badgerlog.entry.Configuration;
-import badgerlog.entry.Entry;
+import badgerlog.annotations.configuration.Configuration;
+import badgerlog.annotations.Entry;
 import badgerlog.networktables.entries.*;
 import badgerlog.networktables.mappings.Mapping;
 import badgerlog.networktables.mappings.MappingType;

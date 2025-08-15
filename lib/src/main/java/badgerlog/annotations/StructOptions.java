@@ -1,4 +1,4 @@
-package badgerlog;
+package badgerlog.annotations;
 
 import edu.wpi.first.util.struct.Struct;
 
