@@ -13,7 +13,7 @@
  * Core components:
  * <ol>
  *   <li>{@link badgerlog.Dashboard} - Main entry point for dashboard operations</li>
- *   <li>{@link badgerlog.entry} subsystem - Annotation processing and field configuration</li>
+ *   <li>{@link badgerlog.annotations} subsystem - Annotation processing and field configuration</li>
  *   <li>{@link badgerlog.networktables} subsystem - NetworkTables integration layer</li>
  * </ol>
  * <p>

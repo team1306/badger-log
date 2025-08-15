@@ -87,7 +87,7 @@ dependencies {
     implementation files("../lib/build/libs/lib.jar")
     annotationProcessor files("../lib/build/libs/lib.jar")
 
-    implementation "org.aspectj:aspectjrt:1.9.24"
+//    implementation "org.aspectj:aspectjrt:1.9.24"
 }
 
 test{
