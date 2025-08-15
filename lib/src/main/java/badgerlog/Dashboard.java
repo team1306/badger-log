@@ -105,9 +105,7 @@ public final class Dashboard {
      */
     @SneakyThrows({InterruptedException.class, ExecutionException.class})
     public static void initialize(@Nonnull DashboardConfig config) {
-        System.out.println("Before config set");
         Dashboard.config = config;
-        System.out.println("After config set");
         defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
         if (isInitialized) return;
 

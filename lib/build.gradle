@@ -30,6 +30,8 @@ dependencies {
     compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
     compileOnly 'edu.wpi.first.hal:hal-java:2025.+'
 
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+
     implementation 'io.github.classgraph:classgraph:4.8.179'
 
     implementation "org.aspectj:aspectjrt:1.9.24"
@@ -86,7 +88,7 @@ tasks.withType(Javadoc) {
 
 javadoc {
     // Exclude .aj files directly
-    exclude '**/*.aj'
+    exclude 'com.fasterxml.jackson.annotation.JsonAutoDetect'
 }
 
 test {
