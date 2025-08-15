@@ -7,7 +7,7 @@ import org.aspectj.lang.annotation.Pointcut;
 @Aspect
 public class TestAspect {
 
-    @Pointcut("set(* badgerlog.Dashboard.config)")
+    @Pointcut("execution(void badgerlog.Dashboard.initialize (..))")
     public void callAt() {
 
     }

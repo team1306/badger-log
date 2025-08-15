@@ -79,13 +79,6 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    aspect files("../lib/build/libs/lib.jar")
-
-    implementation "org.aspectj:aspectjrt:1.9.24"
-    runtimeOnly 'org.aspectj:aspectjweaver:1.9.24'
-
-    aspect 'org.aspectj:aspectjtools:1.9.24'
-
     testImplementation platform("org.junit:junit-bom:5.11.4")
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.junit.jupiter:junit-jupiter-params"
@@ -93,6 +86,8 @@ dependencies {
     
     implementation files("../lib/build/libs/lib.jar")
     annotationProcessor files("../lib/build/libs/lib.jar")
+
+    implementation "org.aspectj:aspectjrt:1.9.24"
 }
 
 test{
