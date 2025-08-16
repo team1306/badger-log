@@ -1,7 +1,7 @@
 package badgerlog.annotations.configuration;
 
 import badgerlog.annotations.StructOptions;
-import badgerlog.networktables.mappings.UnitConverter;
+import badgerlog.conversion.UnitConverter;
 import edu.wpi.first.units.Unit;
 import lombok.Getter;
 
@@ -15,7 +15,6 @@ import java.util.HashMap;
  */
 @SuppressWarnings("JavadocDeclaration")
 public class Configuration {
-    private final HashMap<String, String> configurations = new HashMap<>();
     private final HashMap<String, UnitConverter<?>> converters = new HashMap<>();
     /**
      * The key for NetworkTables
@@ -57,16 +56,6 @@ public class Configuration {
     }
 
     /**
-     * Gets a configuration value by key.
-     *
-     * @param key The configuration key
-     * @return The associated value, or null if not found
-     */
-    public @Nullable String getConfiguration(@Nonnull String key) {
-        return configurations.get(key);
-    }
-
-    /**
      * Sets the configuration key and returns the modified instance.
      *
      * @param key The key to set
@@ -97,18 +86,6 @@ public class Configuration {
      */
     public Configuration withStructOptions(@Nullable StructOptions structOptions) {
         this.structOptions = structOptions;
-        return this;
-    }
-
-    /**
-     * Adds a key-value configuration pair and returns the modified instance.
-     *
-     * @param key   The configuration key
-     * @param value The configuration value
-     * @return This configuration object
-     */
-    public Configuration withConfiguration(@Nonnull String key, @Nullable String value) {
-        this.configurations.put(key, value);
         return this;
     }
 }

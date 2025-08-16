@@ -1,11 +1,11 @@
 package badgerlog;
 
-import badgerlog.annotations.configuration.Configuration;
 import badgerlog.annotations.Entry;
-import badgerlog.networktables.entries.*;
-import badgerlog.networktables.mappings.Mapping;
-import badgerlog.networktables.mappings.MappingType;
-import badgerlog.networktables.mappings.Mappings;
+import badgerlog.annotations.configuration.Configuration;
+import badgerlog.conversion.Mapping;
+import badgerlog.conversion.MappingType;
+import badgerlog.conversion.Mappings;
+import badgerlog.networktables.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
@@ -67,6 +67,13 @@ import java.util.concurrent.Executors;
  */
 public final class Dashboard {
 
+    //todo remove
+    private enum KeyInitializationType {
+        BLOCKING_ON_STARTUP,
+        NON_BLOCKING_ON_STARTUP,
+        ON_INSTANCE_CREATION
+    }
+    
     private static final HashMap<String, Updater> ntEntries = new HashMap<>();
     private static final HashMap<String, Publisher<?>> singleUsePublishers = new HashMap<>();
     private static final HashMap<String, Subscriber<?>> singleUseSubscribers = new HashMap<>();

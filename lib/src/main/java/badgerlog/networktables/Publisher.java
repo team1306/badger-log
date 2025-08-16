@@ -1,4 +1,4 @@
-package badgerlog.networktables.entries;
+package badgerlog.networktables;
 
 /**
  * Defines a publisher interface for sending typed values to NetworkTables.

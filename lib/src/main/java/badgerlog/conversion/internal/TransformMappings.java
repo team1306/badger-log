@@ -1,6 +1,10 @@
-package badgerlog.networktables.mappings;
+package badgerlog.conversion.internal;
 
 import badgerlog.annotations.configuration.Configuration;
+import badgerlog.conversion.Mapping;
+import badgerlog.conversion.Mappings;
+import badgerlog.conversion.UnitConversions;
+import badgerlog.conversion.UnitConverter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.units.AngleUnit;
@@ -18,12 +22,8 @@ import static edu.wpi.first.units.Units.Radians;
  */
 @SuppressWarnings("DuplicatedCode")
 public final class TransformMappings {
-    /**
-     * Maps {@link Rotation2d} to a Double representing the angle.
-     * Converted using {@link UnitConversions#initializeRotationConverter}.
-     */
-    @MappingType
-    public static Mapping<Rotation2d, Double> rotation2dDoubleMapping = new Mapping<>(Rotation2d.class, double.class, NetworkTableType.kDouble) {
+
+    private static final Mapping<Rotation2d, Double> rotation2dDoubleMapping = new Mapping<>(Rotation2d.class, double.class, NetworkTableType.kDouble) {
 
         @Override
         public Double toNT(@Nonnull Rotation2d startValue, @Nonnull Configuration config) {
@@ -39,13 +39,7 @@ public final class TransformMappings {
             return new Rotation2d((Angle) converter.convertFrom(ntValue));
         }
     };
-
-    /**
-     * Maps {@link Rotation3d} to a double[3] array: [X-axis rotation, Y-axis rotation, Z-axis rotation].
-     * Converted using {@link UnitConversions#initializeRotationConverter}.
-     */
-    @MappingType
-    public static Mapping<Rotation3d, double[]> rotation3dToDoubleArrayMapping = new Mapping<>(Rotation3d.class, double[].class, NetworkTableType.kDoubleArray) {
+    private static final Mapping<Rotation3d, double[]> rotation3dToDoubleArrayMapping = new Mapping<>(Rotation3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@Nonnull Rotation3d startValue, @Nonnull Configuration config) {
             UnitConverter<AngleUnit> converter = UnitConversions.initializeRotationConverter(config.getDefaultConverter());
@@ -67,13 +61,27 @@ public final class TransformMappings {
             return new Rotation3d(x, y, z);
         }
     };
+    private static final Mapping<Translation2d, double[]> translation2dToDoubleArrayMapping = new Mapping<>(Translation2d.class, double[].class, NetworkTableType.kDoubleArray) {
+        @Override
+        public double[] toNT(@Nonnull Translation2d startValue, @Nonnull Configuration config) {
+            UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
 
-    /**
-     * Maps {@link Translation3d} to a double[3] array: [X translation, Y translation, Z translation].
-     * Converted using {@link UnitConversions#initializeDistanceConverter}.
-     */
-    @MappingType
-    public static Mapping<Translation3d, double[]> translation3dToDoubleArrayMapping = new Mapping<>(Translation3d.class, double[].class, NetworkTableType.kDoubleArray) {
+            double[] result = new double[2];
+            result[0] = converter.convertTo(startValue.getMeasureX());
+            result[1] = converter.convertTo(startValue.getMeasureY());
+            return result;
+        }
+
+        @Override
+        public Translation2d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
+            UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
+
+            Distance x = (Distance) converter.convertFrom(ntValue[0]);
+            Distance y = (Distance) converter.convertFrom(ntValue[1]);
+            return new Translation2d(x, y);
+        }
+    };
+    private static final Mapping<Translation3d, double[]> translation3dToDoubleArrayMapping = new Mapping<>(Translation3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@Nonnull Translation3d startValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
@@ -95,42 +103,7 @@ public final class TransformMappings {
             return new Translation3d(x, y, z);
         }
     };
-
-    /**
-     * Maps {@link Translation2d} to a double[2] array: [X translation, Y translation].
-     * Converted using {@link UnitConversions#initializeDistanceConverter}.
-     */
-    @MappingType
-    public static Mapping<Translation2d, double[]> translation2dToDoubleArrayMapping = new Mapping<>(Translation2d.class, double[].class, NetworkTableType.kDoubleArray) {
-        @Override
-        public double[] toNT(@Nonnull Translation2d startValue, @Nonnull Configuration config) {
-            UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
-
-            double[] result = new double[2];
-            result[0] = converter.convertTo(startValue.getMeasureX());
-            result[1] = converter.convertTo(startValue.getMeasureY());
-            return result;
-        }
-
-        @Override
-        public Translation2d toStart(@Nonnull double[] ntValue, @Nonnull Configuration config) {
-            UnitConverter<DistanceUnit> converter = UnitConversions.initializeDistanceConverter(config.getDefaultConverter());
-
-            Distance x = (Distance) converter.convertFrom(ntValue[0]);
-            Distance y = (Distance) converter.convertFrom(ntValue[1]);
-            return new Translation2d(x, y);
-        }
-    };
-
-    /**
-     * Maps {@link Twist2d} to a double[3] array in the order:
-     * [X translation, Y translation, theta rotation].
-     * <p>
-     * Linear components (dx/dy) use the "translation" {@link UnitConverter}.
-     * Angular component (dtheta) uses the "rotation" {@link UnitConverter}.
-     */
-    @MappingType
-    public static Mapping<Twist2d, double[]> twist2dToDoubleArrayMapping = new Mapping<>(Twist2d.class, double[].class, NetworkTableType.kDoubleArray) {
+    private static final Mapping<Twist2d, double[]> twist2dToDoubleArrayMapping = new Mapping<>(Twist2d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@Nonnull Twist2d startValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
@@ -155,17 +128,7 @@ public final class TransformMappings {
             );
         }
     };
-
-    /**
-     * Maps {@link Twist3d} to a double[6] array in the order:
-     * [X translation, Y translation, Z translation,
-     * X-axis rotation, Y-axis rotation, Z-axis rotation].
-     * <p>
-     * Linear components (dx/dy/dz) use the "translation" {@link UnitConverter}.
-     * Angular components (rx/ry/rz) use the "rotation" {@link UnitConverter}.
-     */
-    @MappingType
-    public static Mapping<Twist3d, double[]> twist3dToDoubleArrayMapping = new Mapping<>(Twist3d.class, double[].class, NetworkTableType.kDoubleArray) {
+    private static final Mapping<Twist3d, double[]> twist3dToDoubleArrayMapping = new Mapping<>(Twist3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@Nonnull Twist3d startValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
@@ -198,15 +161,7 @@ public final class TransformMappings {
             return new Twist3d(dx, dy, dz, rx, ry, rz);
         }
     };
-
-    /**
-     * Maps {@link Pose2d} to a double[3] array: [X translation, Y translation, theta rotation].
-     * <p>
-     * Linear components use the "translation" {@link UnitConverter}.
-     * Angular component use the "rotation" {@link UnitConverter}.
-     */
-    @MappingType
-    public static Mapping<Pose2d, double[]> pose2dToDoubleArrayMapping = new Mapping<>(Pose2d.class, double[].class, NetworkTableType.kDoubleArray) {
+    private static final Mapping<Pose2d, double[]> pose2dToDoubleArrayMapping = new Mapping<>(Pose2d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@Nonnull Pose2d startValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
@@ -233,16 +188,7 @@ public final class TransformMappings {
             return new Pose2d(x, y, new Rotation2d(rotation));
         }
     };
-
-    /**
-     * Maps {@link Pose3d} to a double[6] array:
-     * [X translation, Y translation, Z translation, X-axis rotation, Y-axis rotation, Z-axis rotation].
-     * <p>
-     * Linear components use the "translation" {@link UnitConverter}.
-     * Angular components use the "rotation" {@link UnitConverter}.
-     */
-    @MappingType
-    public static Mapping<Pose3d, double[]> pose3dToDoubleArrayMapping = new Mapping<>(Pose3d.class, double[].class, NetworkTableType.kDoubleArray) {
+    private static final Mapping<Pose3d, double[]> pose3dToDoubleArrayMapping = new Mapping<>(Pose3d.class, double[].class, NetworkTableType.kDoubleArray) {
         @Override
         public double[] toNT(@Nonnull Pose3d startValue, @Nonnull Configuration config) {
             UnitConverter<DistanceUnit> translationConverter = UnitConversions.initializeDistanceConverter(config.getConverter("translation"));
@@ -276,7 +222,19 @@ public final class TransformMappings {
             return new Pose3d(new Translation3d(x, y, z), new Rotation3d(rotationX, rotationY, rotationZ));
         }
     };
-
     private TransformMappings() {
+    }
+
+    public static void registerAllMappings() {
+        Mappings.registerAllMappings(
+                rotation2dDoubleMapping,
+                rotation3dToDoubleArrayMapping,
+                translation2dToDoubleArrayMapping,
+                translation3dToDoubleArrayMapping,
+                twist2dToDoubleArrayMapping,
+                twist3dToDoubleArrayMapping,
+                pose2dToDoubleArrayMapping,
+                pose3dToDoubleArrayMapping
+        );
     }
 }

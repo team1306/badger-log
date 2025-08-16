@@ -1,4 +1,4 @@
-package badgerlog.networktables.entries;
+package badgerlog.networktables;
 
 import badgerlog.Dashboard;
 import edu.wpi.first.networktables.StructEntry;

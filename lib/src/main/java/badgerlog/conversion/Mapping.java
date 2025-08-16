@@ -1,4 +1,4 @@
-package badgerlog.networktables.mappings;
+package badgerlog.conversion;
 
 import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
@@ -24,7 +24,7 @@ public abstract class Mapping<StartType, NTType> {
      *
      * @return the class object representing the source type
      */
-    private final Class<StartType> fieldType;
+    private final Class<StartType> startType;
 
     /**
      * The NetworkTables-compatible class type.
@@ -48,7 +48,7 @@ public abstract class Mapping<StartType, NTType> {
      * @param ntType    {@link NetworkTableType} enum value
      */
     public Mapping(@Nonnull Class<StartType> startType, @Nonnull Class<NTType> tableType, @Nonnull NetworkTableType ntType) {
-        this.fieldType = startType;
+        this.startType = startType;
         this.tableType = tableType;
         this.networkTableType = ntType;
     }
@@ -56,11 +56,11 @@ public abstract class Mapping<StartType, NTType> {
     /**
      * Checks whether this mapping supports a given type via assignability.
      *
-     * @param fieldType Type to check compatibility with {@link #fieldType}
+     * @param fieldType Type to check compatibility with {@link #startType}
      * @return {@code true} if {@code fieldType} is assignable to/from this mapping's {@code StartType}
      */
     public boolean matches(Class<?> fieldType) {
-        return fieldType != null && (this.fieldType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.fieldType));
+        return fieldType != null && (this.startType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.startType));
     }
 
     /**

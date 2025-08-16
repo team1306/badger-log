@@ -1,9 +1,9 @@
-package badgerlog.networktables.entries;
+package badgerlog.networktables;
 
 import badgerlog.Dashboard;
 import badgerlog.annotations.configuration.Configuration;
-import badgerlog.networktables.mappings.Mapping;
-import badgerlog.networktables.mappings.Mappings;
+import badgerlog.conversion.Mapping;
+import badgerlog.conversion.Mappings;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableType;
 

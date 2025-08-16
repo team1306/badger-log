@@ -1,4 +1,4 @@
-package badgerlog.networktables.mappings;
+package badgerlog.conversion;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;

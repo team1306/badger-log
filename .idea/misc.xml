@@ -3,7 +3,7 @@
   <component name="EntryPointsManager">
     <list size="2">
       <item index="0" class="java.lang.String" itemvalue="badgerlog.annotations.Entry" />
-      <item index="1" class="java.lang.String" itemvalue="badgerlog.networktables.mappings.MappingType" />
+      <item index="1" class="java.lang.String" itemvalue="badgerlog.conversion.MappingType" />
     </list>
     <writeAnnotations>
       <writeAnnotation name="badgerlog.entry.Entry" />

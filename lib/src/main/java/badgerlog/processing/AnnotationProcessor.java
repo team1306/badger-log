@@ -1,7 +1,6 @@
 package badgerlog.processing;
 
 import badgerlog.annotations.Entry;
-import badgerlog.networktables.mappings.MappingType;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.*;
@@ -24,8 +23,7 @@ import java.util.Set;
  * This processor is automatically registered via {@link AutoService} and processes all annotations
  * under the {@code badgerlog} package.
  */
-@SupportedAnnotationTypes(
-        "badgerlog.*")
+@SupportedAnnotationTypes("badgerlog.*")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(Processor.class)
 public final class AnnotationProcessor extends AbstractProcessor {
@@ -49,8 +47,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 Types typeUtils = processingEnv.getTypeUtils();
                 Elements elementUtils = processingEnv.getElementUtils();
 
-                var mappingType = elementUtils.getTypeElement("badgerlog.networktables.mappings.Mapping");
-                var mappingAnnotation = elementUtils.getTypeElement("badgerlog.networktables.mappings.MappingType");
+                var mappingType = elementUtils.getTypeElement("badgerlog.conversion.Mapping");
+                var mappingAnnotation = elementUtils.getTypeElement("badgerlog.conversion.MappingType");
 
                 if (typeUtils.isSameType(annotation.asType(), mappingAnnotation.asType()))
                     if (!typeUtils.isSameType(variableElement.asType(), mappingType.asType()))

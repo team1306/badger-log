@@ -1,4 +1,4 @@
-package badgerlog.networktables.entries;
+package badgerlog.networktables;
 
 /**
  * Defines a subscriber interface for retrieving typed values from NetworkTables.
