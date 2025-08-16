@@ -4,8 +4,6 @@ import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
 
-import javax.annotation.Nonnull;
-
 /**
  * Abstract base class defining bidirectional conversions between an arbitrary type and a NetworkTables-compatible type.
  * <p>
@@ -47,7 +45,7 @@ public abstract class Mapping<StartType, NTType> {
      * @param tableType NetworkTables-compatible type class
      * @param ntType    {@link NetworkTableType} enum value
      */
-    public Mapping(@Nonnull Class<StartType> startType, @Nonnull Class<NTType> tableType, @Nonnull NetworkTableType ntType) {
+    public Mapping(Class<StartType> startType, Class<NTType> tableType, NetworkTableType ntType) {
         this.startType = startType;
         this.tableType = tableType;
         this.networkTableType = ntType;
@@ -70,7 +68,7 @@ public abstract class Mapping<StartType, NTType> {
      * @param config     Configuration context for the conversion
      * @return Converted value as a {@code NTType}
      */
-    public abstract NTType toNT(@Nonnull StartType startValue, @Nonnull Configuration config);
+    public abstract NTType toNT(StartType startValue, Configuration config);
 
     /**
      * Converts a NetworkTables-compatible value back to the original {@code StartType}.
@@ -79,5 +77,5 @@ public abstract class Mapping<StartType, NTType> {
      * @param config  Configuration context for the conversion
      * @return Converted value as a {@code StartType}
      */
-    public abstract StartType toStart(@Nonnull NTType ntValue, @Nonnull Configuration config);
+    public abstract StartType toStart(NTType ntValue, Configuration config);
 }

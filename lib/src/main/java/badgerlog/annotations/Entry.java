@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
 public @interface Entry {
     /**
      * Specifies the interaction type for the annotated field.
+     *
      * @return The {@code EntryType} for this field
      */
     EntryType value();

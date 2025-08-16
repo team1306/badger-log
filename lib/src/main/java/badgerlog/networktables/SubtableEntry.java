@@ -15,12 +15,14 @@ import java.util.List;
  *
  * @param <T> Struct type implementing {@link edu.wpi.first.util.struct.StructSerializable}
  */
-public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
+public final class SubtableEntry<T> implements NTEntry<T> {
 
     private final Struct<T> struct;
 
     private final List<ValueEntry<Double>> entries;
     private final ByteBuffer buffer;
+
+    private final String key;
 
     /**
      * Constructs a subtable handler and initializes NetworkTables entries with default values.
@@ -31,6 +33,7 @@ public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
      */
     public SubtableEntry(String key, Struct<T> struct, T defaultValue) {
         this.struct = struct;
+        this.key = key;
 
         entries = new ArrayList<>();
         buffer = ByteBuffer.allocate(struct.getSize());
@@ -45,11 +48,16 @@ public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
     public T retrieveValue() {
         buffer.clear();
 
-        for (Subscriber<Double> subscriber : entries) {
+        for (NTEntry<Double> subscriber : entries) {
             buffer.putDouble(subscriber.retrieveValue());
         }
         buffer.rewind();
         return struct.unpack(buffer);
+    }
+
+    @Override
+    public String getKey() {
+        return key;
     }
 
     @Override
@@ -58,7 +66,7 @@ public final class SubtableEntry<T> implements Subscriber<T>, Publisher<T> {
         struct.pack(buffer, value);
 
         buffer.rewind();
-        for (Publisher<Double> publisher : entries) {
+        for (NTEntry<Double> publisher : entries) {
             publisher.publishValue(buffer.getDouble());
         }
 

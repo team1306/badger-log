@@ -5,8 +5,8 @@ import badgerlog.conversion.UnitConverter;
 import edu.wpi.first.units.Unit;
 import lombok.Getter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 /**
@@ -33,6 +33,34 @@ public class Configuration {
     private StructOptions structOptions = null;
 
     /**
+     * Generates a {@link Configuration} by processing annotations on a field.
+     * Uses registered handlers from {@link ConfigHandlerRegistry} to interpret annotations.
+     *
+     * @param field the annotated field to process
+     * @return a configuration populated with data from the field's annotations
+     */
+    public static Configuration createConfigurationFromField(Field field) {
+        Configuration config = new Configuration();
+        Annotation[] annotations = field.getDeclaredAnnotations();
+        for (Annotation annotation : annotations) {
+            handleAnnotation(annotation, config);
+        }
+
+        String key;
+        if (config.getKey() == null || config.getKey().isBlank())
+            key = field.getDeclaringClass().getSimpleName() + "/" + field.getName();
+        else key = config.getKey();
+
+        return config.withKey(key);
+    }
+
+    @SuppressWarnings("unchecked") // Annotation must have a class of type T from type requirements
+    private static <T extends Annotation> void handleAnnotation(T annotation, Configuration config) {
+        if (!ConfigHandlerRegistry.hasValidHandler(annotation.annotationType())) return;
+        ConfigHandlerRegistry.getHandler((Class<T>) annotation.annotationType()).process(annotation, config);
+    }
+
+    /**
      * Retrieves a unit converter by its identifier.
      *
      * @param id  The converter identifier (empty string for default)
@@ -41,7 +69,7 @@ public class Configuration {
      */
     @SuppressWarnings("unchecked")
     // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping 
-    public <T extends Unit> @Nullable UnitConverter<T> getConverter(String id) {
+    public <T extends Unit> UnitConverter<T> getConverter(String id) {
         return (UnitConverter<T>) converters.get(id);
     }
 
@@ -51,7 +79,7 @@ public class Configuration {
      * @param <T> the type for the converter to be cast to
      * @return The default converter, or null if not set
      */
-    public <T extends Unit> @Nullable UnitConverter<T> getDefaultConverter() {
+    public <T extends Unit> UnitConverter<T> getDefaultConverter() {
         return getConverter("");
     }
 
@@ -61,7 +89,7 @@ public class Configuration {
      * @param key The key to set
      * @return This configuration object
      */
-    public Configuration withKey(@Nullable String key) {
+    public Configuration withKey(String key) {
         this.key = key;
         return this;
     }
@@ -73,7 +101,7 @@ public class Configuration {
      * @param converter The converter to add
      * @return This configuration object
      */
-    public Configuration withConverter(@Nonnull String id, @Nullable UnitConverter<?> converter) {
+    public Configuration withConverter(String id, UnitConverter<?> converter) {
         this.converters.put(id, converter);
         return this;
     }
@@ -84,7 +112,7 @@ public class Configuration {
      * @param structOptions The struct options to set
      * @return This configuration object
      */
-    public Configuration withStructOptions(@Nullable StructOptions structOptions) {
+    public Configuration withStructOptions(StructOptions structOptions) {
         this.structOptions = structOptions;
         return this;
     }

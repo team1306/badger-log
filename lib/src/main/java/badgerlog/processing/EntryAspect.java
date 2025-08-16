@@ -1,51 +1,66 @@
 package badgerlog.processing;
 
+import badgerlog.Dashboard;
+import badgerlog.DashboardUtil;
 import badgerlog.annotations.Entry;
+import badgerlog.annotations.configuration.Configuration;
+import badgerlog.networktables.EntryFactory;
+import badgerlog.networktables.PublisherUpdater;
+import badgerlog.networktables.SendableEntry;
+import badgerlog.networktables.SubscriberUpdater;
+import edu.wpi.first.util.sendable.Sendable;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 @SuppressWarnings("-javadoc")
 @Aspect
 public class EntryAspect {
 
-    @Pointcut("execution(*.new(..)) && if()")
-    public static boolean constructorWithEntryAnnotationSomewhere(JoinPoint thisJoinPoint) {
-        return hasFieldEntryAnnotation(thisJoinPoint.getSignature().getDeclaringType());
+    @Pointcut("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
+    public static void constructor() {
     }
 
-    private static boolean hasFieldEntryAnnotation(Class<?> clazz) {
-        for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Entry.class)) {
-                return true;
-            }
-        }
-
-        for (Field field : clazz.getFields()) {
-            if (field.isAnnotationPresent(Entry.class)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @After("constructorWithEntryAnnotationSomewhere")
+    @After("constructor()")
     public void addAllEntryFields(JoinPoint thisJoinPoint) {
         Class<?> staticReference = thisJoinPoint.getSignature().getDeclaringType();
         Object workingClass = thisJoinPoint.getThis();
 
-        if (workingClass != null) handleInstanceFields(workingClass);
-        if (staticReference != null) handleStaticFields(staticReference);
+        Arrays.stream(staticReference.getDeclaredFields()).filter(field -> field.isAnnotationPresent(Entry.class)).forEach(field -> handleField(field, workingClass));
     }
 
-    private void handleStaticFields(Class<?> clazz) {
+    private void handleField(Field field, Object instance) {
+        if (instance == null && !Modifier.isStatic(field.getModifiers())) {
+            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is an instance field, with no instance. SKIPPING");
+            return;
+        }
 
-    }
+        if (DashboardUtil.getFieldValue(field, instance) == null) {
+            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a uninitialized field after construction. SKIPPING");
+            return;
+        }
 
-    private void handleInstanceFields(Object instance) {
+        if (Modifier.isFinal(field.getModifiers())) {
+            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a final field. SKIPPING");
+            return;
+        }
 
+        Configuration config = Configuration.createConfigurationFromField(field);
+
+        var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), DashboardUtil.getFieldValue(field, instance), config);
+        Entry annotation = field.getAnnotation(Entry.class);
+        Dashboard.addUpdatingNetworkTableEntry(switch (annotation.value()) {
+                    case Publisher -> new PublisherUpdater<>(entry, () -> DashboardUtil.getFieldValue(field, instance));
+                    case Subscriber ->
+                            new SubscriberUpdater<>(entry, value -> DashboardUtil.setFieldValue(instance, field, value));
+                    case Sendable ->
+                            new SendableEntry(config.getKey(), (Sendable) DashboardUtil.getFieldValue(field, instance));
+                }
+        );
     }
 }

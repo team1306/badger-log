@@ -5,7 +5,6 @@ import badgerlog.annotations.MultiUnitConversion;
 import badgerlog.annotations.StructType;
 import badgerlog.annotations.UnitConversion;
 
-import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +33,7 @@ public final class ConfigHandlerRegistry {
      * @param handler        The handler to process the annotation
      * @param <T>            the type of the handler
      */
-    public static <T extends Annotation> void registerHandler(@Nonnull Class<T> annotationType, @Nonnull ConfigHandler<T> handler) {
+    public static <T extends Annotation> void registerHandler(Class<T> annotationType, ConfigHandler<T> handler) {
         handlers.put(annotationType, handler);
     }
 
@@ -46,7 +45,7 @@ public final class ConfigHandlerRegistry {
      * @return The associated handler, or null if not found
      */
     @SuppressWarnings("unchecked") // Cast not possible to fail, since handlers are registered with the same type
-    public static <T extends Annotation> ConfigHandler<T> getHandler(@Nonnull Class<T> annotationType) {
+    public static <T extends Annotation> ConfigHandler<T> getHandler(Class<T> annotationType) {
         return (ConfigHandler<T>) handlers.get(annotationType);
     }
 

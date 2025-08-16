@@ -3,8 +3,6 @@ package badgerlog;
 import badgerlog.annotations.StructOptions;
 import lombok.Getter;
 
-import javax.annotation.Nonnull;
-
 /**
  * Configuration for customizing BadgerLog's NetworkTables integration and package scanning.
  */
@@ -53,7 +51,7 @@ public final class DashboardConfig {
      * @param defaultTableKey New base table key (e.g., "SmartDashboard")
      * @return This config instance for chaining
      */
-    public DashboardConfig withBaseTableKey(@Nonnull String defaultTableKey) {
+    public DashboardConfig withBaseTableKey(String defaultTableKey) {
         this.baseTableKey = defaultTableKey;
         return this;
     }
@@ -64,7 +62,7 @@ public final class DashboardConfig {
      * @param structOptions Publishing strategy (MAPPING, SUB_TABLE, or STRUCT)
      * @return This config instance for chaining
      */
-    public DashboardConfig withStructOptions(@Nonnull StructOptions structOptions) {
+    public DashboardConfig withStructOptions(StructOptions structOptions) {
         this.structOptions = structOptions;
         return this;
     }

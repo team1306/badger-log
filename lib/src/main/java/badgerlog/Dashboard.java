@@ -3,25 +3,18 @@ package badgerlog;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.conversion.Mapping;
-import badgerlog.conversion.MappingType;
-import badgerlog.conversion.Mappings;
 import badgerlog.networktables.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.FieldInfo;
-import lombok.SneakyThrows;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The {@code Dashboard} class serves as the main component of BadgerLog, providing a utility
@@ -67,16 +60,9 @@ import java.util.concurrent.Executors;
  */
 public final class Dashboard {
 
-    //todo remove
-    private enum KeyInitializationType {
-        BLOCKING_ON_STARTUP,
-        NON_BLOCKING_ON_STARTUP,
-        ON_INSTANCE_CREATION
-    }
-    
-    private static final HashMap<String, Updater> ntEntries = new HashMap<>();
-    private static final HashMap<String, Publisher<?>> singleUsePublishers = new HashMap<>();
-    private static final HashMap<String, Subscriber<?>> singleUseSubscribers = new HashMap<>();
+    private static final Set<Updater> ntEntries = new HashSet<>();
+    private static final HashMap<String, NTEntry<?>> singleUseEntries = new HashMap<>();
+    private static final boolean isInitialized = false;
     /**
      * The config used by BadgerLog
      */
@@ -85,7 +71,6 @@ public final class Dashboard {
      * The base table used by BadgerLog for publishing and subscribing to
      */
     public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
-    private static boolean isInitialized = false;
 
     private Dashboard() {
     }
@@ -95,7 +80,7 @@ public final class Dashboard {
      * This method performs one-time setup including:
      * <ul>
      *   <li>Configuration of BadgerLog base table using provided {@link DashboardConfig}</li>
-     *   <li>Classpath scanning for fields annotated with {@link Entry} and {@link MappingType}</li>
+     *   <li>Classpath scanning for fields annotated with {@link Entry} and </li>
      *   <li>Automatic creation of publishers/subscribers for discovered fields</li>
      *   <li>Creation of type mappings for NetworkTables data conversions</li>
      * </ul>
@@ -108,62 +93,17 @@ public final class Dashboard {
      * @param config The configuration object
      * @throws IllegalStateException If annotated fields are improperly configured (uninitialized, non-static, or final)
      * @see Entry
-     * @see MappingType
      */
-    @SneakyThrows({InterruptedException.class, ExecutionException.class})
-    public static void initialize(@Nonnull DashboardConfig config) {
+    public static void initialize(DashboardConfig config) {
         Dashboard.config = config;
-        defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
-        if (isInitialized) return;
+    }
 
-        defaultTable.getEntry("Dashboard Startup").setBoolean(false);
+    public static void addNetworkTableEntry(NTEntry<?> entry) {
+        singleUseEntries.put(entry.getKey(), entry);
+    }
 
-        var classGraph = new ClassGraph().acceptPackages(config.getBasePackages()).acceptPackages("badgerlog").enableAllInfo().ignoreFieldVisibility();
-
-        var resultAsync = classGraph.scanAsync(Executors.newCachedThreadPool(), 10);
-        var result = resultAsync.get();
-
-        Mappings.mappings.addAll(
-                result.getClassesWithFieldAnnotation(MappingType.class).stream()
-                        .flatMap(classInfo -> classInfo.getFieldInfo().stream()
-                                .filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))
-                                .map(DashboardUtil::checkFieldValidity)
-                                .map(field -> (Mapping<?, ?>) DashboardUtil.getFieldValue(field))
-                        ).toList()
-        );
-
-        var fieldInfoCollection = result.getClassesWithFieldAnnotation(Entry.class).stream()
-                .flatMap(classInfo -> classInfo.getFieldInfo().stream()
-                        .filter(fieldInfo -> fieldInfo.hasAnnotation(Entry.class))
-                ).toList();
-
-
-        for (FieldInfo fieldInfo : fieldInfoCollection) {
-            var field = DashboardUtil.checkFieldValidity(fieldInfo);
-
-            var entry = field.getAnnotation(Entry.class);
-            if (entry == null) {
-                DriverStation.reportError("No entry annotation found for field: " + field.getName(), true);
-                continue;
-            }
-            var fieldConfig = DashboardUtil.createConfigurationFromField(field);
-            String key;
-            if (fieldConfig.getKey() == null || fieldConfig.getKey().isBlank())
-                key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
-            else key = fieldConfig.getKey();
-
-            ntEntries.put(key, switch (entry.value()) {
-                case Publisher ->
-                        new PublisherUpdater<>(EntryFactory.createPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
-                case Subscriber ->
-                        new SubscriberUpdater<>(EntryFactory.createSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
-                case Sendable -> new SendableEntry(key, (Sendable) DashboardUtil.getFieldValue(field));
-            });
-        }
-        result.close();
-
-        defaultTable.getEntry("Dashboard Startup").setBoolean(true);
-        isInitialized = true;
+    public static void addUpdatingNetworkTableEntry(Updater entry) {
+        ntEntries.add(entry);
     }
 
     /**
@@ -173,8 +113,7 @@ public final class Dashboard {
      * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      */
     public static void update() {
-        checkDashboardInitialized();
-        ntEntries.forEach((Key, entry) -> entry.update());
+        ntEntries.forEach(Updater::update);
     }
 
     /**
@@ -187,9 +126,7 @@ public final class Dashboard {
      * @see Trigger
      * @see EventLoop
      */
-    public static Trigger getNetworkTablesButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
-        checkDashboardInitialized();
-
+    public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
         var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
@@ -204,9 +141,7 @@ public final class Dashboard {
      * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #getNetworkTablesButton(String, EventLoop)
      */
-    public static Trigger getAutoResettingButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
-        checkDashboardInitialized();
-
+    public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         return getNetworkTablesButton(key, eventLoop)
                 .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
@@ -222,7 +157,7 @@ public final class Dashboard {
      * @see Mapping
      * @see Configuration
      */
-    public static <T> void putValue(@Nonnull String key, @Nonnull T value) {
+    public static <T> void putValue(String key, T value) {
         putValue(key, value, new Configuration());
     }
 
@@ -236,19 +171,10 @@ public final class Dashboard {
      * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #putValue(String, Object)
      */
-    @SuppressWarnings("unchecked")
-    public static <T> void putValue(@Nonnull String key, @Nonnull T value, @Nonnull Configuration config) {
-        checkDashboardInitialized();
+    public static <T> void putValue(String key, T value, Configuration config) {
+        NTEntry<T> entry = createEntryIfNotPresent(key, value, config);
 
-        Publisher<T> publisher;
-        if (!singleUsePublishers.containsKey(key)) {
-            publisher = EntryFactory.createPublisherFromValue(key, value, config);
-            singleUsePublishers.put(key, publisher);
-        } else {
-            publisher = (Publisher<T>) singleUsePublishers.get(key);
-        }
-
-        publisher.publishValue(value);
+        entry.publishValue(value);
     }
 
     /**
@@ -261,7 +187,7 @@ public final class Dashboard {
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object, Configuration)
      */
-    public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue) {
+    public static <T> T getValue(String key, T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
     }
 
@@ -276,18 +202,22 @@ public final class Dashboard {
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object)
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue, @Nonnull Configuration config) {
-        checkDashboardInitialized();
-        Subscriber<T> subscriber;
-        if (!singleUseSubscribers.containsKey(key)) {
-            subscriber = EntryFactory.createSubscriberFromValue(key, defaultValue, config);
-            singleUseSubscribers.put(key, subscriber);
-        } else {
-            subscriber = (Subscriber<T>) singleUseSubscribers.get(key);
-        }
+    public static <T> T getValue(String key, T defaultValue, Configuration config) {
+        NTEntry<T> entry = createEntryIfNotPresent(key, defaultValue, config);
 
-        return subscriber.retrieveValue();
+        return entry.retrieveValue();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> NTEntry<T> createEntryIfNotPresent(String key, T defaultValue, Configuration config) {
+        NTEntry<T> entry;
+        if (!singleUseEntries.containsKey(key)) {
+            entry = EntryFactory.createNetworkTableEntryFromValue(key, defaultValue, config);
+            singleUseEntries.put(key, entry);
+        } else {
+            entry = (NTEntry<T>) singleUseEntries.get(key);
+        }
+        return entry;
     }
 
     /**
@@ -303,13 +233,14 @@ public final class Dashboard {
      * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see Entry
      */
-    public static void putSendable(@Nonnull String key, @Nonnull Sendable sendable) {
-        if (ntEntries.containsKey(key)) return;
-        ntEntries.put(key, new SendableEntry(key, sendable));
+    public static void putSendable(String key, Sendable sendable) {
+        ntEntries.add(new SendableEntry(key, sendable));
     }
 
-    private static void checkDashboardInitialized() {
-        if (!isInitialized)
-            throw new IllegalStateException("Dashboard is not initialized. \n Call Dashboard.initialize() in Robot.robotInit");
+    //todo remove
+    private enum KeyInitializationType {
+        BLOCKING_ON_STARTUP,
+        NON_BLOCKING_ON_STARTUP,
+        ON_INSTANCE_CREATION
     }
 }

@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  */
 public final class SubscriberUpdater<T> implements Updater {
 
-    private final Subscriber<T> subscriber;
+    private final NTEntry<T> subscriber;
     private final Consumer<T> valueConsumer;
 
     /**
@@ -19,7 +19,7 @@ public final class SubscriberUpdater<T> implements Updater {
      * @param subscriber    Source of NetworkTables values
      * @param valueConsumer Receiver for retrieved values
      */
-    public SubscriberUpdater(Subscriber<T> subscriber, Consumer<T> valueConsumer) {
+    public SubscriberUpdater(NTEntry<T> subscriber, Consumer<T> valueConsumer) {
         this.subscriber = subscriber;
         this.valueConsumer = valueConsumer;
     }

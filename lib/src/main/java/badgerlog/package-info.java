@@ -34,7 +34,6 @@
  *     </ul>
  *   </li>
  *   <li>Automatic reflection-based field registration</li>
- *   <li>Compile-time validation through {@link badgerlog.processing.AnnotationProcessor}</li>
  * </ul>
  */
 package badgerlog;

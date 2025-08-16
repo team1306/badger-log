@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  */
 public final class PublisherUpdater<T> implements Updater {
 
-    private final Publisher<T> publisher;
+    private final NTEntry<T> publisher;
     private final Supplier<T> valueSupplier;
 
     /**
@@ -19,7 +19,7 @@ public final class PublisherUpdater<T> implements Updater {
      * @param publisher     Target for value publishing
      * @param valueSupplier Provider of current values to publish
      */
-    public PublisherUpdater(Publisher<T> publisher, Supplier<T> valueSupplier) {
+    public PublisherUpdater(NTEntry<T> publisher, Supplier<T> valueSupplier) {
         this.publisher = publisher;
         this.valueSupplier = valueSupplier;
     }

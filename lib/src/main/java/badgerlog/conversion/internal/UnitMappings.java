@@ -10,8 +10,6 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.*;
 
-import javax.annotation.Nonnull;
-
 import static edu.wpi.first.units.Units.*;
 
 /**
@@ -69,14 +67,14 @@ public final class UnitMappings {
     private static <T extends Unit, N extends Measure<T>> Mapping<N, Double> createMeasureMapping(T defaultUnit, Class<N> measureType) {
         return new Mapping<>(measureType, double.class, NetworkTableType.kDouble) {
             @Override
-            public Double toNT(@Nonnull N startValue, @Nonnull Configuration config) {
+            public Double toNT(N startValue, Configuration config) {
                 UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config.getDefaultConverter(), defaultUnit);
                 return converter.convertTo(startValue);
             }
 
             @Override
             @SuppressWarnings("unchecked") // N has to be able to cast to Measure<T> to fulfill the generic requirement
-            public N toStart(@Nonnull Double ntValue, @Nonnull Configuration config) {
+            public N toStart(Double ntValue, Configuration config) {
                 UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config.getDefaultConverter(), defaultUnit);
                 return (N) converter.convertFrom(ntValue);
             }

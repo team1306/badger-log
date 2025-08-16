@@ -7,12 +7,7 @@ package frc.robot;
 
 import badgerlog.Dashboard;
 import badgerlog.DashboardConfig;
-import badgerlog.StructOptions;
-import badgerlog.entry.Entry;
-import badgerlog.entry.EntryType;
-import badgerlog.entry.handlers.Key;
-import badgerlog.entry.handlers.StructType;
-import badgerlog.entry.handlers.UnitConversion;
+import badgerlog.annotations.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -33,20 +28,20 @@ public class Robot extends TimedRobot
     @Entry(EntryType.Publisher)
     @Key("testkey")
     @UnitConversion("mHz")
-    private static Frequency test = Hertz.of(1);
+    private Frequency test = Hertz.of(1);
     
     @Entry(EntryType.Publisher)
     @UnitConversion(value = "Inch", converterId = "translation")
     @UnitConversion(value = "Rotation", converterId = "rotation")
     @StructType(StructOptions.MAPPING)
-    private static Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
+    private Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
     
     @Entry(EntryType.Publisher)
-    private static double[] tester = {1, 2};
+    private double[] tester = {1, 2};
 
     @Entry(EntryType.Publisher)
     @StructType(StructOptions.SUB_TABLE)
-    private static Rotation2d rotation = Rotation2d.fromDegrees(180);
+    private Rotation2d rotation = Rotation2d.fromDegrees(180);
     
     public Robot()
     {

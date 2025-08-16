@@ -5,12 +5,16 @@
 
 package frc.robot;
 
+import badgerlog.annotations.Entry;
+import badgerlog.annotations.EntryType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 
 public class RobotContainer
 {
+    @Entry(EntryType.Publisher)
+    public String testEntry = "test";
     
     public RobotContainer()
     {

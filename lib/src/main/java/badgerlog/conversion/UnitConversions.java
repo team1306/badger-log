@@ -3,8 +3,6 @@ package badgerlog.conversion;
 import badgerlog.DashboardUtil;
 import edu.wpi.first.units.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,7 +61,7 @@ public final class UnitConversions {
      * @throws IllegalArgumentException If either unit name is not registered
      * @throws IllegalArgumentException If units are incompatible (different base types)
      */
-    public static double convert(double value, @Nonnull String fromUnit, @Nonnull String toUnit) {
+    public static double convert(double value, String fromUnit, String toUnit) {
         toUnit = toUnit.toLowerCase(Locale.ROOT);
         fromUnit = fromUnit.toLowerCase(Locale.ROOT);
 
@@ -85,7 +83,7 @@ public final class UnitConversions {
      * @return Converted value in target unit
      * @throws IllegalArgumentException If units are incompatible (different base types)
      */
-    public static <T extends Unit, N extends Unit> double convert(double value, @Nonnull T fromUnit, @Nonnull N toUnit) {
+    public static <T extends Unit, N extends Unit> double convert(double value, T fromUnit, N toUnit) {
         if (!fromUnit.getBaseUnit().equals(toUnit.getBaseUnit()))
             throw new IllegalArgumentException("Unit types do not match");
         return toUnit.getConverterFromBase().apply(fromUnit.getConverterToBase().apply(value));
@@ -98,17 +96,17 @@ public final class UnitConversions {
      * @param <T>    a converter using the specified unit
      * @return Converter instance for the specified unit
      */
-    public static <T extends Unit> UnitConverter<T> createConverter(@Nonnull T toUnit) {
+    public static <T extends Unit> UnitConverter<T> createConverter(T toUnit) {
         return new UnitConverter<>() {
             @Override
-            public double convertTo(@Nonnull Measure<T> value) {
+            public double convertTo(Measure<T> value) {
                 return value.in(toUnit);
             }
 
             @Override
             @SuppressWarnings("unchecked")
             // the type is guaranteed to be of type Measure<T> because of Unit implementation
-            public @Nonnull Measure<T> convertFrom(double value) {
+            public Measure<T> convertFrom(double value) {
                 return (Measure<T>) toUnit.of(value);
             }
         };
@@ -121,7 +119,7 @@ public final class UnitConversions {
      * @return Converter instance for the specified unit
      * @throws IllegalArgumentException If unit name is not registered
      */
-    public static @Nonnull UnitConverter<?> createConverter(@Nonnull String toUnit) {
+    public static UnitConverter<?> createConverter(String toUnit) {
         toUnit = toUnit.toLowerCase(Locale.ROOT);
 
         if (units.get(toUnit) == null)
@@ -135,7 +133,7 @@ public final class UnitConversions {
      * @param converter Existing converter (may be null)
      * @return Valid converter matching distance units
      */
-    public static @Nonnull UnitConverter<DistanceUnit> initializeDistanceConverter(@Nullable UnitConverter<DistanceUnit> converter) {
+    public static UnitConverter<DistanceUnit> initializeDistanceConverter(UnitConverter<DistanceUnit> converter) {
         return initializeUnitConverter(converter, Meters);
     }
 
@@ -145,7 +143,7 @@ public final class UnitConversions {
      * @param converter Existing converter (may be null)
      * @return Valid converter matching angle units
      */
-    public static @Nonnull UnitConverter<AngleUnit> initializeRotationConverter(@Nullable UnitConverter<AngleUnit> converter) {
+    public static UnitConverter<AngleUnit> initializeRotationConverter(UnitConverter<AngleUnit> converter) {
         return initializeUnitConverter(converter, Radians);
     }
 
@@ -157,7 +155,7 @@ public final class UnitConversions {
      * @param <T>         the unit to use
      * @return Validated or newly created converter
      */
-    public static <T extends Unit> @Nonnull UnitConverter<T> initializeUnitConverter(@Nullable UnitConverter<T> converter, @Nonnull T defaultUnit) {
+    public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit) {
         return converter == null ? createConverter(defaultUnit) : converter;
     }
 } 

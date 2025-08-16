@@ -6,8 +6,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
-import javax.annotation.Nonnull;
-
 /**
  * Handles publishing and updating {@link Sendable} objects in NetworkTables.Synchronizes Sendable data through periodic updates.
  */
@@ -21,7 +19,7 @@ public final class SendableEntry implements Updater {
      * @param key      NetworkTables key path for the Sendable data
      * @param sendable The {@link Sendable} object to publish
      */
-    public SendableEntry(@Nonnull String key, @Nonnull Sendable sendable) {
+    public SendableEntry(String key, Sendable sendable) {
         this.sendable = sendable;
 
         NetworkTable dataTable = Dashboard.defaultTable.getSubTable(key);
