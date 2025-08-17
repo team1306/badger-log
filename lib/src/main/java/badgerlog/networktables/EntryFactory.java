@@ -8,13 +8,12 @@ import edu.wpi.first.util.struct.StructSerializable;
 import lombok.SneakyThrows;
 
 /**
- * Factory class for creating NetworkTables {@link Publisher} and {@link Subscriber} entries based on value types
+ * Factory class for creating NetworkTables and entries based on value types
  * and configuration. Automatically selects the appropriate entry implementation (struct, subtable, or mapped value)
  * according to the {@link StructOptions} specified in the configuration.
  *
  * <p>Handles both struct-based data (via {@link StructSerializable}) and generic values with type mappings.
  */
-@SuppressWarnings("DuplicatedCode") // TODO work on structure later
 public final class EntryFactory {
     private EntryFactory() {
     }

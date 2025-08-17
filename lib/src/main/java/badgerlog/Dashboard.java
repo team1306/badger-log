@@ -53,8 +53,6 @@ import java.util.Set;
  *
  * @see Entry
  * @see Mapping
- * @see Publisher
- * @see Subscriber
  * @see Trigger
  * @see DashboardConfig
  */
@@ -62,7 +60,6 @@ public final class Dashboard {
 
     private static final Set<Updater> ntEntries = new HashSet<>();
     private static final HashMap<String, NTEntry<?>> singleUseEntries = new HashMap<>();
-    private static final boolean isInitialized = false;
     /**
      * The config used by BadgerLog
      */
@@ -235,12 +232,5 @@ public final class Dashboard {
      */
     public static void putSendable(String key, Sendable sendable) {
         ntEntries.add(new SendableEntry(key, sendable));
-    }
-
-    //todo remove
-    private enum KeyInitializationType {
-        BLOCKING_ON_STARTUP,
-        NON_BLOCKING_ON_STARTUP,
-        ON_INSTANCE_CREATION
     }
 }

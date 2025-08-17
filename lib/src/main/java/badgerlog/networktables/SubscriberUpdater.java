@@ -3,7 +3,7 @@ package badgerlog.networktables;
 import java.util.function.Consumer;
 
 /**
- * Automates periodic consumption of NetworkTables values by linking a {@link Subscriber} with a value {@link Consumer}.
+ * Automates periodic consumption of NetworkTables values by linking awith a value {@link Consumer}.
  * Implements the {@link Updater} interface to enable scheduled updates, typically used in loops or timed tasks.
  *
  * @param <T> Type of data being consumed

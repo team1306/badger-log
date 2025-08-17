@@ -1,4 +1,4 @@
-package badgerlog;
+package badgerlog.processing;
 
 import badgerlog.annotations.configuration.Configuration;
 import lombok.SneakyThrows;
@@ -12,9 +12,9 @@ import java.lang.reflect.Field;
  * <p>
  * This class is not meant to be instantiated and operates exclusively using static methods.
  */
-public final class DashboardUtil {
+public final class Fields {
 
-    private DashboardUtil() {
+    private Fields() {
     }
 
     /**

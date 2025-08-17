@@ -6,7 +6,7 @@ import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 
 /**
- * A NetworkTables entry handler for struct values, combining both {@link Publisher} and {@link Subscriber} functionality.
+ * A NetworkTables entry handler for struct values, combining both functionality.
  * Uses a {@link StructEntry} to send values according to the specified struct. This is one of
  * three available options for publishing structs to NetworkTables.
  *

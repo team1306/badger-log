@@ -1,6 +1,6 @@
 package badgerlog.conversion;
 
-import badgerlog.DashboardUtil;
+import badgerlog.processing.Fields;
 import edu.wpi.first.units.*;
 
 import java.lang.reflect.Field;
@@ -31,12 +31,12 @@ public final class UnitConversions {
         HashMap<Unit, Set<String>> parts = Arrays.stream(fields)
                 .collect(Collectors.toSet())
                 .stream()
-                .map(DashboardUtil::getFieldValue)
+                .map(Fields::getFieldValue)
                 .map(Unit.class::cast)
                 .collect(HashMap::new, (map, unit) -> map.put(unit, new HashSet<>()), HashMap::putAll);
 
         for (Field field : fields) {
-            Unit unit = (Unit) DashboardUtil.getFieldValue(field);
+            Unit unit = (Unit) Fields.getFieldValue(field);
             parts.get(unit).add(unit.name().toLowerCase(Locale.ROOT));
             parts.get(unit).add(unit.symbol().toLowerCase(Locale.ROOT));
             parts.get(unit).add(field.getName().toLowerCase(Locale.ROOT));

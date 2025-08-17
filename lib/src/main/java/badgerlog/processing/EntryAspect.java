@@ -1,7 +1,6 @@
 package badgerlog.processing;
 
 import badgerlog.Dashboard;
-import badgerlog.DashboardUtil;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.networktables.EntryFactory;
@@ -40,7 +39,7 @@ public class EntryAspect {
             return;
         }
 
-        if (DashboardUtil.getFieldValue(field, instance) == null) {
+        if (Fields.getFieldValue(field, instance) == null) {
             System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a uninitialized field after construction. SKIPPING");
             return;
         }
@@ -52,14 +51,14 @@ public class EntryAspect {
 
         Configuration config = Configuration.createConfigurationFromField(field);
 
-        var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), DashboardUtil.getFieldValue(field, instance), config);
+        var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
         Dashboard.addUpdatingNetworkTableEntry(switch (annotation.value()) {
-                    case Publisher -> new PublisherUpdater<>(entry, () -> DashboardUtil.getFieldValue(field, instance));
+            case Publisher -> new PublisherUpdater<>(entry, () -> Fields.getFieldValue(field, instance));
                     case Subscriber ->
-                            new SubscriberUpdater<>(entry, value -> DashboardUtil.setFieldValue(instance, field, value));
+                            new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
                     case Sendable ->
-                            new SendableEntry(config.getKey(), (Sendable) DashboardUtil.getFieldValue(field, instance));
+                            new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
                 }
         );
     }
