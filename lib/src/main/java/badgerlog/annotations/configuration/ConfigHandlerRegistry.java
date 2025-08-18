@@ -1,9 +1,6 @@
 package badgerlog.annotations.configuration;
 
-import badgerlog.annotations.Key;
-import badgerlog.annotations.MultiUnitConversion;
-import badgerlog.annotations.StructType;
-import badgerlog.annotations.UnitConversion;
+import badgerlog.annotations.*;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -21,6 +18,7 @@ public final class ConfigHandlerRegistry {
         registerHandler(UnitConversion.class, new UnitConversionHandler());
         registerHandler(MultiUnitConversion.class, new MultiUnitConversionHandler());
         registerHandler(Key.class, new KeyHandler());
+        registerHandler(AutoGenerateStruct.class, new AutoGenerateStructHandler());
     }
 
     private ConfigHandlerRegistry() {

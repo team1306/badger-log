@@ -38,7 +38,6 @@ import java.util.Set;
  *
  * <h2>Initialization and Lifecycle</h2>
  * <ul>
- *   <li>{@link #initialize(DashboardConfig)} must be called during robot initialization (usually in
  *       {@code Robot.robotInit}) to scan for annotated fields and set up NetworkTables entries.</li>
  *   <li>{@link #update()} must be invoked periodically (usually in {@code Robot.robotPeriodic}) to refresh
  *       NetworkTables values.</li>
@@ -59,7 +58,7 @@ import java.util.Set;
 public final class Dashboard {
 
     private static final Set<Updater> ntEntries = new HashSet<>();
-    private static final HashMap<String, NTEntry<?>> singleUseEntries = new HashMap<>();
+    private static final HashMap<String, NTEntry<?>> activeEntries = new HashMap<>();
     /**
      * The config used by BadgerLog
      */
@@ -96,7 +95,7 @@ public final class Dashboard {
     }
 
     public static void addNetworkTableEntry(NTEntry<?> entry) {
-        singleUseEntries.put(entry.getKey(), entry);
+        activeEntries.put(entry.getKey(), entry);
     }
 
     public static void addUpdatingNetworkTableEntry(Updater entry) {
@@ -107,7 +106,6 @@ public final class Dashboard {
      * Updates all registered NetworkTables entries with current values. This method must be called
      * periodically (typically in {@code Robot.robotPeriodic}) to update fields and NetworkTable values.
      *
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      */
     public static void update() {
         ntEntries.forEach(Updater::update);
@@ -119,7 +117,6 @@ public final class Dashboard {
      * @param key       The NetworkTables entry key
      * @param eventLoop The {@link EventLoop} to associate with the trigger for event polling
      * @return A trigger bound to the boolean NetworkTables entry's state
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see Trigger
      * @see EventLoop
      */
@@ -135,7 +132,6 @@ public final class Dashboard {
      * @param key       The NetworkTables entry key
      * @param eventLoop The {@link EventLoop} to associate with the trigger for event polling
      * @return A trigger that automatically resets the NetworkTables value after activation
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #getNetworkTablesButton(String, EventLoop)
      */
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
@@ -149,7 +145,6 @@ public final class Dashboard {
      * @param key   The NetworkTables entry key
      * @param value The value to publish.
      * @param <T>   The data type to publish
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #putValue(String, Object, Configuration)
      * @see Mapping
      * @see Configuration
@@ -165,7 +160,6 @@ public final class Dashboard {
      * @param value  The value to publish.
      * @param config Configuration parameters
      * @param <T>    The data type to publish
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
      * @see #putValue(String, Object)
      */
     public static <T> void putValue(String key, T value, Configuration config) {
@@ -181,7 +175,6 @@ public final class Dashboard {
      * @param defaultValue Initial value if the entry is not present
      * @param <T>          The data type to convert to after retrieval from NetworkTables
      * @return The current NetworkTables value
-     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object, Configuration)
      */
     public static <T> T getValue(String key, T defaultValue) {
@@ -196,7 +189,6 @@ public final class Dashboard {
      * @param config       Configuration parameters
      * @param <T>          The data type to convert to after retrieval from NetworkTables
      * @return The current NetworkTables value
-     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see #getValue(String, Object)
      */
     public static <T> T getValue(String key, T defaultValue, Configuration config) {
@@ -208,11 +200,11 @@ public final class Dashboard {
     @SuppressWarnings("unchecked")
     private static <T> NTEntry<T> createEntryIfNotPresent(String key, T defaultValue, Configuration config) {
         NTEntry<T> entry;
-        if (!singleUseEntries.containsKey(key)) {
+        if (!activeEntries.containsKey(key)) {
             entry = EntryFactory.createNetworkTableEntryFromValue(key, defaultValue, config);
-            singleUseEntries.put(key, entry);
+            addNetworkTableEntry(entry);
         } else {
-            entry = (NTEntry<T>) singleUseEntries.get(key);
+            entry = (NTEntry<T>) activeEntries.get(key);
         }
         return entry;
     }
@@ -227,7 +219,6 @@ public final class Dashboard {
      *
      * @param key      The NetworkTables entry key
      * @param sendable The Sendable object to publish
-     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
      * @see Entry
      */
     public static void putSendable(String key, Sendable sendable) {

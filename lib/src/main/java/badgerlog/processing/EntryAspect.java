@@ -54,9 +54,16 @@ public class EntryAspect {
 
         var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
+
         Dashboard.addUpdatingNetworkTableEntry(switch (annotation.value()) {
-            case Publisher -> new PublisherUpdater<>(entry, () -> Fields.getFieldValue(field, instance));
-            case Subscriber -> new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
+            case Publisher -> {
+                Dashboard.addNetworkTableEntry(entry);
+                yield new PublisherUpdater<>(entry, () -> Fields.getFieldValue(field, instance));
+            }
+            case Subscriber -> {
+                Dashboard.addNetworkTableEntry(entry);
+                yield new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
+            }
             case Sendable -> new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
                 }
         );

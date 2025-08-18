@@ -35,6 +35,9 @@ public class Configuration {
     @Getter
     private boolean isValidConfiguration = true;
 
+    @Getter
+    private boolean autoGenerateStruct = false;
+
     /**
      * Generates a {@link Configuration} by processing annotations on a field.
      * Uses registered handlers from {@link ConfigHandlerRegistry} to interpret annotations.
@@ -111,6 +114,11 @@ public class Configuration {
      */
     public Configuration withStructOptions(StructOptions structOptions) {
         this.structOptions = structOptions;
+        return this;
+    }
+
+    public Configuration withAutoGenerateStruct(boolean autoGenerateStruct) {
+        this.autoGenerateStruct = autoGenerateStruct;
         return this;
     }
 
