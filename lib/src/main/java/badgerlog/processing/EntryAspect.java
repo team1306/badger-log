@@ -17,7 +17,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 @SuppressWarnings("-javadoc")
-@Aspect
+@Aspect("pertypewithin(*)")
 public class EntryAspect {
 
     @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
