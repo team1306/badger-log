@@ -11,7 +11,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -21,11 +20,7 @@ import java.util.Arrays;
 @Aspect
 public class EntryAspect {
 
-    @Pointcut("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
-    public static void constructor() {
-    }
-
-    @After("constructor()")
+    @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
     public void addAllEntryFields(JoinPoint thisJoinPoint) {
         Class<?> staticReference = thisJoinPoint.getSignature().getDeclaringType();
         Object workingClass = thisJoinPoint.getThis();
