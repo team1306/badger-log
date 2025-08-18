@@ -7,6 +7,7 @@ package frc.robot;
 
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
+import badgerlog.annotations.Key;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -14,16 +15,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class RobotContainer
 {
     @Entry(EntryType.Publisher)
+    @Key("RobotContainer/{id}")
     public String testEntry = "test";
-    
-    public RobotContainer()
+
+    private String id;
+
+    public RobotContainer(String id)
     {
-        configureBindings();
+        this.id = id;
     }
-    
-    
-    private void configureBindings() {}
-    
     
     public Command getAutonomousCommand()
     {

@@ -32,6 +32,9 @@ public class Configuration {
     @Getter
     private StructOptions structOptions = null;
 
+    @Getter
+    private boolean isValidConfiguration = true;
+
     /**
      * Generates a {@link Configuration} by processing annotations on a field.
      * Uses registered handlers from {@link ConfigHandlerRegistry} to interpret annotations.
@@ -39,19 +42,13 @@ public class Configuration {
      * @param field the annotated field to process
      * @return a configuration populated with data from the field's annotations
      */
-    public static Configuration createConfigurationFromField(Field field) {
+    public static Configuration createConfigurationFromFieldAnnotations(Field field) {
         Configuration config = new Configuration();
         Annotation[] annotations = field.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);
         }
-
-        String key;
-        if (config.getKey() == null || config.getKey().isBlank())
-            key = field.getDeclaringClass().getSimpleName() + "/" + field.getName();
-        else key = config.getKey();
-
-        return config.withKey(key);
+        return config;
     }
 
     @SuppressWarnings("unchecked") // Annotation must have a class of type T from type requirements
@@ -114,6 +111,11 @@ public class Configuration {
      */
     public Configuration withStructOptions(StructOptions structOptions) {
         this.structOptions = structOptions;
+        return this;
+    }
+
+    public Configuration makeInvalid() {
+        this.isValidConfiguration = false;
         return this;
     }
 }

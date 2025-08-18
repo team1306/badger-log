@@ -17,7 +17,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 @SuppressWarnings("-javadoc")
-@Aspect("pertypewithin(*)")
+@Aspect
 public class EntryAspect {
 
     @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
@@ -44,16 +44,20 @@ public class EntryAspect {
             return;
         }
 
-        Configuration config = Configuration.createConfigurationFromField(field);
+        Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
+        KeyParser.createKeyFromField(config, field, instance);
+
+        if (!config.isValidConfiguration()) {
+            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " had an invalid configuration created. SKIPPING");
+            return;
+        }
 
         var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
         Dashboard.addUpdatingNetworkTableEntry(switch (annotation.value()) {
             case Publisher -> new PublisherUpdater<>(entry, () -> Fields.getFieldValue(field, instance));
-                    case Subscriber ->
-                            new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
-                    case Sendable ->
-                            new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
+            case Subscriber -> new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
+            case Sendable -> new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
                 }
         );
     }

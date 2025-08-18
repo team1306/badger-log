@@ -46,7 +46,9 @@ public class Robot extends TimedRobot
     public Robot()
     {
         Dashboard.initialize(DashboardConfig.defaultConfig);
-        robotContainer = new RobotContainer();
+        robotContainer = new RobotContainer("test1");
+        new RobotContainer("test4");
+        new RobotContainer("thisnotatest");
 //        UnitEntries unitEntries = new UnitEntries();
 //        StructEntries structEntries = new StructEntries();
 //        DashboardMethods dashboardMethods = new DashboardMethods();
