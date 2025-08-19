@@ -18,16 +18,7 @@ public final class DashboardConfig {
      * Preconfigured for similar configuration to SmartDashboard methods: base table "SmartDashboard", STRUCT type handling.
      */
     public static final DashboardConfig smartDashboardConfig = new DashboardConfig()
-            .withStructOptions(StructOptions.STRUCT)
-            .withBaseTableKey("SmartDashboard");
-
-    /**
-     * The root key for the NetworkTables table where entries are published.
-     *
-     * @return String - Current base table key value
-     */
-    private String baseTableKey = "Badgerlog";
-
+            .withStructOptions(StructOptions.STRUCT);
     /**
      * Defines how struct data types are published to NetworkTables.
      *
@@ -43,17 +34,6 @@ public final class DashboardConfig {
     private String[] basePackages = {"frc.robot"};
 
     private DashboardConfig() {
-    }
-
-    /**
-     * Sets the root NetworkTables table key for entries.
-     *
-     * @param defaultTableKey New base table key (e.g., "SmartDashboard")
-     * @return This config instance for chaining
-     */
-    public DashboardConfig withBaseTableKey(String defaultTableKey) {
-        this.baseTableKey = defaultTableKey;
-        return this;
     }
 
     /**

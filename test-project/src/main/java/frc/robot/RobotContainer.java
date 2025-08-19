@@ -5,9 +5,7 @@
 
 package frc.robot;
 
-import badgerlog.annotations.Entry;
-import badgerlog.annotations.EntryType;
-import badgerlog.annotations.Key;
+import badgerlog.annotations.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -18,6 +16,12 @@ public class RobotContainer
     @Key("RobotContainer/{id}")
     public String testEntry = "test";
 
+    @Entry(EntryType.Publisher)
+    @AutoGenerateStruct
+    @Key("RobotContainer-{id}/record")
+    @StructType(StructOptions.SUB_TABLE)
+    public TestRecordOuter recordOuter = new TestRecordOuter(6.3, 3);
+    //    public double test = 1;
     private String id;
 
     public RobotContainer(String id)
@@ -28,5 +32,11 @@ public class RobotContainer
     public Command getAutonomousCommand()
     {
         return Commands.print("No autonomous command configured");
+    }
+
+    public record TestRecordOuter(double coolNumber, int otherNumber) {
+    }
+
+    public record TestRecordInner(double reallyInnerDouble) {
     }
 }

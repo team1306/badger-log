@@ -37,11 +37,6 @@ import java.util.Set;
  * </ul>
  *
  * <h2>Initialization and Lifecycle</h2>
- * <ul>
- *       {@code Robot.robotInit}) to scan for annotated fields and set up NetworkTables entries.</li>
- *   <li>{@link #update()} must be invoked periodically (usually in {@code Robot.robotPeriodic}) to refresh
- *       NetworkTables values.</li>
- * </ul>
  *
  * <h2>Usage Requirements</h2>
  * <ul>
@@ -66,7 +61,7 @@ public final class Dashboard {
     /**
      * The base table used by BadgerLog for publishing and subscribing to
      */
-    public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
+    public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
 
     private Dashboard() {
     }

@@ -52,6 +52,8 @@ public class EntryAspect {
             return;
         }
 
+        TypeParser.generateStructFromTypeIfPossible(config, field.getType());
+
         var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
 
@@ -65,7 +67,6 @@ public class EntryAspect {
                 yield new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
             }
             case Sendable -> new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
-                }
-        );
+        });
     }
 }
