@@ -8,13 +8,16 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * The {@code Dashboard} class serves as the main component of BadgerLog, providing a utility
@@ -87,6 +90,43 @@ public final class Dashboard {
      */
     public static void initialize(DashboardConfig config) {
         Dashboard.config = config;
+    }
+
+    public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Consumer<Enum<T>> onValueChange) {
+        if (validateEnum(tEnum)) {
+            System.out.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+            return Optional.empty();
+        }
+        return createSelectorFromEnum(key, tEnum, tEnum.getEnumConstants()[0], onValueChange);
+    }
+
+    public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> defaultValue, Consumer<Enum<T>> onValueChange) {
+        if (validateEnum(tEnum)) {
+            System.out.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+            return Optional.empty();
+        }
+        SendableChooser<Enum<T>> chooser = new SendableChooser<>();
+        chooser.setDefaultOption(defaultValue.toString(), defaultValue);
+        for (Enum<T> value : tEnum.getEnumConstants()) {
+            if (value == defaultValue) continue;
+            chooser.addOption(value.toString(), value);
+        }
+        chooser.onChange(onValueChange);
+        onValueChange.accept(defaultValue);
+        Dashboard.putSendable(key, chooser);
+        return Optional.of(chooser);
+    }
+
+    private static <T extends Enum<T>> boolean validateEnum(Class<T> tEnum) {
+        if (!tEnum.isEnum()) {
+            System.out.println("Tried to create an enum selector, but the class was not an enum");
+            return true;
+        }
+        if (tEnum.getEnumConstants().length == 0) {
+            System.out.println("Tried to create an enum selector, but the enum had no values");
+            return true;
+        }
+        return false;
     }
 
     public static void addNetworkTableEntry(NTEntry<?> entry) {
