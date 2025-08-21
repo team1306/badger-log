@@ -1,11 +1,9 @@
 package badgerlog.networktables;
 
-import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Combined publisher/subscriber implementation for struct values stored in nested NetworkTables subtables.
@@ -19,7 +17,7 @@ public final class SubtableEntry<T> implements NTEntry<T> {
 
     private final Struct<T> struct;
 
-    private final List<ValueEntry<Double>> entries;
+    private final Map<NTEntry<?>, Subtables.PrimType<?>> entries;
     private final ByteBuffer buffer;
 
     private final String key;
@@ -35,22 +33,20 @@ public final class SubtableEntry<T> implements NTEntry<T> {
         this.struct = struct;
         this.key = key;
 
-        entries = new ArrayList<>();
         buffer = ByteBuffer.allocate(struct.getSize());
 
-        struct.pack(buffer, defaultValue);
-        buffer.rewind();
-
-        createEntries(struct, key);
+        entries = Subtables.createEntries(struct, key, defaultValue);
     }
 
     @Override
     public T retrieveValue() {
         buffer.clear();
 
-        for (NTEntry<Double> subscriber : entries) {
-            buffer.putDouble(subscriber.retrieveValue());
+        for (Map.Entry<NTEntry<?>, Subtables.PrimType<?>> entry : entries.entrySet()) {
+            Subtables.Packer<?> packer = entry.getValue().packer();
+            packer.pack(buffer, entry.getKey().retrieveValue());
         }
+
         buffer.rewind();
         return struct.unpack(buffer);
     }
@@ -66,29 +62,11 @@ public final class SubtableEntry<T> implements NTEntry<T> {
         struct.pack(buffer, value);
 
         buffer.rewind();
-        for (NTEntry<Double> publisher : entries) {
-            publisher.publishValue(buffer.getDouble());
+        for (Map.Entry<NTEntry<?>, Subtables.PrimType<?>> entry : entries.entrySet()) {
+            Subtables.Unpacker<?> unpacker = entry.getValue().unpacker();
+            entry.getKey().publishValue(unpacker.unpack(buffer));
         }
 
         buffer.clear();
-    }
-
-    /**
-     * Recursively creates ValueEntry objects mirroring the struct's schema. Maintains
-     * native packing order through depth-first traversal of nested structs. Automatically
-     * skips non-double fields in schema definitions.
-     *
-     * @param baseStruct Struct hierarchy to analyze
-     * @param currentKey Current NetworkTables path component
-     */
-    private void createEntries(Struct<?> baseStruct, String currentKey) {
-        for (Struct<?> nestedStruct : baseStruct.getNested()) {
-            createEntries(nestedStruct, currentKey + "/" + nestedStruct.getTypeName());
-        }
-
-        for (String part : baseStruct.getSchema().split(";", -1)) {
-            if (!part.startsWith("double")) continue;
-            entries.add(new ValueEntry<>(currentKey + "/" + part.split(" ", 2)[1], double.class, buffer.getDouble(), new Configuration()));
-        }
     }
 }
