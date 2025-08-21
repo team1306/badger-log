@@ -52,7 +52,9 @@ public class EntryAspect {
             return;
         }
 
-        TypeParser.generateStructFromTypeIfPossible(config, field.getType());
+        if (field.getType().isRecord() || field.getType().isEnum()) {
+            TypeParser.generateStructFromTypeIfPossible(config, field.getType());
+        }
 
         var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);

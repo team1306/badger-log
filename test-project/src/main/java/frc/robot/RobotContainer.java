@@ -6,6 +6,9 @@
 package frc.robot;
 
 import badgerlog.annotations.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -18,9 +21,8 @@ public class RobotContainer
 
     @Entry(EntryType.Publisher)
     @AutoGenerateStruct
-    @Key("RobotContainer-{id}/record")
-    @StructType(StructOptions.SUB_TABLE)
-    public TestRecordOuter recordOuter = new TestRecordOuter(6.3, 3);
+    @StructType(StructOptions.STRUCT)
+    public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), 6, 3);
     //    public double test = 1;
     private String id;
 
@@ -34,9 +36,12 @@ public class RobotContainer
         return Commands.print("No autonomous command configured");
     }
 
-    public record TestRecordOuter(double coolNumber, int otherNumber) {
+    public record TestRecordOuter(TestRecordInner inner, Pose2d pose2d, double coolNumber, int otherNumber) {
     }
 
-    public record TestRecordInner(double reallyInnerDouble) {
+    public record TestRecordInner(double reallyInnerDouble, TestRecordInnerInner tester) {
+    }
+
+    public record TestRecordInnerInner(int superDuperInt) {
     }
 }
