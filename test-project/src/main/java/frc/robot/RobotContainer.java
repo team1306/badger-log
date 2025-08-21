@@ -21,7 +21,7 @@ public class RobotContainer
 
     @Entry(EntryType.Publisher)
     @AutoGenerateStruct
-    @StructType(StructOptions.STRUCT)
+    @StructType(StructOptions.SUB_TABLE)
     public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), 6, 3);
     //    public double test = 1;
     private String id;

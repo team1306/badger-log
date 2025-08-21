@@ -13,6 +13,7 @@ import java.util.Map;
  *
  * @param <T> Struct type implementing {@link edu.wpi.first.util.struct.StructSerializable}
  */
+@SuppressWarnings("unchecked")
 public final class SubtableEntry<T> implements NTEntry<T> {
 
     private final Struct<T> struct;
@@ -43,8 +44,9 @@ public final class SubtableEntry<T> implements NTEntry<T> {
         buffer.clear();
 
         for (Map.Entry<NTEntry<?>, Subtables.PrimType<?>> entry : entries.entrySet()) {
-            Subtables.Packer<?> packer = entry.getValue().packer();
-            packer.pack(buffer, entry.getKey().retrieveValue());
+            Subtables.Packer<Object> packer = (Subtables.Packer<Object>) entry.getValue().packer();
+            NTEntry<Object> ntEntry = (NTEntry<Object>) entry.getKey();
+            packer.pack(buffer, ntEntry.retrieveValue());
         }
 
         buffer.rewind();
@@ -63,8 +65,9 @@ public final class SubtableEntry<T> implements NTEntry<T> {
 
         buffer.rewind();
         for (Map.Entry<NTEntry<?>, Subtables.PrimType<?>> entry : entries.entrySet()) {
-            Subtables.Unpacker<?> unpacker = entry.getValue().unpacker();
-            entry.getKey().publishValue(unpacker.unpack(buffer));
+            Subtables.Unpacker<Object> unpacker = (Subtables.Unpacker<Object>) entry.getValue().unpacker();
+            NTEntry<Object> ntEntry = (NTEntry<Object>) entry.getKey();
+            ntEntry.publishValue(unpacker.unpack(buffer));
         }
 
         buffer.clear();

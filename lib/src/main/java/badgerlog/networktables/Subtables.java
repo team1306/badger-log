@@ -22,6 +22,8 @@ public class Subtables {
         addPrimType("uint8", byte.class, ByteBuffer::get, ByteBuffer::put);
         addPrimType("int16", short.class, ByteBuffer::getShort, ByteBuffer::putShort);
         addPrimType("int64", long.class, ByteBuffer::getLong, ByteBuffer::putLong);
+        addPrimType("double", double.class, ByteBuffer::getDouble, ByteBuffer::putDouble);
+
     }
 
     private static <T> void addPrimType(String name, Class<T> type, Unpacker<T> unpacker, Packer<T> packer) {
@@ -40,6 +42,7 @@ public class Subtables {
         ByteBuffer buffer = ByteBuffer.allocate(baseStruct.getSize());
         buffer.clear();
         baseStruct.pack(buffer, value);
+        buffer.rewind();
 
         Map<NTEntry<?>, PrimType<?>> entries = new HashMap<>();
         createEntriesImpl(baseStruct, baseKey, buffer, entries, 0);
