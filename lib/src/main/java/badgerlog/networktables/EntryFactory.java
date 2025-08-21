@@ -4,8 +4,10 @@ import badgerlog.Dashboard;
 import badgerlog.annotations.StructOptions;
 import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.util.struct.StructFetcher;
 import edu.wpi.first.util.struct.StructSerializable;
-import lombok.SneakyThrows;
+
+import java.util.Optional;
 
 /**
  * Factory class for creating NetworkTables and entries based on value types
@@ -19,19 +21,22 @@ public final class EntryFactory {
     }
 
     @SuppressWarnings("unchecked")
-    @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
     public static <T> NTEntry<T> createNetworkTableEntryFromValue(String key, T value, Configuration config) {
         Class<T> valueTypeClass = (Class<T>) value.getClass();
 
         if (StructSerializable.class.isAssignableFrom(valueTypeClass)) {
-            Struct<T> struct = (Struct<T>) valueTypeClass.getField("struct").get(null);
-            StructOptions option = config.getStructOptions() == null ? Dashboard.config.getStructOptions() : config.getStructOptions();
+            Optional<Struct<?>> structOptional = StructFetcher.fetchStructDynamic(valueTypeClass);
+            if (structOptional.isPresent()) {
 
-            return switch (option) {
-                case STRUCT -> new StructValueEntry<>(key, struct, value);
-                case SUB_TABLE -> new SubtableEntry<>(key, struct, value);
-                case MAPPING -> new ValueEntry<>(key, valueTypeClass, value, config);
-            };
+                Struct<T> struct = (Struct<T>) structOptional.get();
+                StructOptions option = config.getStructOptions() == null ? Dashboard.config.getStructOptions() : config.getStructOptions();
+
+                return switch (option) {
+                    case STRUCT -> new StructValueEntry<>(key, struct, value);
+                    case SUB_TABLE -> new SubtableEntry<>(key, struct, value);
+                    case MAPPING -> new ValueEntry<>(key, valueTypeClass, value, config);
+                };
+            }
         }
 
         if (config.isAutoGenerateStruct()) {
