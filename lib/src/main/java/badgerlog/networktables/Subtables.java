@@ -4,8 +4,7 @@ import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Subtables {
     /**
@@ -44,7 +43,7 @@ public class Subtables {
         baseStruct.pack(buffer, value);
         buffer.rewind();
 
-        Map<NTEntry<?>, PrimType<?>> entries = new HashMap<>();
+        Map<NTEntry<?>, PrimType<?>> entries = new LinkedHashMap<>();
         createEntriesImpl(baseStruct, baseKey, buffer, entries, 0);
         return entries;
     }
@@ -55,14 +54,20 @@ public class Subtables {
             throw new IllegalArgumentException("Infinite recursive loop for struct class: " + baseStruct.getTypeClass().getSimpleName());
         }
 
-        for (Struct<?> nestedStruct : baseStruct.getNested()) {
-            createEntriesImpl(nestedStruct, currentKey + "/" + nestedStruct.getTypeName(), packedBuffer, entries, limit + 1);
-        }
-
         for (String part : baseStruct.getSchema().split(";", -1)) {
             String[] partSplit = part.split(" ", 2);
 
-            if (!primitiveTypeMap.containsKey(partSplit[0])) continue;
+            if (!primitiveTypeMap.containsKey(partSplit[0])) {
+                List<Struct<?>> structs = Arrays.stream(baseStruct.getNested()).filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0])).toList();
+                if (structs.size() != 1) {
+                    System.out.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". SKIPPING");
+                    continue;
+                }
+
+                Struct<?> nestedStruct = structs.get(0);
+                createEntriesImpl(nestedStruct, currentKey + "/" + nestedStruct.getTypeName(), packedBuffer, entries, limit + 1);
+                continue;
+            }
             PrimType<?> primType = primitiveTypeMap.get(partSplit[0]);
 
             entries.put(new ValueEntry<>(currentKey + "/" + partSplit[1], (Class<Object>) primType.type, primType.unpacker.unpack(packedBuffer), new Configuration()), primType);
@@ -70,7 +75,7 @@ public class Subtables {
     }
 
     /**
-     * A functional interface representing a method that retrives a value from a {@link ByteBuffer}.
+     * A functional interface representing a method that retrieves a value from a {@link ByteBuffer}.
      */
     @FunctionalInterface
     public interface Unpacker<T> {
