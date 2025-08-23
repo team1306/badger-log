@@ -46,17 +46,9 @@ public class TypeParser {
 
     private static <T extends Enum<T>> void createStructReferencesFromEnum(Class<T> type, int depth) {
         if (depth > 10) {
-            throw new IllegalArgumentException("Infinite recursive loop for record class: " + type.getSimpleName());
+            throw new IllegalArgumentException("Infinite recursive loop for enum class: " + type.getSimpleName());
         }
 
-        for (Object component : type.getEnumConstants()) {
-            if (component.getClass().isRecord()) {
-                createStructReferencesFromRecord((Class<? extends Record>) component.getClass(), depth + 1);
-            }
-            if (component.getClass().isEnum()) {
-                createStructReferencesFromEnum((Class<? extends Enum>) component.getClass(), depth + 1);
-            }
-        }
         Struct<T> struct = StructGenerator.genEnum(type);
         StructGenerator.addCustomStruct(type, struct, true);
     }

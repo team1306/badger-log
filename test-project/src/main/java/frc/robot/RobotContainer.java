@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import badgerlog.Dashboard;
 import badgerlog.annotations.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,9 +27,21 @@ public class RobotContainer
     //    public double test = 1;
     private String id;
 
+    @Entry(EntryType.Publisher)
+    @AutoGenerateStruct
+    @StructType(StructOptions.STRUCT)
+    private TestEnum testEnum = TestEnum.FUN;
+
+    public enum TestEnum {
+        FUN,
+        LAST,
+        TEST
+    }
+
     public RobotContainer(String id)
     {
         this.id = id;
+        Dashboard.createSelectorFromEnum("Selector/Enums", TestEnum.class, value -> testEnum = (TestEnum) value);
     }
     
     public Command getAutonomousCommand()

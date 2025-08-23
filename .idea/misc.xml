@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
     <list size="2">
@@ -5,6 +6,7 @@
       <item index="1" class="java.lang.String" itemvalue="badgerlog.conversion.MappingType" />
     </list>
     <writeAnnotations>
+      <writeAnnotation name="badgerlog.annotations.Entry" />
       <writeAnnotation name="badgerlog.entry.Entry" />
       <writeAnnotation name="badgerlog.networktables.mappings.MappingType" />
     </writeAnnotations>
