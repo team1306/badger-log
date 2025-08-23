@@ -65,7 +65,7 @@ public class Subtables {
             if (!primitiveTypeMap.containsKey(partSplit[0])) {
                 List<Struct<?>> structs = Arrays.stream(baseStruct.getNested()).filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0])).toList();
                 if (structs.size() != 1) {
-                    System.out.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
+                    System.err.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
                     return false;
                 }
 

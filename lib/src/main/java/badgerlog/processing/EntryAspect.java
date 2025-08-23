@@ -30,17 +30,17 @@ public class EntryAspect {
 
     private void handleField(Field field, Object instance) {
         if (instance == null && !Modifier.isStatic(field.getModifiers())) {
-            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is an instance field, with no instance. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is an instance field, with no instance. SKIPPING");
             return;
         }
 
         if (Fields.getFieldValue(field, instance) == null) {
-            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a uninitialized field after construction. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a uninitialized field after construction. SKIPPING");
             return;
         }
 
         if (Modifier.isFinal(field.getModifiers())) {
-            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a final field. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a final field. SKIPPING");
             return;
         }
 
@@ -48,7 +48,7 @@ public class EntryAspect {
         KeyParser.createKeyFromField(config, field, instance);
 
         if (!config.isValidConfiguration()) {
-            System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " had an invalid configuration created. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " had an invalid configuration created. SKIPPING");
             return;
         }
 

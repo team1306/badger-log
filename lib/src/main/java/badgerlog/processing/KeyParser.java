@@ -31,7 +31,7 @@ public class KeyParser {
                 fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException e) {
                 config.makeInvalid();
-                System.out.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " was invalidated after key contained missing field.");
+                System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " was invalidated after key contained missing field.");
                 return;
             }
         }

@@ -94,7 +94,7 @@ public final class Dashboard {
 
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Consumer<Enum<T>> onValueChange) {
         if (validateEnum(tEnum)) {
-            System.out.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+            System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
             return Optional.empty();
         }
         return createSelectorFromEnum(key, tEnum, tEnum.getEnumConstants()[0], onValueChange);
@@ -102,7 +102,7 @@ public final class Dashboard {
 
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> defaultValue, Consumer<Enum<T>> onValueChange) {
         if (validateEnum(tEnum)) {
-            System.out.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+            System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
             return Optional.empty();
         }
         SendableChooser<Enum<T>> chooser = new SendableChooser<>();
@@ -119,11 +119,11 @@ public final class Dashboard {
 
     private static <T extends Enum<T>> boolean validateEnum(Class<T> tEnum) {
         if (!tEnum.isEnum()) {
-            System.out.println("Tried to create an enum selector, but the class was not an enum");
+            System.err.println("Tried to create an enum selector, but the class was not an enum");
             return true;
         }
         if (tEnum.getEnumConstants().length == 0) {
-            System.out.println("Tried to create an enum selector, but the enum had no values");
+            System.err.println("Tried to create an enum selector, but the enum had no values");
             return true;
         }
         return false;

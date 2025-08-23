@@ -23,7 +23,7 @@ public class RobotContainer
     @Entry(EntryType.Publisher)
     @AutoGenerateStruct
     @StructType(StructOptions.SUB_TABLE)
-    public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), TestEnum.TEST, 6, 3);
+    public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), 6, 3);
     //    public double test = 1;
     private String id;
 
@@ -49,7 +49,7 @@ public class RobotContainer
         return Commands.print("No autonomous command configured");
     }
 
-    public record TestRecordOuter(TestRecordInner inner, Pose2d pose2d, TestEnum testEnum, double coolNumber,
+    public record TestRecordOuter(TestRecordInner inner, Pose2d pose2d, double coolNumber,
                                   int otherNumber) {
     }
 
