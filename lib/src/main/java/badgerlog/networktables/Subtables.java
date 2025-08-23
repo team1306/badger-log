@@ -44,34 +44,41 @@ public class Subtables {
         buffer.rewind();
 
         Map<NTEntry<?>, PrimType<?>> entries = new LinkedHashMap<>();
-        createEntriesImpl(baseStruct, baseKey, buffer, entries, 0);
+        boolean valid = createEntriesImpl(baseStruct, baseKey, buffer, entries, 0);
+        if (!valid) {
+            entries.keySet().forEach(NTEntry::close);
+            entries.clear();
+        }
         return entries;
     }
 
     @SuppressWarnings("unchecked")
-    private static void createEntriesImpl(Struct<?> baseStruct, String currentKey, ByteBuffer packedBuffer, Map<NTEntry<?>, PrimType<?>> entries, int limit) {
+    private static boolean createEntriesImpl(Struct<?> baseStruct, String currentKey, ByteBuffer packedBuffer, Map<NTEntry<?>, PrimType<?>> entries, int limit) {
         if (limit + 1 >= 1000) {
             throw new IllegalArgumentException("Infinite recursive loop for struct class: " + baseStruct.getTypeClass().getSimpleName());
         }
-
+        boolean stillValid = true;
         for (String part : baseStruct.getSchema().split(";", -1)) {
+            if (!stillValid) return false;
             String[] partSplit = part.split(" ", 2);
 
             if (!primitiveTypeMap.containsKey(partSplit[0])) {
                 List<Struct<?>> structs = Arrays.stream(baseStruct.getNested()).filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0])).toList();
                 if (structs.size() != 1) {
-                    System.out.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". SKIPPING");
-                    continue;
+                    System.out.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
+                    return false;
                 }
 
                 Struct<?> nestedStruct = structs.get(0);
-                createEntriesImpl(nestedStruct, currentKey + "/" + nestedStruct.getTypeName(), packedBuffer, entries, limit + 1);
+                stillValid = createEntriesImpl(nestedStruct, currentKey + "/" + nestedStruct.getTypeName(), packedBuffer, entries, limit + 1);
                 continue;
             }
             PrimType<?> primType = primitiveTypeMap.get(partSplit[0]);
 
             entries.put(new ValueEntry<>(currentKey + "/" + partSplit[1], (Class<Object>) primType.type, primType.unpacker.unpack(packedBuffer), new Configuration()), primType);
         }
+
+        return true;
     }
 
     /**
