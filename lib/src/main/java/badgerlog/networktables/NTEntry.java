@@ -6,4 +6,6 @@ public interface NTEntry<T> {
     T retrieveValue();
 
     String getKey();
+
+    void close();
 }

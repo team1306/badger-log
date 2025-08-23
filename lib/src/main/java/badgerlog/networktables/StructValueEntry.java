@@ -44,4 +44,10 @@ public final class StructValueEntry<T> implements NTEntry<T> {
     public String getKey() {
         return key;
     }
+
+    @Override
+    public void close() {
+        entry.unpublish();
+        entry.close();
+    }
 }

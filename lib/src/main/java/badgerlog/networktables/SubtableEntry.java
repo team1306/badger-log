@@ -59,6 +59,13 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     }
 
     @Override
+    public void close() {
+        for (NTEntry<?> entry : entries.keySet()) {
+            entry.close();
+        }
+    }
+
+    @Override
     public void publishValue(T value) {
         buffer.clear();
         struct.pack(buffer, value);
