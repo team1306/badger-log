@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class KeyParser {
     private static final Pattern FIELD_PATTERN = Pattern.compile("\\{([^}]+)\\}");
 
-    public static void createKeyFromField(Configuration config, Field field, Object instance) {
+    public static boolean createKeyFromField(Configuration config, Field field, Object instance) {
         String unparsedKey;
         if (config.getKey() == null || config.getKey().isBlank())
             unparsedKey = field.getDeclaringClass().getSimpleName() + "/" + field.getName();
@@ -22,7 +22,7 @@ public class KeyParser {
         config.withKey(unparsedKey);
 
         List<String> fieldNames = extractFieldNames(unparsedKey);
-        if (fieldNames.isEmpty()) return;
+        if (fieldNames.isEmpty()) return false;
 
         Map<String, String> fieldValues = new HashMap<>();
         for (String fieldName : fieldNames) {
@@ -32,12 +32,13 @@ public class KeyParser {
             } catch (NoSuchFieldException e) {
                 config.makeInvalid();
                 System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " was invalidated after key contained missing field.");
-                return;
+                return false;
             }
         }
 
         String parsedKey = replaceFields(unparsedKey, fieldValues);
         config.withKey(parsedKey);
+        return true;
     }
 
     private static List<String> extractFieldNames(String template) {

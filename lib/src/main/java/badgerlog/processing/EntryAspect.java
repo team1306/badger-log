@@ -17,15 +17,28 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 @SuppressWarnings("-javadoc")
-@Aspect
+@Aspect("pertypewithin(*)")
 public class EntryAspect {
+
+    private boolean initialFieldPass = false;
 
     @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
     public void addAllEntryFields(JoinPoint thisJoinPoint) {
         Class<?> staticReference = thisJoinPoint.getSignature().getDeclaringType();
         Object workingClass = thisJoinPoint.getThis();
 
-        Arrays.stream(staticReference.getDeclaredFields()).filter(field -> field.isAnnotationPresent(Entry.class)).forEach(field -> handleField(field, workingClass));
+        Arrays.stream(staticReference.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(Entry.class))
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                .forEach(field -> handleField(field, workingClass));
+
+        if (!initialFieldPass) {
+            Arrays.stream(staticReference.getDeclaredFields())
+                    .filter(field -> field.isAnnotationPresent(Entry.class))
+                    .filter(field -> Modifier.isStatic(field.getModifiers()))
+                    .forEach(field -> handleField(field, workingClass));
+            initialFieldPass = true;
+        }
     }
 
     private void handleField(Field field, Object instance) {
@@ -45,8 +58,12 @@ public class EntryAspect {
         }
 
         Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
-        KeyParser.createKeyFromField(config, field, instance);
+        boolean hasFieldValue = KeyParser.createKeyFromField(config, field, instance);
 
+        if (!hasFieldValue && initialFieldPass) {
+            return;
+        }
+        
         if (!config.isValidConfiguration()) {
             System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " had an invalid configuration created. SKIPPING");
             return;
