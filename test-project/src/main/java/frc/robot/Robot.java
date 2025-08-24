@@ -44,15 +44,6 @@ public class Robot extends TimedRobot {
         new RobotContainer("test4");
         new RobotContainer("thisnotatest");
         Dashboard.createSelectorFromEnum("Robot/EnumTestKey", StructOptions.class, StructOptions.STRUCT, System.out::println);
-//        UnitEntries unitEntries = new UnitEntries();
-//        StructEntries structEntries = new StructEntries();
-//        DashboardMethods dashboardMethods = new DashboardMethods();
-//        dashboardMethods.init();
-//        addPeriodic(() -> {
-//            unitEntries.update();
-//            structEntries.update();
-//            dashboardMethods.update();
-//        }, 0.5);
     }
 
 

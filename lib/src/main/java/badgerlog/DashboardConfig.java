@@ -3,6 +3,7 @@ package badgerlog;
 import badgerlog.annotations.StructOptions;
 import lombok.Getter;
 
+@SuppressWarnings("unused")
 @Getter
 public final class DashboardConfig {
 

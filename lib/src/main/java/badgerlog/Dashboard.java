@@ -15,12 +15,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unused")
 public final class Dashboard {
 
     private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
 
     public static DashboardConfig config = DashboardConfig.defaultConfig;
-    public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
+    public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
 
     private Dashboard() {
     }
