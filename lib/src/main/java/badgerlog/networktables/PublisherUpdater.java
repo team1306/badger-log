@@ -2,23 +2,12 @@ package badgerlog.networktables;
 
 import java.util.function.Supplier;
 
-/**
- * Automates periodic value publication to NetworkTables by linking a with a value {@link Supplier}.
- * Implements the {@link Updater} interface to enable scheduled updates, typically used in loops or timed tasks.
- *
- * @param <T> Type of data being published
- */
+@SuppressWarnings("ClassCanBeRecord")
 public final class PublisherUpdater<T> implements Updater, NT {
 
     private final NTEntry<T> publisher;
     private final Supplier<T> valueSupplier;
 
-    /**
-     * Constructs an updater that bridges a publisher and a dynamic value source.
-     *
-     * @param publisher     Target for value publishing
-     * @param valueSupplier Provider of current values to publish
-     */
     public PublisherUpdater(NTEntry<T> publisher, Supplier<T> valueSupplier) {
         this.publisher = publisher;
         this.valueSupplier = valueSupplier;

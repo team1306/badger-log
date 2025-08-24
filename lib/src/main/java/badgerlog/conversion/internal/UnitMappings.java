@@ -12,10 +12,6 @@ import edu.wpi.first.units.measure.*;
 
 import static edu.wpi.first.units.Units.*;
 
-/**
- * Collection of predefined {@link Mapping} implementations for converting unit-based {@link Measure}
- * types to/from {@link Double} values.
- */
 public final class UnitMappings {
 
     private static final Mapping<Distance, Double> distanceMapping = createMeasureMapping(Meters, Distance.class);

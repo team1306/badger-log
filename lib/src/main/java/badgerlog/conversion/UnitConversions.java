@@ -10,19 +10,8 @@ import java.util.stream.Collectors;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
-/**
- * Provides static utilities for unit conversions and {@link UnitConverter} management.
- * <p>
- * Supports conversion between compatible units and creation/validation
- * of type-safe unit converters. Maintains a registry of available units loaded via reflection
- * from {@link Units}.
- */
 public final class UnitConversions {
-    /**
-     * Static registry of available units.
-     * <p>
-     * Populated at class initialization by reflecting over fields in {@link Units}.
-     */
+
     public static final Map<String, Unit> units = new HashMap<>();
 
     static {
@@ -51,51 +40,6 @@ public final class UnitConversions {
     private UnitConversions() {
     }
 
-    /**
-     * Converts a numeric value between two units specified by name.
-     *
-     * @param value    Numeric value to convert
-     * @param fromUnit Source unit name
-     * @param toUnit   Target unit name
-     * @return Converted value in target unit
-     * @throws IllegalArgumentException If either unit name is not registered
-     * @throws IllegalArgumentException If units are incompatible (different base types)
-     */
-    public static double convert(double value, String fromUnit, String toUnit) {
-        toUnit = toUnit.toLowerCase(Locale.ROOT);
-        fromUnit = fromUnit.toLowerCase(Locale.ROOT);
-
-        if (units.get(fromUnit) == null)
-            throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", fromUnit));
-        if (units.get(toUnit) == null)
-            throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", toUnit));
-        return convert(value, units.get(fromUnit), units.get(toUnit));
-    }
-
-    /**
-     * Converts a numeric value between two {@link Unit} instances.
-     *
-     * @param value    Numeric value to convert
-     * @param fromUnit Source unit instance
-     * @param toUnit   Target unit instance
-     * @param <T>      the starting unit
-     * @param <N>      the ending unit
-     * @return Converted value in target unit
-     * @throws IllegalArgumentException If units are incompatible (different base types)
-     */
-    public static <T extends Unit, N extends Unit> double convert(double value, T fromUnit, N toUnit) {
-        if (!fromUnit.getBaseUnit().equals(toUnit.getBaseUnit()))
-            throw new IllegalArgumentException("Unit types do not match");
-        return toUnit.getConverterFromBase().apply(fromUnit.getConverterToBase().apply(value));
-    }
-
-    /**
-     * Creates a {@link UnitConverter} for a specific unit type.
-     *
-     * @param toUnit Unit to convert to/from
-     * @param <T>    a converter using the specified unit
-     * @return Converter instance for the specified unit
-     */
     public static <T extends Unit> UnitConverter<T> createConverter(T toUnit) {
         return new UnitConverter<>() {
             @Override
@@ -112,13 +56,6 @@ public final class UnitConversions {
         };
     }
 
-    /**
-     * Creates a {@link UnitConverter} by unit name.
-     *
-     * @param toUnit Target unit name (e.g., "Radians")
-     * @return Converter instance for the specified unit
-     * @throws IllegalArgumentException If unit name is not registered
-     */
     public static UnitConverter<?> createConverter(String toUnit) {
         toUnit = toUnit.toLowerCase(Locale.ROOT);
 
@@ -127,34 +64,14 @@ public final class UnitConversions {
         return createConverter(units.get(toUnit));
     }
 
-    /**
-     * Initializes or validates a distance unit converter with default fallback to meters.
-     *
-     * @param converter Existing converter (may be null)
-     * @return Valid converter matching distance units
-     */
     public static UnitConverter<DistanceUnit> initializeDistanceConverter(UnitConverter<DistanceUnit> converter) {
         return initializeUnitConverter(converter, Meters);
     }
 
-    /**
-     * Initializes or validates an angle unit converter with default fallback to radians.
-     *
-     * @param converter Existing converter (may be null)
-     * @return Valid converter matching angle units
-     */
     public static UnitConverter<AngleUnit> initializeRotationConverter(UnitConverter<AngleUnit> converter) {
         return initializeUnitConverter(converter, Radians);
     }
 
-    /**
-     * Generic initializer for unit converters with null safety checks.
-     *
-     * @param converter   Existing converter (null uses defaultUnit)
-     * @param defaultUnit Fallback unit type if converter is null
-     * @param <T>         the unit to use
-     * @return Validated or newly created converter
-     */
     public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit) {
         return converter == null ? createConverter(defaultUnit) : converter;
     }

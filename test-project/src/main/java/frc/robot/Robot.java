@@ -18,32 +18,28 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Millihertz;
 
-public class Robot extends TimedRobot
-{
-    private Command autonomousCommand;
-    
+public class Robot extends TimedRobot {
     private final RobotContainer robotContainer;
-    
+    private Command autonomousCommand;
     @Entry(EntryType.Publisher)
     @Key("testkey")
     @UnitConversion("mHz")
     private Frequency test = Hertz.of(1);
-    
+
     @Entry(EntryType.Publisher)
     @UnitConversion(value = "Inch", converterId = "translation")
     @UnitConversion(value = "Rotation", converterId = "rotation")
     @StructType(StructOptions.MAPPING)
     private Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
-    
+
     @Entry(EntryType.Publisher)
     private double[] tester = {1, 2};
 
     @Entry(EntryType.Publisher)
     @StructType(StructOptions.SUB_TABLE)
     private Rotation2d rotation = Rotation2d.fromDegrees(180);
-    
-    public Robot()
-    {
+
+    public Robot() {
         robotContainer = new RobotContainer("test1");
         new RobotContainer("test4");
         new RobotContainer("thisnotatest");
@@ -58,79 +54,82 @@ public class Robot extends TimedRobot
 //            dashboardMethods.update();
 //        }, 0.5);
     }
-    
-    
+
+
     @Override
-    public void robotPeriodic()
-    {
+    public void robotPeriodic() {
         Dashboard.update();
         CommandScheduler.getInstance().run();
         pose2d = pose2d.plus(new Transform2d(0, Math.random(), Rotation2d.k180deg));
         test = test.plus(Millihertz.of(0.4));
     }
-    
-    
+
+
     @Override
-    public void disabledInit() {}
-    
-    
+    public void disabledInit() {
+    }
+
+
     @Override
-    public void disabledPeriodic() {}
-    
-    
+    public void disabledPeriodic() {
+    }
+
+
     @Override
-    public void disabledExit() {}
-    
-    
+    public void disabledExit() {
+    }
+
+
     @Override
-    public void autonomousInit()
-    {
+    public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
-        
-        if (autonomousCommand != null)
-        {
+
+        if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
     }
-    
-    
+
+
     @Override
-    public void autonomousPeriodic() {}
-    
-    
+    public void autonomousPeriodic() {
+    }
+
+
     @Override
-    public void autonomousExit() {}
-    
-    
+    public void autonomousExit() {
+    }
+
+
     @Override
-    public void teleopInit()
-    {
-        if (autonomousCommand != null)
-        {
+    public void teleopInit() {
+        if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
     }
-    
-    
+
+
     @Override
-    public void teleopPeriodic() {}
-    
-    
+    public void teleopPeriodic() {
+    }
+
+
     @Override
-    public void teleopExit() {}
-    
-    
+    public void teleopExit() {
+    }
+
+
     @Override
-    public void testInit()
-    {
+    public void testInit() {
         CommandScheduler.getInstance().cancelAll();
     }
-    
-    
+
+
     @Override
-    public void testPeriodic() {}
-    
-    
+    public void testPeriodic() {
+    }
+
+
     @Override
-    public void testExit() {}
+    public void testExit() {
+    }
 }

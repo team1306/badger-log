@@ -5,13 +5,6 @@ import badgerlog.conversion.Mapping;
 import badgerlog.conversion.Mappings;
 import edu.wpi.first.networktables.NetworkTableType;
 
-/**
- * Provides base {@link Mapping} implementations for standard data types to NetworkTables entries.
- * Includes mappings for primitives (e.g., double, boolean), their boxed equivalents (e.g., Double, Boolean),
- * and arrays of these types. Each mapping performs direct conversion.
- * <p>
- * This class cannot be instantiated; all mappings are static and predefined.
- */
 public final class BaseMappings {
 
     private static final Mapping<Double, Double> doubleMapping = new Mapping<>(double.class, double.class, NetworkTableType.kDouble) {

@@ -7,9 +7,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class Subtables {
-    /**
-     * A map of primitive types to their schema types.
-     */
     private static final HashMap<String, PrimType<?>> primitiveTypeMap = new HashMap<>();
 
     static {
@@ -30,13 +27,6 @@ public class Subtables {
         primitiveTypeMap.put(name, primType);
     }
 
-    /**
-     * Recursively creates ValueEntry objects mirroring the struct's schema. Maintains
-     * native packing order through depth-first traversal of nested structs. Automatically
-     * skips non-double fields in schema definitions.
-     *
-     * @param baseStruct Struct hierarchy to analyze
-     */
     public static <T> Map<NTEntry<?>, PrimType<?>> createEntries(Struct<T> baseStruct, String baseKey, T value) {
         ByteBuffer buffer = ByteBuffer.allocate(baseStruct.getSize());
         buffer.clear();
@@ -81,17 +71,11 @@ public class Subtables {
         return true;
     }
 
-    /**
-     * A functional interface representing a method that retrieves a value from a {@link ByteBuffer}.
-     */
     @FunctionalInterface
     public interface Unpacker<T> {
         T unpack(ByteBuffer buffer);
     }
 
-    /**
-     * A functional interface representing a method that packs a value into a {@link ByteBuffer}.
-     */
     @FunctionalInterface
     public interface Packer<T> {
         void pack(ByteBuffer buffer, T value);

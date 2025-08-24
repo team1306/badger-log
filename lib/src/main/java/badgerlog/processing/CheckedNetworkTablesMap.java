@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CheckedNetworkTablesMap extends HashMap<String, NT> {
+
     @Override
     public NT put(String key, NT value) {
         if (containsKey(key)) {

@@ -15,9 +15,6 @@ import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
-/**
- * Collection of predefined {@link Mapping} implementations for converting geometry classes to/from {@code double} and {@code double[]} values.
- */
 @SuppressWarnings("DuplicatedCode")
 public final class TransformMappings {
 

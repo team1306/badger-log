@@ -14,8 +14,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 
-public class RobotContainer
-{
+public class RobotContainer {
+    //    public double test = 1;
+    private final String id;
     @Entry(EntryType.Publisher)
     @Key("RobotContainer/{id}")
     public String testEntry = "test";
@@ -24,32 +25,28 @@ public class RobotContainer
     @AutoGenerateStruct
     @StructType(StructOptions.SUB_TABLE)
     public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), 6, 3);
-    //    public double test = 1;
-    private String id;
 
     @Entry(EntryType.Publisher)
     @AutoGenerateStruct
     @StructType(StructOptions.SUB_TABLE)
     private TestEnum testEnum = TestEnum.FUN;
 
-    public enum TestEnum {
-        FUN,
-        LAST,
-        TEST
-    }
-
-    public RobotContainer(String id)
-    {
+    public RobotContainer(String id) {
         this.id = id;
         Dashboard.createSelectorFromEnum("Selector/Enums", TestEnum.class, value -> {
             testEnum = (TestEnum) value;
             System.out.println(testEnum);
         });
     }
-    
-    public Command getAutonomousCommand()
-    {
+
+    public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");
+    }
+
+    public enum TestEnum {
+        FUN,
+        LAST,
+        TEST
     }
 
     public record TestRecordOuter(TestRecordInner inner, Pose2d pose2d, double coolNumber,
