@@ -29,7 +29,7 @@ public class RobotContainer
 
     @Entry(EntryType.Publisher)
     @AutoGenerateStruct
-    @StructType(StructOptions.STRUCT)
+    @StructType(StructOptions.SUB_TABLE)
     private TestEnum testEnum = TestEnum.FUN;
 
     public enum TestEnum {
@@ -41,7 +41,10 @@ public class RobotContainer
     public RobotContainer(String id)
     {
         this.id = id;
-        Dashboard.createSelectorFromEnum("Selector/Enums", TestEnum.class, value -> testEnum = (TestEnum) value);
+        Dashboard.createSelectorFromEnum("Selector/Enums", TestEnum.class, value -> {
+            testEnum = (TestEnum) value;
+            System.out.println(testEnum);
+        });
     }
     
     public Command getAutonomousCommand()

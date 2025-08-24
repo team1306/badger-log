@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 /**
  * Handles publishing and updating {@link Sendable} objects in NetworkTables.Synchronizes Sendable data through periodic updates.
  */
-public final class SendableEntry implements Updater {
+public final class SendableEntry implements Updater, NTCloseable {
 
     private final Sendable sendable;
 
@@ -34,5 +34,10 @@ public final class SendableEntry implements Updater {
     @Override
     public void update() {
         SendableRegistry.update(sendable);
+    }
+
+    @Override
+    public void close() {
+        SendableRegistry.remove(sendable);
     }
 }

@@ -4,6 +4,7 @@ import badgerlog.annotations.Entry;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.conversion.Mapping;
 import badgerlog.networktables.*;
+import badgerlog.processing.CheckedNetworkTablesMap;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
@@ -13,10 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -55,8 +53,8 @@ import java.util.function.Consumer;
  */
 public final class Dashboard {
 
-    private static final Set<Updater> ntEntries = new HashSet<>();
-    private static final HashMap<String, NTEntry<?>> activeEntries = new HashMap<>();
+    private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
+    
     /**
      * The config used by BadgerLog
      */
@@ -88,7 +86,7 @@ public final class Dashboard {
      * @throws IllegalStateException If annotated fields are improperly configured (uninitialized, non-static, or final)
      * @see Entry
      */
-    public static void initialize(DashboardConfig config) {
+    public static void configure(DashboardConfig config) {
         Dashboard.config = config;
     }
 
@@ -129,12 +127,8 @@ public final class Dashboard {
         return false;
     }
 
-    public static void addNetworkTableEntry(NTEntry<?> entry) {
-        activeEntries.put(entry.getKey(), entry);
-    }
-
-    public static void addUpdatingNetworkTableEntry(Updater entry) {
-        ntEntries.add(entry);
+    public static void addNetworkTableEntry(String key, NT entry) {
+        activeEntries.put(key, entry);
     }
 
     /**
@@ -143,7 +137,7 @@ public final class Dashboard {
      *
      */
     public static void update() {
-        ntEntries.forEach(Updater::update);
+        activeEntries.getUpdaters().values().forEach(Updater::update);
     }
 
     /**
@@ -237,9 +231,14 @@ public final class Dashboard {
         NTEntry<T> entry;
         if (!activeEntries.containsKey(key)) {
             entry = EntryFactory.createNetworkTableEntryFromValue(key, defaultValue, config);
-            addNetworkTableEntry(entry);
+            addNetworkTableEntry(key, entry);
         } else {
-            entry = (NTEntry<T>) activeEntries.get(key);
+            try {
+                entry = (NTEntry<T>) activeEntries.getNTEntry(key);
+            } catch (ClassCastException e) {
+                activeEntries.remove(key);
+                return createEntryIfNotPresent(key, defaultValue, config);
+            }
         }
         return entry;
     }
@@ -257,6 +256,6 @@ public final class Dashboard {
      * @see Entry
      */
     public static void putSendable(String key, Sendable sendable) {
-        ntEntries.add(new SendableEntry(key, sendable));
+        activeEntries.put(key, new SendableEntry(key, sendable));
     }
 }

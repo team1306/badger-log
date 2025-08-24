@@ -6,7 +6,6 @@
 package frc.robot;
 
 import badgerlog.Dashboard;
-import badgerlog.DashboardConfig;
 import badgerlog.annotations.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,7 +44,6 @@ public class Robot extends TimedRobot
     
     public Robot()
     {
-        Dashboard.initialize(DashboardConfig.defaultConfig);
         robotContainer = new RobotContainer("test1");
         new RobotContainer("test4");
         new RobotContainer("thisnotatest");

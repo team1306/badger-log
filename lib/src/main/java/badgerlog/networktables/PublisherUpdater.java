@@ -8,7 +8,7 @@ import java.util.function.Supplier;
  *
  * @param <T> Type of data being published
  */
-public final class PublisherUpdater<T> implements Updater {
+public final class PublisherUpdater<T> implements Updater, NT {
 
     private final NTEntry<T> publisher;
     private final Supplier<T> valueSupplier;

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
  *
  * @param <T> Type of data being consumed
  */
-public final class SubscriberUpdater<T> implements Updater {
+public final class SubscriberUpdater<T> implements Updater, NT {
 
     private final NTEntry<T> subscriber;
     private final Consumer<T> valueConsumer;
