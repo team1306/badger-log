@@ -58,7 +58,7 @@ publishing {
 java {
     withSourcesJar()
     withJavadocJar()
-    
+
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
@@ -83,8 +83,8 @@ tasks.withType(Javadoc) {
     }
 }
 
+
 javadoc {
-    // Exclude .aj files directly
     exclude 'com.fasterxml.jackson.annotation.JsonAutoDetect'
 }
 
@@ -100,15 +100,13 @@ spotless {
     lineEndings 'UNIX'
 
     java {
-        licenseHeader '// Copyright (c) FIRST and other WPILib contributors.\n' +
-                '// Open Source Software; you can modify and/or share it under the terms of\n' +
-                '// the WPILib BSD license file in the root directory of this project.\n\n'
         toggleOffOn()
         importOrder()
         removeUnusedImports()
         googleJavaFormat()
         trimTrailingWhitespace()
         endWithNewline()
+        formatAnnotations()
     }
 
     groovy {
