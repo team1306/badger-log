@@ -15,7 +15,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
+/**
+ * Provides utility methods for interacting with NetworkTables.
+ */
+@SuppressWarnings({"unused", "resource"})
 public final class Dashboard {
 
     private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
@@ -26,10 +29,19 @@ public final class Dashboard {
     private Dashboard() {
     }
 
+    /**
+     * Changes the default configuration options to use when the specific version is missing on a field.
+     *
+     * @param config the configuration to use as a default
+     */
     public static void configure(DashboardConfig config) {
         Dashboard.config = config;
     }
 
+    /**
+     * {@code defaultValue} defaults to the first defined Enum constant
+     * @see #createSelectorFromEnum(String, Class, Enum, Consumer)
+     */
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Consumer<Enum<T>> onValueChange) {
         if (validateEnum(tEnum)) {
             System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
@@ -38,19 +50,29 @@ public final class Dashboard {
         return createSelectorFromEnum(key, tEnum, tEnum.getEnumConstants()[0], onValueChange);
     }
 
-    public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> defaultValue, Consumer<Enum<T>> onValueChange) {
+    /**
+     * Creates a {@link SendableChooser} that contains the name of each Enum constant as an option.
+     *
+     * @param key           the key on NetworkTables
+     * @param tEnum         the class of the Enum
+     * @param startingValue the starting Enum value to use on the SendableChooser
+     * @param onValueChange a {@link Consumer} that gets called on startup, and whenever the selector changes with the value it changed to
+     * @param <T>           the type of the Enum
+     * @return the created and published SendableChooser
+     */
+    public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> startingValue, Consumer<Enum<T>> onValueChange) {
         if (validateEnum(tEnum)) {
             System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
             return Optional.empty();
         }
         SendableChooser<Enum<T>> chooser = new SendableChooser<>();
-        chooser.setDefaultOption(defaultValue.toString(), defaultValue);
+        chooser.setDefaultOption(startingValue.toString(), startingValue);
         for (Enum<T> value : tEnum.getEnumConstants()) {
-            if (value == defaultValue) continue;
+            if (value == startingValue) continue;
             chooser.addOption(value.toString(), value);
         }
         chooser.onChange(onValueChange);
-        onValueChange.accept(defaultValue);
+        onValueChange.accept(startingValue);
         Dashboard.putSendable(key, chooser);
         return Optional.of(chooser);
     }
@@ -67,28 +89,61 @@ public final class Dashboard {
         return false;
     }
 
+    /**
+     * Adds an implementation of {@link NT} to the keymap to keep track of created entries. 
+     * @param key the key on NetworkTables
+     * @param entry the implementation of NT to put into the map
+     */
     public static void addNetworkTableEntry(String key, NT entry) {
         activeEntries.put(key, entry);
     }
 
+    /**
+     * Updates all the {@link NT} entries that also implement {@link NTUpdatable}. 
+     * This method is used to update NetworkTables or the robot code with any changed values.
+     * <p>Should be called in {@code Robot.robotPeriodic}</p>
+     */
     public static void update() {
-        activeEntries.getUpdaters().values().forEach(Updater::update);
+        activeEntries.getUpdaters().values().forEach(NTUpdatable::update);
     }
 
+    /**
+     * Creates a {@link Trigger} instance that is bound to a boolean value at {@code key} on NetworkTables.
+     * @param key the key on NetworkTables
+     * @param eventLoop the eventLoop to bind the Trigger to
+     * @return a Trigger with a toggle based on a boolean NetworkTables entry
+     */
     public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
         var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
+    /**
+     * Creates a {@link Trigger} that resets its NetworkTables entry to false, after being true for 0.25 seconds.
+     * @see #getNetworkTablesButton(String, EventLoop) 
+     */
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         return getNetworkTablesButton(key, eventLoop)
                 .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
 
+
+    /**
+     * {@code config} defaults to the base configuration
+     * @see #putValue(String, Object, Configuration) 
+     */
     public static <T> void putValue(String key, T value) {
         putValue(key, value, new Configuration());
     }
 
+    /**
+     * Publishes a value to NetworkTables with a specific configuration. 
+     * <p>Annotations should be preferred over this method if possible.</p>
+     * @param key the key on NetworkTables
+     * @param value the value to publish
+     * @param config the configuration to use for the {@link ValueEntry}
+     * @param <T> the type of the value 
+     */
     public static <T> void putValue(String key, T value, Configuration config) {
         NTEntry<T> entry = createEntryIfNotPresent(key, value, config);
 
@@ -99,6 +154,15 @@ public final class Dashboard {
         return getValue(key, defaultValue, new Configuration());
     }
 
+    /**
+     * Gets a value from NetworkTables with a specific configuration.
+     * <p>Annotations should be preferred over this method if possible.</p>
+     * @param key the key on NetworkTables
+     * @param defaultValue the value to use if the entry is missing on NetworkTables
+     * @param config the configuration to use for the {@link ValueEntry}
+     * @param <T> the type of the value 
+     * @return the value on NetworkTables if present, otherwise the value specified
+     */
     public static <T> T getValue(String key, T defaultValue, Configuration config) {
         NTEntry<T> entry = createEntryIfNotPresent(key, defaultValue, config);
 
@@ -122,6 +186,11 @@ public final class Dashboard {
         return entry;
     }
 
+    /**
+     * Adds a {@link Sendable} to the active entries to be updated. 
+     * @param key the key on NetworkTables
+     * @param sendable the Sendable to put on NetworkTables
+     */
     public static void putSendable(String key, Sendable sendable) {
         activeEntries.put(key, new SendableEntry(key, sendable));
     }

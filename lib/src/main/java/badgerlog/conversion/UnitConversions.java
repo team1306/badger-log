@@ -10,6 +10,10 @@ import java.util.stream.Collectors;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
+/**
+ * Internal class used by BadgerLog to manage and create {@link UnitConverter}.
+ * This wraps the WPILib Units system into an interface that can use any string form of the unit.
+ */
 public final class UnitConversions {
 
     public static final Map<String, Unit> units = new HashMap<>();
@@ -22,7 +26,10 @@ public final class UnitConversions {
                 .stream()
                 .map(Fields::getFieldValue)
                 .map(Unit.class::cast)
-                .collect(HashMap::new, (map, unit) -> map.put(unit, new HashSet<>()), HashMap::putAll);
+                .collect(
+                        HashMap::new,
+                        (map, unit) -> map.put(unit, new HashSet<>()),
+                        HashMap::putAll);
 
         for (Field field : fields) {
             Unit unit = (Unit) Fields.getFieldValue(field);
@@ -40,6 +47,13 @@ public final class UnitConversions {
     private UnitConversions() {
     }
 
+    /**
+     * Creates an implementation of a {@link UnitConverter} that uses the {@code toUnit} as its base.
+     *
+     * @param toUnit the unit to convert to and from
+     * @param <T>    the type of the Unit
+     * @return the created UnitConverter
+     */
     public static <T extends Unit> UnitConverter<T> createConverter(T toUnit) {
         return new UnitConverter<>() {
             @Override
@@ -56,6 +70,11 @@ public final class UnitConversions {
         };
     }
 
+    /**
+     * Creates a {@link UnitConverter} from a unit represented as a String. 
+     * @param toUnit the unit as a string
+     * @return the created UnitConverter
+     */
     public static UnitConverter<?> createConverter(String toUnit) {
         toUnit = toUnit.toLowerCase(Locale.ROOT);
 
@@ -64,14 +83,29 @@ public final class UnitConversions {
         return createConverter(units.get(toUnit));
     }
 
+    /**
+     * {@code defaultUnit} defaults to {@code Meters}
+     * @see #initializeUnitConverter(UnitConverter, Unit) 
+     */
     public static UnitConverter<DistanceUnit> initializeDistanceConverter(UnitConverter<DistanceUnit> converter) {
         return initializeUnitConverter(converter, Meters);
     }
 
+    /**
+     * {@code defaultUnit} defaults to {@code Radians}
+     * @see #initializeUnitConverter(UnitConverter, Unit)
+     */
     public static UnitConverter<AngleUnit> initializeRotationConverter(UnitConverter<AngleUnit> converter) {
         return initializeUnitConverter(converter, Radians);
     }
 
+    /**
+     * Initializes a potentially null converter with the default unit converter if null, otherwise returns the converter.
+     * @param converter the converter to check
+     * @param defaultUnit the default unit form of the converter
+     * @return the non-null initialized or passed converter
+     * @param <T> the unit type
+     */
     public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit) {
         return converter == null ? createConverter(defaultUnit) : converter;
     }

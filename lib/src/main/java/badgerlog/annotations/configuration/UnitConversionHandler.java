@@ -2,15 +2,13 @@ package badgerlog.annotations.configuration;
 
 import badgerlog.annotations.UnitConversion;
 import badgerlog.conversion.UnitConversions;
-import badgerlog.conversion.UnitConverter;
 
+/**
+ * Internal class to handle the {@link UnitConversion} annotation.
+ */
 public final class UnitConversionHandler implements ConfigHandler<UnitConversion> {
-    public static UnitConverter<?> createConverter(UnitConversion annotation) {
-        return UnitConversions.createConverter(annotation.value());
-    }
-
     @Override
     public void process(UnitConversion annotation, Configuration config) {
-        config.withConverter(annotation.converterId(), createConverter(annotation));
+        config.withConverter(annotation.converterId(), UnitConversions.createConverter(annotation.value()));
     }
 }

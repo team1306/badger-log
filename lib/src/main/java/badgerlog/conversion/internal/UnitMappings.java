@@ -12,6 +12,9 @@ import edu.wpi.first.units.measure.*;
 
 import static edu.wpi.first.units.Units.*;
 
+/**
+ * Internal implementations of all the {@link Measure} mappings.
+ */
 public final class UnitMappings {
 
     private static final Mapping<Distance, Double> distanceMapping = createMeasureMapping(Meters, Distance.class);
@@ -35,6 +38,9 @@ public final class UnitMappings {
     private static final Mapping<Power, Double> powerMapping = createMeasureMapping(Watts, Power.class);
     private static final Mapping<Temperature, Double> temperatureMapping = createMeasureMapping(Celsius, Temperature.class);
 
+    /**
+     * Registers all mappings in this class.
+     */
     public static void registerAllMappings() {
         Mappings.registerAllMappings(
                 distanceMapping,

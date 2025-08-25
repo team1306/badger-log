@@ -6,10 +6,19 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
-public final class SendableEntry implements Updater, NTCloseable {
+/**
+ * Creates and manages a {@link Sendable} object, allowing it to be periodically updated.
+ */
+public final class SendableEntry implements NTUpdatable, AutoCloseable {
 
     private final Sendable sendable;
 
+    /**
+     * Constructs a new SendableEntry, registering and publishing the {@link Sendable}
+     *
+     * @param key      the key to use on NetworkTables
+     * @param sendable the Sendable to publish
+     */
     public SendableEntry(String key, Sendable sendable) {
         this.sendable = sendable;
 

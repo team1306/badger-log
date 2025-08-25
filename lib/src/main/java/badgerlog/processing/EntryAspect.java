@@ -4,9 +4,9 @@ import badgerlog.Dashboard;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.networktables.EntryFactory;
-import badgerlog.networktables.PublisherUpdater;
+import badgerlog.networktables.PublisherNTUpdatable;
 import badgerlog.networktables.SendableEntry;
-import badgerlog.networktables.SubscriberUpdater;
+import badgerlog.networktables.SubscriberNTUpdatable;
 import edu.wpi.first.util.sendable.Sendable;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -16,7 +16,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
-@SuppressWarnings("-javadoc")
+/**
+ * Internal aspect that enables BadgerLog to use instance fields without any configuration in the constructor of
+ * classes that have fields that use {@link Entry}.
+ */
 @Aspect("pertypewithin(*)")
 public class EntryAspect {
 
@@ -69,16 +72,13 @@ public class EntryAspect {
             return;
         }
 
-        if (field.getType().isRecord() || field.getType().isEnum()) {
-            TypeParser.generateStructFromTypeIfPossible(config, field.getType());
-        }
-
         var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
 
         Dashboard.addNetworkTableEntry(config.getKey(), switch (annotation.value()) {
-            case Publisher -> new PublisherUpdater<>(entry, () -> Fields.getFieldValue(field, instance));
-            case Subscriber -> new SubscriberUpdater<>(entry, value -> Fields.setFieldValue(instance, field, value));
+            case Publisher -> new PublisherNTUpdatable<>(entry, () -> Fields.getFieldValue(field, instance));
+            case Subscriber ->
+                    new SubscriberNTUpdatable<>(entry, value -> Fields.setFieldValue(instance, field, value));
             case Sendable -> new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
         });
     }

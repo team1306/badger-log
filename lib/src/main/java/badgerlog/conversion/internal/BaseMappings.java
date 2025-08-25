@@ -5,6 +5,9 @@ import badgerlog.conversion.Mapping;
 import badgerlog.conversion.Mappings;
 import edu.wpi.first.networktables.NetworkTableType;
 
+/**
+ * Internal implementation of all the primitive mappings.
+ */
 public final class BaseMappings {
 
     private static final Mapping<Double, Double> doubleMapping = new Mapping<>(double.class, double.class, NetworkTableType.kDouble) {
@@ -175,6 +178,9 @@ public final class BaseMappings {
     private BaseMappings() {
     }
 
+    /**
+     * Registers all mappings in this class.
+     */
     public static void registerAllMappings() {
         Mappings.registerAllMappings(
                 doubleMapping,

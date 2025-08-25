@@ -15,6 +15,9 @@ import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
+/**
+ * Internal implementation of all the mappings that are common WPILib transform classes.
+ */
 @SuppressWarnings("DuplicatedCode")
 public final class TransformMappings {
 
@@ -221,6 +224,9 @@ public final class TransformMappings {
     private TransformMappings() {
     }
 
+    /**
+     * Registers all mappings in this class.
+     */
     public static void registerAllMappings() {
         Mappings.registerAllMappings(
                 rotation2dDoubleMapping,
