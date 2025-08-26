@@ -4,6 +4,7 @@ plugins {
     id("io.freefair.lombok") version "8.12.2.1"
     id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.+'
     id 'maven-publish'
+    id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
     id("net.ltgt.errorprone") version "4.2.0"
 }
 
@@ -29,10 +30,12 @@ dependencies {
     compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
     compileOnly 'edu.wpi.first.hal:hal-java:2025.+'
 
-    implementation 'io.github.classgraph:classgraph:4.8.179'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 
-    compileOnly 'com.google.auto.service:auto-service:1.1.1'
-    annotationProcessor 'com.google.auto.service:auto-service:1.1.1'
+    implementation "org.aspectj:aspectjrt:1.9.24"
+    runtimeOnly 'org.aspectj:aspectjweaver:1.9.24'
+
+    aspect 'org.aspectj:aspectjtools:1.9.24'
 
     errorprone("com.google.errorprone:error_prone_core:2.37.0")
 
@@ -53,7 +56,7 @@ publishing {
 java {
     withSourcesJar()
     withJavadocJar()
-    
+
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
@@ -78,6 +81,11 @@ tasks.withType(Javadoc) {
     }
 }
 
+
+javadoc {
+    exclude 'com.fasterxml.jackson.annotation.JsonAutoDetect'
+}
+
 test {
     useJUnitPlatform()
 }
@@ -90,15 +98,13 @@ spotless {
     lineEndings 'UNIX'
 
     java {
-        licenseHeader '// Copyright (c) FIRST and other WPILib contributors.\n' +
-                '// Open Source Software; you can modify and/or share it under the terms of\n' +
-                '// the WPILib BSD license file in the root directory of this project.\n\n'
         toggleOffOn()
         importOrder()
         removeUnusedImports()
         googleJavaFormat()
         trimTrailingWhitespace()
         endWithNewline()
+        formatAnnotations()
     }
 
     groovy {

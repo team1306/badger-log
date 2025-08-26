@@ -1,308 +1,197 @@
 package badgerlog;
 
-import badgerlog.entry.Configuration;
-import badgerlog.entry.Entry;
-import badgerlog.networktables.entries.*;
-import badgerlog.networktables.mappings.Mapping;
-import badgerlog.networktables.mappings.MappingType;
-import badgerlog.networktables.mappings.Mappings;
+import badgerlog.annotations.configuration.Configuration;
+import badgerlog.networktables.*;
+import badgerlog.processing.CheckedNetworkTablesMap;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.FieldInfo;
-import lombok.SneakyThrows;
 
-import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
- * The {@code Dashboard} class serves as the main component of BadgerLog, providing a utility
- * for interacting with NetworkTables. It is intended as a modern replacement
- * for {@code SmartDashboard} with enhanced functionality.
- * It facilitates automatic discovery and synchronization of
- * fields annotated with {@link Entry}, manages publishers and subscribers, and offers utilities for
- * NetworkTables events. This class is designed for static use and must be initialized
- * before any operations.
- *
- * <h2>Key Functionalities</h2>
- * <ul>
- *   <li><b>Automatic Field Registration:</b> Discovers fields annotated with {@link Entry} and maps them
- *       to NetworkTables entries as publishers, subscribers, or Sendable objects.</li>
- *   <li><b>Organization of Entries:</b> Organizes fields annotated with {@link Entry} into subtables according to the containing class's name.</li>
- *   <li><b>Type Mappings:</b> Uses {@link Mapping} configurations to map any type to a valid NetworkTable type.</li>
- *   <li><b>Event Triggers:</b> Creates {@link Trigger} instances bound to NetworkTables boolean entries
- *       for event logic.</li>
- *   <li><b>Utilities:</b> Provides methods like {@link #putValue} and {@link #getValue} that use {@code Mapping} configurations.</li>
- * </ul>
- *
- * <h2>Initialization and Lifecycle</h2>
- * <ul>
- *   <li>{@link #initialize(DashboardConfig)} must be called during robot initialization (usually in
- *       {@code Robot.robotInit}) to scan for annotated fields and set up NetworkTables entries.</li>
- *   <li>{@link #update()} must be invoked periodically (usually in {@code Robot.robotPeriodic}) to refresh
- *       NetworkTables values.</li>
- * </ul>
- *
- * <h2>Usage Requirements</h2>
- * <ul>
- *   <li>All types used with {@link #putValue} or {@link #getValue} must have a registered {@link Mapping}.</li>
- *   <li>Fields annotated with {@link Entry} must be non-final, static, and initialized for auto-registration.</li>
- *   <li>NetworkTables keys must be unique to avoid type conflicts.</li>
- * </ul>
- *
- * @see Entry
- * @see Mapping
- * @see Publisher
- * @see Subscriber
- * @see Trigger
- * @see DashboardConfig
+ * Provides utility methods for interacting with NetworkTables.
  */
+@SuppressWarnings({"unused", "resource"})
 public final class Dashboard {
 
-    private static final HashMap<String, Updater> ntEntries = new HashMap<>();
-    private static final HashMap<String, Publisher<?>> singleUsePublishers = new HashMap<>();
-    private static final HashMap<String, Subscriber<?>> singleUseSubscribers = new HashMap<>();
-    /**
-     * The config used by BadgerLog
-     */
+    private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
+
     public static DashboardConfig config = DashboardConfig.defaultConfig;
-    /**
-     * The base table used by BadgerLog for publishing and subscribing to
-     */
-    public static NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
-    private static boolean isInitialized = false;
+    public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
 
     private Dashboard() {
     }
 
     /**
-     * Initializes BadgerLog.
-     * This method performs one-time setup including:
-     * <ul>
-     *   <li>Configuration of BadgerLog base table using provided {@link DashboardConfig}</li>
-     *   <li>Classpath scanning for fields annotated with {@link Entry} and {@link MappingType}</li>
-     *   <li>Automatic creation of publishers/subscribers for discovered fields</li>
-     *   <li>Creation of type mappings for NetworkTables data conversions</li>
-     * </ul>
-     * <p>
-     * Must be called exactly once during robot initialization (typically in {@code Robot.robotInit}).
-     * <br /> <br />
-     * Requires all fields annotated with {@code Entry} or {@code MappingType} to be initialized, non-final and static. Access level does not matter. Package scanning
-     * configuration in {@code DashboardConfig} must include all packages with dashboard-related fields.
+     * Changes the default configuration options to use when the specific version is missing on a field.
      *
-     * @param config The configuration object
-     * @throws IllegalStateException If annotated fields are improperly configured (uninitialized, non-static, or final)
-     * @see Entry
-     * @see MappingType
+     * @param config the configuration to use as a default
      */
-    @SneakyThrows({InterruptedException.class, ExecutionException.class})
-    public static void initialize(@Nonnull DashboardConfig config) {
+    public static void configure(DashboardConfig config) {
         Dashboard.config = config;
-        defaultTable = NetworkTableInstance.getDefault().getTable(config.getBaseTableKey());
-        if (isInitialized) return;
-
-        defaultTable.getEntry("Dashboard Startup").setBoolean(false);
-
-        var classGraph = new ClassGraph().acceptPackages(config.getBasePackages()).acceptPackages("badgerlog").enableAllInfo().ignoreFieldVisibility();
-
-        var resultAsync = classGraph.scanAsync(Executors.newCachedThreadPool(), 10);
-        var result = resultAsync.get();
-
-        Mappings.mappings.addAll(
-                result.getClassesWithFieldAnnotation(MappingType.class).stream()
-                        .flatMap(classInfo -> classInfo.getFieldInfo().stream()
-                                .filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))
-                                .map(DashboardUtil::checkFieldValidity)
-                                .map(field -> (Mapping<?, ?>) DashboardUtil.getFieldValue(field))
-                        ).toList()
-        );
-
-        var fieldInfoCollection = result.getClassesWithFieldAnnotation(Entry.class).stream()
-                .flatMap(classInfo -> classInfo.getFieldInfo().stream()
-                        .filter(fieldInfo -> fieldInfo.hasAnnotation(Entry.class))
-                ).toList();
-
-
-        for (FieldInfo fieldInfo : fieldInfoCollection) {
-            var field = DashboardUtil.checkFieldValidity(fieldInfo);
-
-            var entry = field.getAnnotation(Entry.class);
-            if (entry == null) {
-                DriverStation.reportError("No entry annotation found for field: " + field.getName(), true);
-                continue;
-            }
-            var fieldConfig = DashboardUtil.createConfigurationFromField(field);
-            String key;
-            if (fieldConfig.getKey() == null || fieldConfig.getKey().isBlank())
-                key = fieldInfo.getClassInfo().getSimpleName() + "/" + fieldInfo.getName();
-            else key = fieldConfig.getKey();
-
-            ntEntries.put(key, switch (entry.value()) {
-                case Publisher ->
-                        new PublisherUpdater<>(EntryFactory.createPublisherFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), () -> DashboardUtil.getFieldValue(field));
-                case Subscriber ->
-                        new SubscriberUpdater<>(EntryFactory.createSubscriberFromValue(key, DashboardUtil.getFieldValue(field), fieldConfig), value -> DashboardUtil.setFieldValue(field, value));
-                case Sendable -> new SendableEntry(key, (Sendable) DashboardUtil.getFieldValue(field));
-            });
-        }
-        result.close();
-
-        defaultTable.getEntry("Dashboard Startup").setBoolean(true);
-        isInitialized = true;
     }
 
     /**
-     * Updates all registered NetworkTables entries with current values. This method must be called
-     * periodically (typically in {@code Robot.robotPeriodic}) to update fields and NetworkTable values.
+     * {@code defaultValue} defaults to the first defined Enum constant
+     * @see #createSelectorFromEnum(String, Class, Enum, Consumer)
+     */
+    public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Consumer<Enum<T>> onValueChange) {
+        if (validateEnum(tEnum)) {
+            System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+            return Optional.empty();
+        }
+        return createSelectorFromEnum(key, tEnum, tEnum.getEnumConstants()[0], onValueChange);
+    }
+
+    /**
+     * Creates a {@link SendableChooser} that contains the name of each Enum constant as an option.
      *
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
+     * @param key           the key on NetworkTables
+     * @param tEnum         the class of the Enum
+     * @param startingValue the starting Enum value to use on the SendableChooser
+     * @param onValueChange a {@link Consumer} that gets called on startup, and whenever the selector changes with the value it changed to
+     * @param <T>           the type of the Enum
+     * @return the created and published SendableChooser
+     */
+    public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> startingValue, Consumer<Enum<T>> onValueChange) {
+        if (validateEnum(tEnum)) {
+            System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+            return Optional.empty();
+        }
+        SendableChooser<Enum<T>> chooser = new SendableChooser<>();
+        chooser.setDefaultOption(startingValue.toString(), startingValue);
+        for (Enum<T> value : tEnum.getEnumConstants()) {
+            if (value == startingValue) continue;
+            chooser.addOption(value.toString(), value);
+        }
+        chooser.onChange(onValueChange);
+        onValueChange.accept(startingValue);
+        Dashboard.putSendable(key, chooser);
+        return Optional.of(chooser);
+    }
+
+    private static <T extends Enum<T>> boolean validateEnum(Class<T> tEnum) {
+        if (!tEnum.isEnum()) {
+            System.err.println("Tried to create an enum selector, but the class was not an enum");
+            return true;
+        }
+        if (tEnum.getEnumConstants().length == 0) {
+            System.err.println("Tried to create an enum selector, but the enum had no values");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Adds an implementation of {@link NT} to the keymap to keep track of created entries. 
+     * @param key the key on NetworkTables
+     * @param entry the implementation of NT to put into the map
+     */
+    public static void addNetworkTableEntry(String key, NT entry) {
+        activeEntries.put(key, entry);
+    }
+
+    /**
+     * Updates all the {@link NT} entries that also implement {@link NTUpdatable}. 
+     * This method is used to update NetworkTables or the robot code with any changed values.
+     * <p>Should be called in {@code Robot.robotPeriodic}</p>
      */
     public static void update() {
-        checkDashboardInitialized();
-        ntEntries.forEach((Key, entry) -> entry.update());
+        activeEntries.getUpdaters().values().forEach(NTUpdatable::update);
     }
 
     /**
-     * Creates a {@link Trigger} bound to a boolean NetworkTables entry.
-     *
-     * @param key       The NetworkTables entry key
-     * @param eventLoop The {@link EventLoop} to associate with the trigger for event polling
-     * @return A trigger bound to the boolean NetworkTables entry's state
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
-     * @see Trigger
-     * @see EventLoop
+     * Creates a {@link Trigger} instance that is bound to a boolean value at {@code key} on NetworkTables.
+     * @param key the key on NetworkTables
+     * @param eventLoop the eventLoop to bind the Trigger to
+     * @return a Trigger with a toggle based on a boolean NetworkTables entry
      */
-    public static Trigger getNetworkTablesButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
-        checkDashboardInitialized();
-
+    public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
         var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
     /**
-     * Creates a {@link Trigger} that automatically resets its associated boolean NetworkTables entry
-     * to {@code false} 0.25 seconds after activation.
-     *
-     * @param key       The NetworkTables entry key
-     * @param eventLoop The {@link EventLoop} to associate with the trigger for event polling
-     * @return A trigger that automatically resets the NetworkTables value after activation
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
-     * @see #getNetworkTablesButton(String, EventLoop)
+     * Creates a {@link Trigger} that resets its NetworkTables entry to false, after being true for 0.25 seconds.
+     * @see #getNetworkTablesButton(String, EventLoop) 
      */
-    public static Trigger getAutoResettingButton(@Nonnull String key, @Nonnull EventLoop eventLoop) {
-        checkDashboardInitialized();
-
+    public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         return getNetworkTablesButton(key, eventLoop)
                 .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
 
+
     /**
-     * Publish a value to NetworkTables using the default configuration.
-     *
-     * @param key   The NetworkTables entry key
-     * @param value The value to publish.
-     * @param <T>   The data type to publish
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
-     * @see #putValue(String, Object, Configuration)
-     * @see Mapping
-     * @see Configuration
+     * {@code config} defaults to the base configuration
+     * @see #putValue(String, Object, Configuration) 
      */
-    public static <T> void putValue(@Nonnull String key, @Nonnull T value) {
+    public static <T> void putValue(String key, T value) {
         putValue(key, value, new Configuration());
     }
 
     /**
-     * Publish a value to NetworkTables with custom configuration options.
-     *
-     * @param key    The NetworkTables entry key, will ignore config one
-     * @param value  The value to publish.
-     * @param config Configuration parameters
-     * @param <T>    The data type to publish
-     * @throws IllegalStateException if called before {@link #initialize(DashboardConfig)}
-     * @see #putValue(String, Object)
+     * Publishes a value to NetworkTables with a specific configuration. 
+     * <p>Annotations should be preferred over this method if possible.</p>
+     * @param key the key on NetworkTables
+     * @param value the value to publish
+     * @param config the configuration to use for the {@link ValueEntry}
+     * @param <T> the type of the value 
      */
-    @SuppressWarnings("unchecked")
-    public static <T> void putValue(@Nonnull String key, @Nonnull T value, @Nonnull Configuration config) {
-        checkDashboardInitialized();
+    public static <T> void putValue(String key, T value, Configuration config) {
+        NTEntry<T> entry = createEntryIfNotPresent(key, value, config);
 
-        Publisher<T> publisher;
-        if (!singleUsePublishers.containsKey(key)) {
-            publisher = EntryFactory.createPublisherFromValue(key, value, config);
-            singleUsePublishers.put(key, publisher);
-        } else {
-            publisher = (Publisher<T>) singleUsePublishers.get(key);
-        }
-
-        publisher.publishValue(value);
+        entry.publishValue(value);
     }
 
-    /**
-     * Retrieves a value from NetworkTables using the default configuration.
-     *
-     * @param key          The NetworkTables entry key, will ignore config one
-     * @param defaultValue Initial value if the entry is not present
-     * @param <T>          The data type to convert to after retrieval from NetworkTables
-     * @return The current NetworkTables value
-     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
-     * @see #getValue(String, Object, Configuration)
-     */
-    public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue) {
+    public static <T> T getValue(String key, T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
     }
 
     /**
-     * Retrieves a value from NetworkTables with custom configuration options.
-     *
-     * @param key          The NetworkTables entry key to read
-     * @param defaultValue Initial value if the entry is not present
-     * @param config       Configuration parameters
-     * @param <T>          The data type to convert to after retrieval from NetworkTables
-     * @return The current NetworkTables value
-     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
-     * @see #getValue(String, Object)
+     * Gets a value from NetworkTables with a specific configuration.
+     * <p>Annotations should be preferred over this method if possible.</p>
+     * @param key the key on NetworkTables
+     * @param defaultValue the value to use if the entry is missing on NetworkTables
+     * @param config the configuration to use for the {@link ValueEntry}
+     * @param <T> the type of the value 
+     * @return the value on NetworkTables if present, otherwise the value specified
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T getValue(@Nonnull String key, @Nonnull T defaultValue, @Nonnull Configuration config) {
-        checkDashboardInitialized();
-        Subscriber<T> subscriber;
-        if (!singleUseSubscribers.containsKey(key)) {
-            subscriber = EntryFactory.createSubscriberFromValue(key, defaultValue, config);
-            singleUseSubscribers.put(key, subscriber);
-        } else {
-            subscriber = (Subscriber<T>) singleUseSubscribers.get(key);
-        }
+    public static <T> T getValue(String key, T defaultValue, Configuration config) {
+        NTEntry<T> entry = createEntryIfNotPresent(key, defaultValue, config);
 
-        return subscriber.retrieveValue();
+        return entry.retrieveValue();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> NTEntry<T> createEntryIfNotPresent(String key, T defaultValue, Configuration config) {
+        NTEntry<T> entry;
+        if (!activeEntries.containsKey(key)) {
+            entry = EntryFactory.createNetworkTableEntryFromValue(key, defaultValue, config);
+            addNetworkTableEntry(key, entry);
+        } else {
+            try {
+                entry = (NTEntry<T>) activeEntries.getNTEntry(key);
+            } catch (ClassCastException e) {
+                activeEntries.remove(key);
+                return createEntryIfNotPresent(key, defaultValue, config);
+            }
+        }
+        return entry;
     }
 
     /**
-     * Manually registers a {@link Sendable} object with NetworkTables.
-     *
-     * <p><strong>Recommended Approach:</strong> Prefer using {@code @Entry(EntryType.Sendable)}
-     * on Sendable fields for automatic discovery and lifecycle management.</p>
-     * <p>
-     * Subsequent calls with same key are ignored.
-     *
-     * @param key      The NetworkTables entry key
-     * @param sendable The Sendable object to publish
-     * @throws IllegalStateException If {@link #initialize(DashboardConfig)} hasn't been called
-     * @see Entry
+     * Adds a {@link Sendable} to the active entries to be updated. 
+     * @param key the key on NetworkTables
+     * @param sendable the Sendable to put on NetworkTables
      */
-    public static void putSendable(@Nonnull String key, @Nonnull Sendable sendable) {
-        if (ntEntries.containsKey(key)) return;
-        ntEntries.put(key, new SendableEntry(key, sendable));
-    }
-
-    private static void checkDashboardInitialized() {
-        if (!isInitialized)
-            throw new IllegalStateException("Dashboard is not initialized. \n Call Dashboard.initialize() in Robot.robotInit");
+    public static void putSendable(String key, Sendable sendable) {
+        activeEntries.put(key, new SendableEntry(key, sendable));
     }
 }
