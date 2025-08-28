@@ -29,21 +29,21 @@ public class Robot extends TimedRobot {
     @Entry(EntryType.PUBLISHER)
     @UnitConversion(value = "Inch", converterId = "translation")
     @UnitConversion(value = "Rotation", converterId = "rotation")
-    @StructType(StructOptions.MAPPING)
+    @Struct(StructType.MAPPING)
     private Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
 
     @Entry(EntryType.PUBLISHER)
     private double[] tester = {1, 2};
 
     @Entry(EntryType.PUBLISHER)
-    @StructType(StructOptions.SUB_TABLE)
+    @Struct(StructType.SUB_TABLE)
     private Rotation2d rotation = Rotation2d.fromDegrees(180);
 
     public Robot() {
         robotContainer = new RobotContainer("test1");
         new RobotContainer("test4");
         new RobotContainer("thisnotatest");
-        Dashboard.createSelectorFromEnum("Robot/EnumTestKey", StructOptions.class, StructOptions.STRUCT, System.out::println);
+        Dashboard.createSelectorFromEnum("Robot/EnumTestKey", StructType.class, StructType.STRUCT, System.out::println);
     }
 
 

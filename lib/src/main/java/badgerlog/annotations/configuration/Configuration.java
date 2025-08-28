@@ -1,6 +1,6 @@
 package badgerlog.annotations.configuration;
 
-import badgerlog.annotations.StructOptions;
+import badgerlog.annotations.StructType;
 import badgerlog.conversion.UnitConverter;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.util.struct.Struct;
@@ -23,7 +23,7 @@ public class Configuration {
     /**
      * {@return the struct publishing option}
      */
-    private StructOptions structOptions = null;
+    private StructType structType = null;
     /**
      * {@return whether to auto generate a struct from a record or enum}
      */
@@ -104,10 +104,10 @@ public class Configuration {
 
     /**
      * {@return the configuration object for method chaining}
-     * @param structOptions the struct options to use for publishing
+     * @param structType the struct options to use for publishing
      */
-    public Configuration withStructOptions(StructOptions structOptions) {
-        this.structOptions = structOptions;
+    public Configuration withStructType(StructType structType) {
+        this.structType = structType;
         return this;
     }
 

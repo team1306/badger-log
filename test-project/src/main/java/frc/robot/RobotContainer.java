@@ -23,12 +23,12 @@ public class RobotContainer {
 
     @Entry(EntryType.PUBLISHER)
     @AutoGenerateStruct
-    @StructType(StructOptions.SUB_TABLE)
+    @Struct(StructType.SUB_TABLE)
     public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), 6, 3);
 
     @Entry(EntryType.PUBLISHER)
     @AutoGenerateStruct
-    @StructType(StructOptions.SUB_TABLE)
+    @Struct(StructType.SUB_TABLE)
     private TestEnum testEnum = TestEnum.FUN;
 
     public RobotContainer(String id) {

@@ -1,21 +1,19 @@
 package badgerlog.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Annotation to mark the configuration to use a specific struct publishing option.
- *
- * @see StructOptions
+ * Represents all the possible options for publishing structs to NetworkTables.
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface StructType {
+public enum StructType {
     /**
-     *
-     * {@return the struct options to use for the field}
+     * Uses the built-in NetworkTables struct publishing
      */
-    StructOptions value();
+    STRUCT,
+    /**
+     * Uses a custom implementation of subtable struct publishing. It creates entries for all values in the struct's schema
+     */
+    SUB_TABLE,
+    /**
+     * Uses a mapping to convert the struct to a double or double array
+     */
+    MAPPING,
 }

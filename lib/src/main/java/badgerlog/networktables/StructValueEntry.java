@@ -6,7 +6,7 @@ import edu.wpi.first.util.struct.Struct;
 
 /**
  * A wrapper for the {@link StructEntry} on NetworkTables.
- * An implementation of the {@code StructOptions.STRUCT} for NetworkTables.
+ * An implementation of the {@code StructType.STRUCT} for NetworkTables.
  *
  * @param <T> the type to use. Does not need to be a valid NetworkTableType
  */

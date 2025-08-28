@@ -13,7 +13,7 @@ public final class ConfigHandlerRegistry {
     private static final Map<Class<? extends Annotation>, ConfigHandler<?>> handlers = new HashMap<>();
 
     static {
-        registerHandler(StructType.class, new StructTypeHandler());
+        registerHandler(Struct.class, new StructTypeHandler());
         registerHandler(UnitConversion.class, new UnitConversionHandler());
         registerHandler(MultiUnitConversion.class, new MultiUnitConversionHandler());
         registerHandler(Key.class, new KeyHandler());

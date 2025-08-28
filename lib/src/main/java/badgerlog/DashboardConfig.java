@@ -1,6 +1,6 @@
 package badgerlog;
 
-import badgerlog.annotations.StructOptions;
+import badgerlog.annotations.StructType;
 import lombok.Getter;
 
 /**
@@ -15,7 +15,7 @@ public final class DashboardConfig {
     /**
      * {@return the default struct publishing options}
      */
-    private StructOptions structOptions = StructOptions.SUB_TABLE;
+    private StructType structType = StructType.SUB_TABLE;
 
     private DashboardConfig() {
     }
@@ -23,10 +23,10 @@ public final class DashboardConfig {
     /**
      * {@return the configuration object for method chaining}
      *
-     * @param structOptions the struct options to use for publishing
+     * @param structType the struct options to use for publishing
      */
-    public DashboardConfig withStructOptions(StructOptions structOptions) {
-        this.structOptions = structOptions;
+    public DashboardConfig withStructType(StructType structType) {
+        this.structType = structType;
         return this;
     }
 }

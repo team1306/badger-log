@@ -1,13 +1,13 @@
 package badgerlog.annotations.configuration;
 
-import badgerlog.annotations.StructType;
+import badgerlog.annotations.Struct;
 
 /**
- * Internal class to handle the {@link StructType} annotation.
+ * Internal class to handle the {@link Struct} annotation.
  */
-public final class StructTypeHandler implements ConfigHandler<StructType> {
+public final class StructTypeHandler implements ConfigHandler<Struct> {
     @Override
-    public void process(StructType annotation, Configuration config) {
-        config.withStructOptions(annotation.value());
+    public void process(Struct annotation, Configuration config) {
+        config.withStructType(annotation.value());
     }
 }
