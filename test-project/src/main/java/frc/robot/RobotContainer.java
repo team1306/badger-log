@@ -17,16 +17,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class RobotContainer {
     //    public double test = 1;
     private final String id;
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     @Key("RobotContainer/{id}")
     public String testEntry = "test";
 
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     @AutoGenerateStruct
     @StructType(StructOptions.SUB_TABLE)
     public TestRecordOuter recordOuter = new TestRecordOuter(new TestRecordInner(1.24, new TestRecordInnerInner(5)), new Pose2d(new Translation2d(1, 2), Rotation2d.k180deg), 6, 3);
 
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     @AutoGenerateStruct
     @StructType(StructOptions.SUB_TABLE)
     private TestEnum testEnum = TestEnum.FUN;

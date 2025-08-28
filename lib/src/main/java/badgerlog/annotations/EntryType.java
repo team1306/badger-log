@@ -7,13 +7,13 @@ public enum EntryType {
     /**
      * Sends a value to NetworkTables
      */
-    Publisher,
+    PUBLISHER,
     /**
      * Gets a value from NetworkTables
      */
-    Subscriber,
+    SUBSCRIBER,
     /**
      * Puts a Sendable value to NetworkTables
      */
-    Sendable
+    SENDABLE
 }

@@ -21,21 +21,21 @@ import static edu.wpi.first.units.Units.Millihertz;
 public class Robot extends TimedRobot {
     private final RobotContainer robotContainer;
     private Command autonomousCommand;
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     @Key("testkey")
     @UnitConversion("mHz")
     private Frequency test = Hertz.of(1);
 
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     @UnitConversion(value = "Inch", converterId = "translation")
     @UnitConversion(value = "Rotation", converterId = "rotation")
     @StructType(StructOptions.MAPPING)
     private Pose2d pose2d = new Pose2d(1, 2, Rotation2d.k180deg);
 
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     private double[] tester = {1, 2};
 
-    @Entry(EntryType.Publisher)
+    @Entry(EntryType.PUBLISHER)
     @StructType(StructOptions.SUB_TABLE)
     private Rotation2d rotation = Rotation2d.fromDegrees(180);
 
