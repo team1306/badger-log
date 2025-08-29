@@ -99,6 +99,16 @@ public final class Dashboard {
     }
 
     /**
+     * Removes a key from the list of entries to be updated. Any publishers or subscribers are closed, and the entry is removed.
+     *
+     * @param key the key on NetworkTables
+     * @return whether the entry existed
+     */
+    public static boolean removeNetworkTableEntry(String key) {
+        return activeEntries.remove(key) != null;
+    }
+
+    /**
      * Updates all the {@link NT} entries that also implement {@link NTUpdatable}. 
      * This method is used to update NetworkTables or the robot code with any changed values.
      * <p>Should be called in {@code Robot.robotPeriodic}</p>
@@ -115,6 +125,7 @@ public final class Dashboard {
      */
     public static Trigger createNetworkTablesButton(String key, EventLoop eventLoop) {
         var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
+        addNetworkTableEntry(key, subscriber);
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
@@ -150,6 +161,10 @@ public final class Dashboard {
         entry.publishValue(value);
     }
 
+    /**
+     * {@code config} defaults to the base configuration
+     * @see #getValue(String, Object, Configuration)
+     */
     public static <T> T getValue(String key, T defaultValue) {
         return getValue(key, defaultValue, new Configuration());
     }
@@ -176,11 +191,10 @@ public final class Dashboard {
             entry = EntryFactory.createNetworkTableEntryFromValue(key, defaultValue, config);
             addNetworkTableEntry(key, entry);
         } else {
-            try {
-                entry = (NTEntry<T>) activeEntries.getNTEntry(key);
-            } catch (ClassCastException e) {
-                activeEntries.remove(key);
-                return createEntryIfNotPresent(key, defaultValue, config);
+            entry = (NTEntry<T>) activeEntries.getNTEntry(key);
+
+            if (entry == null) {
+                throw new NullPointerException("Entry with name " + key + " either is using a key that is already used, or the entry is just invalid");
             }
         }
         return entry;
@@ -192,6 +206,6 @@ public final class Dashboard {
      * @param sendable the Sendable to put on NetworkTables
      */
     public static void putSendable(String key, Sendable sendable) {
-        activeEntries.put(key, new SendableEntry(key, sendable));
+        addNetworkTableEntry(key, new SendableEntry(key, sendable));
     }
 }
