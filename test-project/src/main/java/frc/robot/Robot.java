@@ -41,11 +41,7 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         robotContainer = new RobotContainer("test1");
-        new RobotContainer("test4");
-        new RobotContainer("thisnotatest");
         Dashboard.createSelectorFromEnum("Robot/EnumTestKey", StructType.class, StructType.STRUCT, System.out::println);
-
-        Dashboard.putValue("Switchable Type", false);
     }
 
 

@@ -10,8 +10,11 @@ import badgerlog.annotations.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 
 public class RobotContainer {
@@ -37,6 +40,14 @@ public class RobotContainer {
             testEnum = (TestEnum) value;
             System.out.println(testEnum);
         });
+
+        Dashboard.createAutoResettingButton("Sendable Button", CommandScheduler.getInstance().getDefaultButtonLoop())
+                .onTrue(new InstantCommand(() -> {
+                    Field2d field2d = new Field2d();
+                    Dashboard.putSendable("Field2d", field2d);
+
+                    field2d.setRobotPose(new Pose2d(Math.random() * 54, Math.random() * 27, new Rotation2d()));
+                }).ignoringDisable(true));
     }
 
     public Command getAutonomousCommand() {
