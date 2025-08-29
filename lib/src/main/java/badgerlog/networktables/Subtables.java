@@ -71,11 +71,12 @@ public final class Subtables {
         boolean stillValid = true;
         for (String part : baseStruct.getSchema().split(";", -1)) {
             if (!stillValid) return false;
+            if (part.isBlank()) continue;
             String[] partSplit = part.split(" ", 2);
 
             if (!primitiveTypeMap.containsKey(partSplit[0])) {
                 List<Struct<?>> structs = Arrays.stream(baseStruct.getNested()).filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0])).toList();
-                if (structs.size() != 1) {
+                if (structs.isEmpty()) {
                     System.err.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
                     return false;
                 }

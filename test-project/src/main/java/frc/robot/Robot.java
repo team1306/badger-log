@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Millihertz;
@@ -44,13 +45,23 @@ public class Robot extends TimedRobot {
         new RobotContainer("test4");
         new RobotContainer("thisnotatest");
         Dashboard.createSelectorFromEnum("Robot/EnumTestKey", StructType.class, StructType.STRUCT, System.out::println);
+
+        Dashboard.createAutoResettingButton("Switchable Type Button", CommandScheduler.getInstance().getDefaultButtonLoop())
+                .onTrue(new InstantCommand(() -> {
+                    System.out.println("Switchable Type Button true");
+                    Dashboard.putValue("Switchable Type", true);
+                })).onFalse(new InstantCommand(() -> {
+                    System.out.println("Switchable Type Button 1");
+                    Dashboard.putValue("Switchable Type", 1);
+                }));
+        Dashboard.putValue("Switchable Type", false);
     }
 
 
     @Override
     public void robotPeriodic() {
-        Dashboard.update();
         CommandScheduler.getInstance().run();
+        Dashboard.update();
         pose2d = pose2d.plus(new Transform2d(0, Math.random(), Rotation2d.k180deg));
         test = test.plus(Millihertz.of(0.4));
     }

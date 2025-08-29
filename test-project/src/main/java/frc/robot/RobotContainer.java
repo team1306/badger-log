@@ -28,7 +28,7 @@ public class RobotContainer {
 
     @Entry(EntryType.PUBLISHER)
     @AutoGenerateStruct
-    @Struct(StructType.SUB_TABLE)
+    @Struct(StructType.STRUCT)
     private TestEnum testEnum = TestEnum.FUN;
 
     public RobotContainer(String id) {

@@ -113,17 +113,17 @@ public final class Dashboard {
      * @param eventLoop the eventLoop to bind the Trigger to
      * @return a Trigger with a toggle based on a boolean NetworkTables entry
      */
-    public static Trigger getNetworkTablesButton(String key, EventLoop eventLoop) {
+    public static Trigger createNetworkTablesButton(String key, EventLoop eventLoop) {
         var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
 
     /**
      * Creates a {@link Trigger} that resets its NetworkTables entry to false, after being true for 0.25 seconds.
-     * @see #getNetworkTablesButton(String, EventLoop) 
+     * @see #createNetworkTablesButton(String, EventLoop) 
      */
-    public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
-        return getNetworkTablesButton(key, eventLoop)
+    public static Trigger createAutoResettingButton(String key, EventLoop eventLoop) {
+        return createNetworkTablesButton(key, eventLoop)
                 .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
 
