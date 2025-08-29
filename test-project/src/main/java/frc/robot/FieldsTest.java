@@ -33,11 +33,11 @@ public class FieldsTest implements Testing {
     @UnitConversion(value = "radian", converterId = "rotation")
     public Pose2d robotPose = Pose2d.kZero;
 
-    @Entry(EntryType.SUBSCRIBER)
+    @Entry(EntryType.PUBLISHER)
     @AutoGenerateStruct
-    public CustomRecord record = new CustomRecord("value", 3);
+    public CustomRecord record = new CustomRecord(3.4, 3);
 
-    public record CustomRecord(String value, int count) {
+    public record CustomRecord(double value, int count) {
     }
 
 
