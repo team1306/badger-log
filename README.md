@@ -1,37 +1,31 @@
 <img src="badgerlog-logo-banner.png" alt="Badgerlog Logo">
 
-[![](https://jitpack.io/v/team1306/badger-log.svg)](https://jitpack.io/#team1306/badger-log)
-
-The easiest annotation-based NetworkTables utility.
+[![](https://jitpack.io/v/team1306/badger-log.svg)](https://jitpack.io/#team1306/badger-log) [![CodeQL Advanced](https://github.com/team1306/badger-log/actions/workflows/codeql.yml/badge.svg)](https://github.com/team1306/badger-log/actions/workflows/codeql.yml)
 
 # About
 
-BadgerLog is an annotation-based NetworkTables utility that handles the interaction between robot code and the
-NetworkTables 4 API.
+BadgerLog is a NetworkTables utility. It provides annotations to auto generate entries, and periodically update them.
 
-It's main purpose is to simplify the use of NetworkTables and to remove the clutter often found in constructors and
-periodic methods
+It is designed as a replacement for `SmartDashboard`. It provides all the same methods, with additional features.
+
+Our team didn't like the clutter of `SmartDashboard` methods in both constructors and periodic methods. We also didn't
+like using different methods for different types.
+
+So we created BadgerLog.
 
 ## Features
-BadgerLog features a lot of automation related to creating and maintaining entries in NetworkTables
 
-A complete list can be found on the [wiki](https://github.com/team1306/badger-log/wiki/Features), but the main features are listed below
-* Annotations for automatic generation of NetworkTables entries
-* Support for any type
-  * Units
-  * All struct types
-  * Auto generation of a struct from class definition
-* Multiple struct options
-  * Default NetworkTables structs
-  * Subtables from schema
-  * Double or double array
-* Optional logging 
+* Generation of NetworkTables entries
+    * From annotations
+    * From `Dashboard` methods
+* Automatic updating of fields and NetworkTables based on the entry type
+* Configuration of each entry
+* Instance specific keys for NetworkTables
+* Enum selectors
+* Triggers bound to NetworkTables entry
+* Generic `put` and `get` methods supporting base, `Struct`, `Measure`, and generated struct types
+* Minimal performance cost
 
-## Installation
+# Installation
 
-Add a vendor dependency
-` https://raw.githubusercontent.com/team1306/badger-log/master/vendordep.json `
-
-Add `annotationProcessor 'com.github.team1306:badger-log:2025.2.2.1'` to `dependencies` in `build.gradle`
-
-Check out the [Wiki](https://github.com/team1306/badger-log/wiki) for tutorials and usage examples 
+Check out [Installation](https://github.com/team1306/badger-log/wiki#installation) on the wiki
