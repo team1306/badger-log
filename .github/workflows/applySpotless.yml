@@ -37,11 +37,10 @@ jobs:
           ${{ runner.os }}-gradle-
     
     - name: Grant execute permission for gradlew
-      run: chmod +x lib/gradlew
+      run: chmod +x gradlew
       
     - name: Run Spotless Apply
-      working-directory: lib
-      run: ./gradlew spotlessApply --build-file build.gradle
+      run: ./gradlew :lib:spotlessApply --info
     
     - name: Check for changes
       id: verify-changed-files
