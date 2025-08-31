@@ -28,6 +28,7 @@ public final class Dashboard {
 
     public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
     private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
+    
     public static DashboardConfig config = DashboardConfig.defaultConfig;
 
     private Dashboard() {
