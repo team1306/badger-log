@@ -9,7 +9,8 @@ public enum StructType {
      */
     STRUCT,
     /**
-     * Uses a custom implementation of subtable struct publishing. It creates entries for all values in the struct's schema
+     * Uses a custom implementation of subtable struct publishing. It creates entries for all values in the struct's
+     * schema
      */
     SUB_TABLE,
     /**

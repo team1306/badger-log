@@ -43,26 +43,7 @@ public final class UnitMappings {
      */
     public static void registerAllMappings() {
         Mappings.registerAllMappings(
-                distanceMapping,
-                angleMapping,
-                timeMapping,
-                linearVelocityMapping,
-                angularVelocityMapping,
-                frequencyMapping,
-                linearAccelerationMapping,
-                angularAccelerationMapping,
-                massMapping,
-                forceMapping,
-                torqueMapping,
-                linearMomentumMapping,
-                angularMomentumMapping,
-                momentOfInertiaMapping,
-                voltageMapping,
-                currentMapping,
-                resistanceMapping,
-                energyMapping,
-                powerMapping,
-                temperatureMapping
+                distanceMapping, angleMapping, timeMapping, linearVelocityMapping, angularVelocityMapping, frequencyMapping, linearAccelerationMapping, angularAccelerationMapping, massMapping, forceMapping, torqueMapping, linearMomentumMapping, angularMomentumMapping, momentOfInertiaMapping, voltageMapping, currentMapping, resistanceMapping, energyMapping, powerMapping, temperatureMapping
         );
     }
 
@@ -70,14 +51,16 @@ public final class UnitMappings {
         return new Mapping<>(measureType, double.class, NetworkTableType.kDouble) {
             @Override
             public Double toNT(N startValue, Configuration config) {
-                UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config.getDefaultConverter(), defaultUnit);
+                UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config
+                        .getDefaultConverter(), defaultUnit);
                 return converter.convertTo(startValue);
             }
 
             @Override
             @SuppressWarnings("unchecked") // N has to be able to cast to Measure<T> to fulfill the generic requirement
             public N toStart(Double ntValue, Configuration config) {
-                UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config.getDefaultConverter(), defaultUnit);
+                UnitConverter<T> converter = UnitConversions.initializeUnitConverter(config
+                        .getDefaultConverter(), defaultUnit);
                 return (N) converter.convertFrom(ntValue);
             }
         };

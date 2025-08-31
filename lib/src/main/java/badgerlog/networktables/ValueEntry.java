@@ -21,7 +21,8 @@ public final class ValueEntry<T> implements NTEntry<T> {
     private final String key;
 
     /**
-     * Constructs a new ValueEntry, creating the entry on NetworkTables, and finding the {@link Mapping} for the specified {@code valueClass}.
+     * Constructs a new ValueEntry, creating the entry on NetworkTables, and finding the {@link Mapping} for the
+     * specified {@code valueClass}.
      * This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.
      *
      * @param key the key on NetworkTables

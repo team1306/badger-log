@@ -36,9 +36,7 @@ public final class UnitConversions {
                 .map(Fields::getFieldValue)
                 .map(Unit.class::cast)
                 .collect(
-                        HashMap::new,
-                        (map, unit) -> map.put(unit, new HashSet<>()),
-                        HashMap::putAll);
+                        HashMap::new, (map, unit) -> map.put(unit, new HashSet<>()), HashMap::putAll);
 
         for (Field field : fields) {
             Unit unit = (Unit) Fields.getFieldValue(field);
@@ -115,7 +113,8 @@ public final class UnitConversions {
     }
 
     /**
-     * Initializes a potentially null converter with the default unit converter if null, otherwise returns the converter.
+     * Initializes a potentially null converter with the default unit converter if null, otherwise returns the
+     * converter.
      *
      * @param converter the converter to check
      * @param defaultUnit the default unit form of the converter
@@ -126,4 +125,4 @@ public final class UnitConversions {
     public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit) {
         return converter == null ? createConverter(defaultUnit) : converter;
     }
-} 
+}

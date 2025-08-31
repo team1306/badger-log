@@ -48,7 +48,7 @@ public class Configuration {
      * @param <T> the type of the converter
      */
     @SuppressWarnings("unchecked")
-    // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping 
+    // can guarantee that the resulting converter is used by the correct mapping type, since it is defined in the mapping
     public <T extends Unit> UnitConverter<T> getConverter(String id) {
         return (UnitConverter<T>) converters.get(id);
     }

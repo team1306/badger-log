@@ -16,4 +16,3 @@ public @interface Entry {
      */
     EntryType value();
 }
-

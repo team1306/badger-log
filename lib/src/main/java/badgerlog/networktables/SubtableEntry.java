@@ -8,7 +8,8 @@ import java.util.Map;
 
 /**
  * An implementation of the {@code StructType.SUB_TABLE} for NetworkTables.
- * It creates an entry for every primitive type in the struct schema, and puts it under different subtables based off the nesting in the schema.
+ * It creates an entry for every primitive type in the struct schema, and puts it under different subtables based off
+ * the nesting in the schema.
  *
  * @param <T> the type to use. Does not need to be a valid NetworkTableType
  */

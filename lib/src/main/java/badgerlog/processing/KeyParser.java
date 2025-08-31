@@ -20,7 +20,8 @@ public final class KeyParser {
     }
 
     /**
-     * Creates a NetworkTables key from a field's definition. Uses the fields name and containing class for the key if not specifically defined by the field.
+     * Creates a NetworkTables key from a field's definition. Uses the fields name and containing class for the key if
+     * not specifically defined by the field.
      * Invalidates the configuration if the field format is invalid.
      *
      * @param config the configuration object to get the key and apply the key to
@@ -51,7 +52,8 @@ public final class KeyParser {
                 fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException e) {
                 config.makeInvalid();
-                System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " was invalidated after key contained missing field.");
+                System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
+                        .getName() + " was invalidated after key contained missing field.");
                 return false;
             }
         }

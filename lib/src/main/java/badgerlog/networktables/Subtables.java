@@ -21,7 +21,8 @@ public final class Subtables {
         addPrimType("int32", int.class, ByteBuffer::getInt, ByteBuffer::putInt);
         addPrimType("float64", double.class, ByteBuffer::getDouble, ByteBuffer::putDouble);
         addPrimType("float32", float.class, ByteBuffer::getFloat, ByteBuffer::putFloat);
-        addPrimType("bool", boolean.class, buffer -> buffer.get() != 0, (buffer, value) -> buffer.put((byte) (value ? 1 : 0)));
+        addPrimType("bool", boolean.class, buffer -> buffer.get() != 0, (buffer, value) -> buffer
+                .put((byte) (value ? 1 : 0)));
         addPrimType("char", char.class, ByteBuffer::getChar, ByteBuffer::putChar);
         addPrimType("uint8", byte.class, ByteBuffer::get, ByteBuffer::put);
         addPrimType("int16", short.class, ByteBuffer::getShort, ByteBuffer::putShort);
@@ -71,7 +72,8 @@ public final class Subtables {
     @SuppressWarnings("unchecked")
     private static boolean createEntriesImpl(Struct<?> baseStruct, String currentKey, ByteBuffer packedBuffer, Map<NTEntry<?>, PrimType<?>> entries, int limit) {
         if (limit + 1 >= 1000) {
-            throw new IllegalArgumentException("Infinite recursive loop for struct class: " + baseStruct.getTypeClass().getSimpleName());
+            throw new IllegalArgumentException("Infinite recursive loop for struct class: " + baseStruct.getTypeClass()
+                    .getSimpleName());
         }
         boolean stillValid = true;
         for (String part : baseStruct.getSchema().split(";", -1)) {
@@ -84,19 +86,23 @@ public final class Subtables {
             String[] partSplit = part.split(" ", 2);
 
             if (!primitiveTypeMap.containsKey(partSplit[0])) {
-                List<Struct<?>> structs = Arrays.stream(baseStruct.getNested()).filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0])).toList();
+                List<Struct<?>> structs = Arrays.stream(baseStruct.getNested())
+                        .filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0]))
+                        .toList();
                 if (structs.isEmpty()) {
                     System.err.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
                     return false;
                 }
 
                 Struct<?> nestedStruct = structs.get(0);
-                stillValid = createEntriesImpl(nestedStruct, currentKey + "/" + nestedStruct.getTypeName(), packedBuffer, entries, limit + 1);
+                stillValid = createEntriesImpl(nestedStruct, currentKey + "/" + nestedStruct
+                        .getTypeName(), packedBuffer, entries, limit + 1);
                 continue;
             }
             PrimType<?> primType = primitiveTypeMap.get(partSplit[0]);
 
-            entries.put(new ValueEntry<>(currentKey + "/" + partSplit[1], (Class<Object>) primType.type, primType.unpacker.unpack(packedBuffer), new Configuration()), primType);
+            entries.put(new ValueEntry<>(currentKey + "/" + partSplit[1], (Class<Object>) primType.type, primType.unpacker
+                    .unpack(packedBuffer), new Configuration()), primType);
         }
 
         return true;
@@ -136,7 +142,8 @@ public final class Subtables {
     }
 
     /**
-     * Internal record used by BadgerLog to represent a base NetworkTables type with a {@link Packer} and {@link Unpacker} for buffers.
+     * Internal record used by BadgerLog to represent a base NetworkTables type with a {@link Packer} and
+     * {@link Unpacker} for buffers.
      *
      * @param name the name of the type
      * @param type the class representing the type

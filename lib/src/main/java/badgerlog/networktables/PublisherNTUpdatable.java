@@ -3,7 +3,8 @@ package badgerlog.networktables;
 import java.util.function.Supplier;
 
 /**
- * Wrapper around a {@link NTEntry} that implements {@link NTUpdatable} to allow for periodic updating the value on NetworkTables.
+ * Wrapper around a {@link NTEntry} that implements {@link NTUpdatable} to allow for periodic updating the value on
+ * NetworkTables.
  *
  * @param <T> the type of the entry
  */
@@ -14,7 +15,8 @@ public final class PublisherNTUpdatable<T> implements NTUpdatable {
     private final Supplier<T> valueSupplier;
 
     /**
-     * Constructs a new PublisherNTUpdatable. Does not publish the value from {@code valueSupplier} on start, only on {@link #update}.
+     * Constructs a new PublisherNTUpdatable. Does not publish the value from {@code valueSupplier} on start, only on
+     * {@link #update}.
      *
      * @param entry a NetworkTables entry to use for publishing
      * @param valueSupplier a supplier for the value on NetworkTables

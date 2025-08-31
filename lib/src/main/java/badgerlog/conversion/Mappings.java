@@ -26,16 +26,20 @@ public final class Mappings {
     }
 
     /**
-     * Finds a {@link Mapping} with the specified type class. It checks to ensure there is exactly one Mapping for the class.
+     * Finds a {@link Mapping} with the specified type class. It checks to ensure there is exactly one Mapping for the
+     * class.
      *
      * @param type the class representing the type
      * @param <T> the initial type of the Mapping
      *
      * @return the Mapping associated with the type
      */
-    @SuppressWarnings("unchecked") // Mapping must have the correct type 
+    @SuppressWarnings("unchecked") // Mapping must have the correct type
     public static <T> Mapping<T, Object> findMapping(Class<T> type) {
-        List<Mapping<?, ?>> filteredMappings = mappings.values().stream().filter(mapping -> mapping.matches(type)).toList();
+        List<Mapping<?, ?>> filteredMappings = mappings.values()
+                .stream()
+                .filter(mapping -> mapping.matches(type))
+                .toList();
         if (filteredMappings.isEmpty()) {
             throw new IllegalArgumentException("No mapping found for " + type);
         }

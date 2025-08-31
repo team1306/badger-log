@@ -46,17 +46,20 @@ public class EntryAspect {
 
     private void handleField(Field field, Object instance) {
         if (instance == null && !Modifier.isStatic(field.getModifiers())) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is an instance field, with no instance. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
+                    .getName() + " is an instance field, with no instance. SKIPPING");
             return;
         }
 
         if (Fields.getFieldValue(field, instance) == null) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a uninitialized field after construction. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
+                    .getName() + " is a uninitialized field after construction. SKIPPING");
             return;
         }
 
         if (Modifier.isFinal(field.getModifiers())) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " is a final field. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
+                    .getName() + " is a final field. SKIPPING");
             return;
         }
 
@@ -68,17 +71,19 @@ public class EntryAspect {
         }
 
         if (!config.isValidConfiguration()) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field.getName() + " had an invalid configuration created. SKIPPING");
+            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
+                    .getName() + " had an invalid configuration created. SKIPPING");
             return;
         }
 
-        var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
+        var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields
+                .getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
 
         Dashboard.addNetworkTableEntry(config.getKey(), switch (annotation.value()) {
             case PUBLISHER -> new PublisherNTUpdatable<>(entry, () -> Fields.getFieldValue(field, instance));
             case SUBSCRIBER ->
-                    new SubscriberNTUpdatable<>(entry, value -> Fields.setFieldValue(instance, field, value));
+                new SubscriberNTUpdatable<>(entry, value -> Fields.setFieldValue(instance, field, value));
             case SENDABLE -> new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
         });
     }

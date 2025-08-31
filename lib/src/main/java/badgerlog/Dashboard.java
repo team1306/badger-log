@@ -61,7 +61,8 @@ public final class Dashboard {
      * @param key the key on NetworkTables
      * @param tEnum the class of the Enum
      * @param startingValue the starting Enum value to use on the SendableChooser
-     * @param onValueChange a {@link Consumer} that gets called on startup, and whenever the selector changes with the value it changed to
+     * @param onValueChange a {@link Consumer} that gets called on startup, and whenever the selector changes with the
+     * value it changed to
      * @param <T> the type of the Enum
      *
      * @return the created and published SendableChooser
@@ -108,7 +109,8 @@ public final class Dashboard {
     }
 
     /**
-     * Removes a key from the list of entries to be updated. Any publishers or subscribers are closed, and the entry is removed.
+     * Removes a key from the list of entries to be updated. Any publishers or subscribers are closed, and the entry is
+     * removed.
      *
      * @param key the key on NetworkTables
      *
@@ -147,8 +149,8 @@ public final class Dashboard {
      * @see #createNetworkTablesButton(String, EventLoop)
      */
     public static Trigger createAutoResettingButton(String key, EventLoop eventLoop) {
-        return createNetworkTablesButton(key, eventLoop)
-                .onTrue(Commands.waitSeconds(0.25).andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
+        return createNetworkTablesButton(key, eventLoop).onTrue(Commands.waitSeconds(0.25)
+                .andThen(new InstantCommand(() -> putValue(key, false)).ignoringDisable(true)));
     }
 
 

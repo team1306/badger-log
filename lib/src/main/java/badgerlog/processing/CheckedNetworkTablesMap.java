@@ -58,9 +58,8 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
                 .stream()
                 .filter(entry -> entry.getValue() instanceof NTUpdatable)
                 .collect(
-                        HashMap::new,
-                        (map, entry) -> map.put(entry.getKey(), (NTUpdatable) entry.getValue()),
-                        HashMap::putAll);
+                        HashMap::new, (map, entry) -> map.put(entry.getKey(), (NTUpdatable) entry
+                                .getValue()), HashMap::putAll);
     }
 
     /**

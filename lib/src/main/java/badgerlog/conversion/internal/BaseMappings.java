@@ -183,19 +183,7 @@ public final class BaseMappings {
      */
     public static void registerAllMappings() {
         Mappings.registerAllMappings(
-                doubleMapping,
-                double1Mapping,
-                floatMapping,
-                float1Mapping,
-                stringMapping,
-                booleanMapping,
-                boolean1Mapping,
-                booleanArrayMapping,
-                stringArrayMapping,
-                integerMapping,
-                integer1Mapping,
-                doubleArrayMapping,
-                floatArrayMapping
+                doubleMapping, double1Mapping, floatMapping, float1Mapping, stringMapping, booleanMapping, boolean1Mapping, booleanArrayMapping, stringArrayMapping, integerMapping, integer1Mapping, doubleArrayMapping, floatArrayMapping
         );
     }
 }

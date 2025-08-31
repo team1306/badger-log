@@ -49,7 +49,8 @@ public abstract class Mapping<StartType, NTType> {
      * @param fieldType the starting type to match
      */
     public boolean matches(Class<?> fieldType) {
-        return fieldType != null && (this.startType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(this.startType));
+        return fieldType != null && (this.startType.isAssignableFrom(fieldType) || fieldType
+                .isAssignableFrom(this.startType));
     }
 
     /**
