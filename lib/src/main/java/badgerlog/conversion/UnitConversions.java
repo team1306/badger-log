@@ -1,10 +1,19 @@
 package badgerlog.conversion;
 
 import badgerlog.processing.Fields;
-import edu.wpi.first.units.*;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.Units;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -51,7 +60,8 @@ public final class UnitConversions {
      * Creates an implementation of a {@link UnitConverter} that uses the {@code toUnit} as its base.
      *
      * @param toUnit the unit to convert to and from
-     * @param <T>    the type of the Unit
+     * @param <T> the type of the Unit
+     *
      * @return the created UnitConverter
      */
     public static <T extends Unit> UnitConverter<T> createConverter(T toUnit) {
@@ -71,21 +81,25 @@ public final class UnitConversions {
     }
 
     /**
-     * Creates a {@link UnitConverter} from a unit represented as a String. 
+     * Creates a {@link UnitConverter} from a unit represented as a String.
+     *
      * @param toUnit the unit as a string
+     *
      * @return the created UnitConverter
      */
     public static UnitConverter<?> createConverter(String toUnit) {
         toUnit = toUnit.toLowerCase(Locale.ROOT);
 
-        if (units.get(toUnit) == null)
+        if (units.get(toUnit) == null) {
             throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", toUnit));
+        }
         return createConverter(units.get(toUnit));
     }
 
     /**
      * {@code defaultUnit} defaults to {@code Meters}
-     * @see #initializeUnitConverter(UnitConverter, Unit) 
+     *
+     * @see #initializeUnitConverter(UnitConverter, Unit)
      */
     public static UnitConverter<DistanceUnit> initializeDistanceConverter(UnitConverter<DistanceUnit> converter) {
         return initializeUnitConverter(converter, Meters);
@@ -93,6 +107,7 @@ public final class UnitConversions {
 
     /**
      * {@code defaultUnit} defaults to {@code Radians}
+     *
      * @see #initializeUnitConverter(UnitConverter, Unit)
      */
     public static UnitConverter<AngleUnit> initializeRotationConverter(UnitConverter<AngleUnit> converter) {
@@ -101,10 +116,12 @@ public final class UnitConversions {
 
     /**
      * Initializes a potentially null converter with the default unit converter if null, otherwise returns the converter.
+     *
      * @param converter the converter to check
      * @param defaultUnit the default unit form of the converter
-     * @return the non-null initialized or passed converter
      * @param <T> the unit type
+     *
+     * @return the non-null initialized or passed converter
      */
     public static <T extends Unit> UnitConverter<T> initializeUnitConverter(UnitConverter<T> converter, T defaultUnit) {
         return converter == null ? createConverter(defaultUnit) : converter;

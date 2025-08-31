@@ -5,17 +5,18 @@ import edu.wpi.first.util.struct.Struct;
 import lombok.SneakyThrows;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Internal class used by BadgerLog to create subtables from a Struct schema.
  */
 public final class Subtables {
     private static final HashMap<String, PrimType<?>> primitiveTypeMap = new HashMap<>();
-
-    private Subtables() {
-    }
-
     static {
         addPrimType("int32", int.class, ByteBuffer::getInt, ByteBuffer::putInt);
         addPrimType("float64", double.class, ByteBuffer::getDouble, ByteBuffer::putDouble);
@@ -29,6 +30,9 @@ public final class Subtables {
 
     }
 
+    private Subtables() {
+    }
+
     private static <T> void addPrimType(String name, Class<T> type, Unpacker<T> unpacker, Packer<T> packer) {
         PrimType<T> primType = new PrimType<>(name, type, unpacker, packer);
         primitiveTypeMap.put(name, primType);
@@ -40,9 +44,10 @@ public final class Subtables {
      * Empties the entire map if the {@code struct}'s schema is invalid.</p>
      *
      * @param struct the struct to generate the entries from
-     * @param key    the key on NetworkTables
-     * @param value  the initial value
-     * @param <T>    the type of the struct
+     * @param key the key on NetworkTables
+     * @param value the initial value
+     * @param <T> the type of the struct
+     *
      * @return an ordered map containing all the entries created from the schema, ordered by how the buffer is packed
      */
     @SneakyThrows
@@ -70,8 +75,12 @@ public final class Subtables {
         }
         boolean stillValid = true;
         for (String part : baseStruct.getSchema().split(";", -1)) {
-            if (!stillValid) return false;
-            if (part.isBlank()) continue;
+            if (!stillValid) {
+                return false;
+            }
+            if (part.isBlank()) {
+                continue;
+            }
             String[] partSplit = part.split(" ", 2);
 
             if (!primitiveTypeMap.containsKey(partSplit[0])) {
@@ -94,14 +103,17 @@ public final class Subtables {
     }
 
     /**
-     * Internal interface used by BadgerLog to represent the operation of unpacking a ByteBuffer. 
+     * Internal interface used by BadgerLog to represent the operation of unpacking a ByteBuffer.
+     *
      * @param <T> the type to unpack
      */
     @FunctionalInterface
     public interface Unpacker<T> {
         /**
          * Unpacks a value.
+         *
          * @param buffer the buffer to unpack from
+         *
          * @return the value of the result
          */
         T unpack(ByteBuffer buffer);
@@ -109,12 +121,14 @@ public final class Subtables {
 
     /**
      * Internal interface used by BadgerLog to represent the operation of packing a ByteBuffer
+     *
      * @param <T> the type to pack
      */
     @FunctionalInterface
     public interface Packer<T> {
         /**
          * Packs a value.
+         *
          * @param buffer the buffer to pack into
          * @param value the value to pack into the buffer
          */
@@ -123,6 +137,7 @@ public final class Subtables {
 
     /**
      * Internal record used by BadgerLog to represent a base NetworkTables type with a {@link Packer} and {@link Unpacker} for buffers.
+     *
      * @param name the name of the type
      * @param type the class representing the type
      * @param unpacker the unpacker to use when unpacking

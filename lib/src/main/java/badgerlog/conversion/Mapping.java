@@ -8,7 +8,7 @@ import lombok.Getter;
  * Internal abstract class used by BadgerLog to represent a mapping between two types.
  *
  * @param <StartType> the starting type of the mapping
- * @param <NTType>    the ending type of the mapping
+ * @param <NTType> the ending type of the mapping
  */
 @SuppressWarnings("InvalidBlockTag")
 @Getter
@@ -32,6 +32,7 @@ public abstract class Mapping<StartType, NTType> {
 
     /**
      * Creates a new Mapping with the specified parameters.
+     *
      * @param startType the class representing the starting type of the Mapping
      * @param tableType the class representing the ending type of the Mapping
      * @param ntType the {@link NetworkTableType} associated with the {@code tableType}
@@ -44,6 +45,7 @@ public abstract class Mapping<StartType, NTType> {
 
     /**
      * {@return a boolean indicating whether the class matches the mapping's startType}
+     *
      * @param fieldType the starting type to match
      */
     public boolean matches(Class<?> fieldType) {
@@ -52,16 +54,20 @@ public abstract class Mapping<StartType, NTType> {
 
     /**
      * Converts a starting value to the ending value using the configuration
+     *
      * @param startValue the start value to convert
      * @param config the configuration to use when converting
+     *
      * @return the converted value
      */
     public abstract NTType toNT(StartType startValue, Configuration config);
 
     /**
      * Converts an ending value to the starting value using the specified configuration
+     *
      * @param ntValue the end value to convert
      * @param config the configuration to use when converting
+     *
      * @return the converted value
      */
     public abstract StartType toStart(NTType ntValue, Configuration config);

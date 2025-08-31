@@ -65,7 +65,9 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
 
     /**
      * Finds the value that implements {@link NTEntry}, or null if not present.
+     *
      * @param key the key used in the Map
+     *
      * @return the value that implements NTEntry, or null if not present or doesn't implement NTEntry
      */
     public NTEntry<?> getNTEntry(String key) {

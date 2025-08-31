@@ -1,6 +1,10 @@
 package badgerlog.annotations.configuration;
 
-import badgerlog.annotations.*;
+import badgerlog.annotations.AutoGenerateStruct;
+import badgerlog.annotations.Key;
+import badgerlog.annotations.MultiUnitConversion;
+import badgerlog.annotations.Struct;
+import badgerlog.annotations.UnitConversion;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -27,8 +31,8 @@ public final class ConfigHandlerRegistry {
      * Registers a annotation handler.
      *
      * @param annotationType the class representing the annotation
-     * @param handler        the handler to register
-     * @param <T>            the type of the annotation
+     * @param handler the handler to register
+     * @param <T> the type of the annotation
      */
     public static <T extends Annotation> void registerHandler(Class<T> annotationType, ConfigHandler<T> handler) {
         handlers.put(annotationType, handler);
@@ -36,9 +40,11 @@ public final class ConfigHandlerRegistry {
 
     /**
      * Gets an annotation handler from the map using the annotation's class.
+     *
      * @param annotationType the type of the annotation
-     * @return the handler associated with the annotation
      * @param <T> the type of the annotation
+     *
+     * @return the handler associated with the annotation
      */
     @SuppressWarnings("unchecked") // Cast not possible to fail, since handlers are registered with the same type
     public static <T extends Annotation> ConfigHandler<T> getHandler(Class<T> annotationType) {

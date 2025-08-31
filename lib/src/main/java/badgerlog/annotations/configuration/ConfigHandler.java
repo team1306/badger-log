@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 public interface ConfigHandler<T extends Annotation> {
     /**
      * Processes a specific annotation and changes the configuration according to it.
+     *
      * @param annotation the annotation's values
      * @param config the configuration object to use
      */

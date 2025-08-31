@@ -16,7 +16,7 @@ public final class SubscriberNTUpdatable<T> implements NTUpdatable {
     /**
      * Constructs a new SubscriberNTUpdatable. Does not call the {@code valueConsumer} on start, only on {@link #update}.
      *
-     * @param entry         a NetworkTables entry to use for subscribing
+     * @param entry a NetworkTables entry to use for subscribing
      * @param valueConsumer a consumer that takes the value on NetworkTables
      */
     public SubscriberNTUpdatable(NTEntry<T> entry, Consumer<T> valueConsumer) {

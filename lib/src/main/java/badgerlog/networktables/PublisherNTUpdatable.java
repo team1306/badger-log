@@ -16,7 +16,7 @@ public final class PublisherNTUpdatable<T> implements NTUpdatable {
     /**
      * Constructs a new PublisherNTUpdatable. Does not publish the value from {@code valueSupplier} on start, only on {@link #update}.
      *
-     * @param entry         a NetworkTables entry to use for publishing
+     * @param entry a NetworkTables entry to use for publishing
      * @param valueSupplier a supplier for the value on NetworkTables
      */
     public PublisherNTUpdatable(NTEntry<T> entry, Supplier<T> valueSupplier) {

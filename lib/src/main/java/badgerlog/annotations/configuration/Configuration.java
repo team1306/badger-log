@@ -17,6 +17,10 @@ import java.util.HashMap;
 @Getter
 public class Configuration {
     /**
+     * {@return the converters with their ids}
+     */
+    private final HashMap<String, UnitConverter<?>> converters = new HashMap<>();
+    /**
      * {@return the key on NetworkTables}
      */
     private String key = null;
@@ -38,34 +42,8 @@ public class Configuration {
     private boolean isValidConfiguration = true;
 
     /**
-     * {@return the converters with their ids}
-     */
-    private final HashMap<String, UnitConverter<?>> converters = new HashMap<>();
-
-    /**
-     * Creates a configuration object from field annotations using the annotation handlers.
-     *
-     * @param field the field to create the object from
-     * @return a configuration object from field annotations
-     */
-    public static Configuration createConfigurationFromFieldAnnotations(Field field) {
-        Configuration config = new Configuration();
-        Annotation[] annotations = field.getDeclaredAnnotations();
-        for (Annotation annotation : annotations) {
-            handleAnnotation(annotation, config);
-        }
-        return config;
-    }
-
-    @SuppressWarnings("unchecked") // Annotation must have a class of type T from type requirements
-    private static <T extends Annotation> void handleAnnotation(T annotation, Configuration config) {
-        if (!ConfigHandlerRegistry.hasValidHandler(annotation.annotationType())) return;
-        ConfigHandlerRegistry.getHandler((Class<T>) annotation.annotationType()).process(annotation, config);
-    }
-
-
-    /**
      * {@return the converter associated with the specified id}
+     *
      * @param id the converter's id
      * @param <T> the type of the converter
      */
@@ -77,6 +55,7 @@ public class Configuration {
 
     /**
      * {@code id} defaults to {@code ""}
+     *
      * @see #getConverter(String)
      */
     public <T extends Unit> UnitConverter<T> getDefaultConverter() {
@@ -85,6 +64,7 @@ public class Configuration {
 
     /**
      * {@return the configuration object for method chaining}
+     *
      * @param key the key to use on NetworkTables
      */
     public Configuration withKey(String key) {
@@ -94,6 +74,7 @@ public class Configuration {
 
     /**
      * {@return the configuration object for method chaining}
+     *
      * @param id the id of the converter
      * @param converter the converter to add
      */
@@ -104,6 +85,7 @@ public class Configuration {
 
     /**
      * {@return the configuration object for method chaining}
+     *
      * @param structType the struct options to use for publishing
      */
     public Configuration withStructType(StructType structType) {
@@ -113,6 +95,7 @@ public class Configuration {
 
     /**
      * {@return the configuration object for method chaining}
+     *
      * @param autoGenerateStruct whether a struct should be auto generated for the type
      */
     public Configuration withAutoGenerateStruct(boolean autoGenerateStruct) {
@@ -122,6 +105,7 @@ public class Configuration {
 
     /**
      * {@return the configuration object for method chaining}
+     *
      * @param generatedStruct the struct generated for the type
      */
     public Configuration withGeneratedStruct(Struct<?> generatedStruct) {
@@ -136,5 +120,29 @@ public class Configuration {
     public Configuration makeInvalid() {
         this.isValidConfiguration = false;
         return this;
+    }
+
+    /**
+     * Creates a configuration object from field annotations using the annotation handlers.
+     *
+     * @param field the field to create the object from
+     *
+     * @return a configuration object from field annotations
+     */
+    public static Configuration createConfigurationFromFieldAnnotations(Field field) {
+        Configuration config = new Configuration();
+        Annotation[] annotations = field.getDeclaredAnnotations();
+        for (Annotation annotation : annotations) {
+            handleAnnotation(annotation, config);
+        }
+        return config;
+    }
+
+    @SuppressWarnings("unchecked") // Annotation must have a class of type T from type requirements
+    private static <T extends Annotation> void handleAnnotation(T annotation, Configuration config) {
+        if (!ConfigHandlerRegistry.hasValidHandler(annotation.annotationType())) {
+            return;
+        }
+        ConfigHandlerRegistry.getHandler((Class<T>) annotation.annotationType()).process(annotation, config);
     }
 }

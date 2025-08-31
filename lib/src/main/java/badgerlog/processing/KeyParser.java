@@ -14,30 +14,35 @@ import java.util.regex.Pattern;
  * Internal class used by BadgerLog to create NetworkTables keys.
  */
 public final class KeyParser {
+    private static final Pattern FIELD_PATTERN = Pattern.compile("\\{([^}]+)\\}");
+
     private KeyParser() {
     }
-    
-    private static final Pattern FIELD_PATTERN = Pattern.compile("\\{([^}]+)\\}");
 
     /**
      * Creates a NetworkTables key from a field's definition. Uses the fields name and containing class for the key if not specifically defined by the field.
      * Invalidates the configuration if the field format is invalid.
      *
-     * @param config   the configuration object to get the key and apply the key to
-     * @param field    the field to generate the key from
+     * @param config the configuration object to get the key and apply the key to
+     * @param field the field to generate the key from
      * @param instance the instance used to reference the field
+     *
      * @return a boolean indicating whether the field had a instance specific field value
      */
     public static boolean createKeyFromField(Configuration config, Field field, Object instance) {
         String unparsedKey;
-        if (config.getKey() == null || config.getKey().isBlank())
+        if (config.getKey() == null || config.getKey().isBlank()) {
             unparsedKey = field.getDeclaringClass().getSimpleName() + "/" + field.getName();
-        else unparsedKey = config.getKey();
+        } else {
+            unparsedKey = config.getKey();
+        }
 
         config.withKey(unparsedKey);
 
         List<String> fieldNames = extractFieldNames(unparsedKey);
-        if (fieldNames.isEmpty()) return false;
+        if (fieldNames.isEmpty()) {
+            return false;
+        }
 
         Map<String, String> fieldValues = new HashMap<>();
         for (String fieldName : fieldNames) {

@@ -23,8 +23,10 @@ public final class Fields {
 
     /**
      * Gets the value currently on the field, ignoring access modifiers.
+     *
      * @param field the field to access
      * @param object the instance to access the field with
+     *
      * @return the value on the field in the specific instance
      */
     @SneakyThrows({IllegalAccessException.class, IllegalArgumentException.class})
@@ -35,6 +37,7 @@ public final class Fields {
 
     /**
      * Sets the field's value to the specified value, ignoring access modifiers.
+     *
      * @param instance the instance to set the field with
      * @param field the field to set
      * @param value the value to set on the field

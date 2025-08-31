@@ -1,7 +1,12 @@
 package badgerlog;
 
 import badgerlog.annotations.configuration.Configuration;
-import badgerlog.networktables.*;
+import badgerlog.networktables.EntryFactory;
+import badgerlog.networktables.NT;
+import badgerlog.networktables.NTEntry;
+import badgerlog.networktables.NTUpdatable;
+import badgerlog.networktables.SendableEntry;
+import badgerlog.networktables.ValueEntry;
 import badgerlog.processing.CheckedNetworkTablesMap;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -21,10 +26,9 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unused", "resource"})
 public final class Dashboard {
 
-    private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
-
-    public static DashboardConfig config = DashboardConfig.defaultConfig;
     public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
+    private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
+    public static DashboardConfig config = DashboardConfig.defaultConfig;
 
     private Dashboard() {
     }
@@ -40,6 +44,7 @@ public final class Dashboard {
 
     /**
      * {@code defaultValue} defaults to the first defined Enum constant
+     *
      * @see #createSelectorFromEnum(String, Class, Enum, Consumer)
      */
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Consumer<Enum<T>> onValueChange) {
@@ -53,11 +58,12 @@ public final class Dashboard {
     /**
      * Creates a {@link SendableChooser} that contains the name of each Enum constant as an option.
      *
-     * @param key           the key on NetworkTables
-     * @param tEnum         the class of the Enum
+     * @param key the key on NetworkTables
+     * @param tEnum the class of the Enum
      * @param startingValue the starting Enum value to use on the SendableChooser
      * @param onValueChange a {@link Consumer} that gets called on startup, and whenever the selector changes with the value it changed to
-     * @param <T>           the type of the Enum
+     * @param <T> the type of the Enum
+     *
      * @return the created and published SendableChooser
      */
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> startingValue, Consumer<Enum<T>> onValueChange) {
@@ -68,7 +74,9 @@ public final class Dashboard {
         SendableChooser<Enum<T>> chooser = new SendableChooser<>();
         chooser.setDefaultOption(startingValue.toString(), startingValue);
         for (Enum<T> value : tEnum.getEnumConstants()) {
-            if (value == startingValue) continue;
+            if (value == startingValue) {
+                continue;
+            }
             chooser.addOption(value.toString(), value);
         }
         chooser.onChange(onValueChange);
@@ -90,7 +98,8 @@ public final class Dashboard {
     }
 
     /**
-     * Adds an implementation of {@link NT} to the keymap to keep track of created entries. 
+     * Adds an implementation of {@link NT} to the keymap to keep track of created entries.
+     *
      * @param key the key on NetworkTables
      * @param entry the implementation of NT to put into the map
      */
@@ -102,6 +111,7 @@ public final class Dashboard {
      * Removes a key from the list of entries to be updated. Any publishers or subscribers are closed, and the entry is removed.
      *
      * @param key the key on NetworkTables
+     *
      * @return whether the entry existed
      */
     public static boolean removeNetworkTableEntry(String key) {
@@ -109,7 +119,7 @@ public final class Dashboard {
     }
 
     /**
-     * Updates all the {@link NT} entries that also implement {@link NTUpdatable}. 
+     * Updates all the {@link NT} entries that also implement {@link NTUpdatable}.
      * This method is used to update NetworkTables or the robot code with any changed values.
      * <p>Should be called in {@code Robot.robotPeriodic}</p>
      */
@@ -119,8 +129,10 @@ public final class Dashboard {
 
     /**
      * Creates a {@link Trigger} instance that is bound to a boolean value at {@code key} on NetworkTables.
+     *
      * @param key the key on NetworkTables
      * @param eventLoop the eventLoop to bind the Trigger to
+     *
      * @return a Trigger with a toggle based on a boolean NetworkTables entry
      */
     public static Trigger createNetworkTablesButton(String key, EventLoop eventLoop) {
@@ -131,7 +143,8 @@ public final class Dashboard {
 
     /**
      * Creates a {@link Trigger} that resets its NetworkTables entry to false, after being true for 0.25 seconds.
-     * @see #createNetworkTablesButton(String, EventLoop) 
+     *
+     * @see #createNetworkTablesButton(String, EventLoop)
      */
     public static Trigger createAutoResettingButton(String key, EventLoop eventLoop) {
         return createNetworkTablesButton(key, eventLoop)
@@ -141,19 +154,21 @@ public final class Dashboard {
 
     /**
      * {@code config} defaults to the base configuration
-     * @see #putValue(String, Object, Configuration) 
+     *
+     * @see #putValue(String, Object, Configuration)
      */
     public static <T> void putValue(String key, T value) {
         putValue(key, value, new Configuration());
     }
 
     /**
-     * Publishes a value to NetworkTables with a specific configuration. 
+     * Publishes a value to NetworkTables with a specific configuration.
      * <p>Annotations should be preferred over this method if possible.</p>
+     *
      * @param key the key on NetworkTables
      * @param value the value to publish
      * @param config the configuration to use for the {@link ValueEntry}
-     * @param <T> the type of the value 
+     * @param <T> the type of the value
      */
     public static <T> void putValue(String key, T value, Configuration config) {
         NTEntry<T> entry = createEntryIfNotPresent(key, value, config);
@@ -163,6 +178,7 @@ public final class Dashboard {
 
     /**
      * {@code config} defaults to the base configuration
+     *
      * @see #getValue(String, Object, Configuration)
      */
     public static <T> T getValue(String key, T defaultValue) {
@@ -172,10 +188,12 @@ public final class Dashboard {
     /**
      * Gets a value from NetworkTables with a specific configuration.
      * <p>Annotations should be preferred over this method if possible.</p>
+     *
      * @param key the key on NetworkTables
      * @param defaultValue the value to use if the entry is missing on NetworkTables
      * @param config the configuration to use for the {@link ValueEntry}
-     * @param <T> the type of the value 
+     * @param <T> the type of the value
+     *
      * @return the value on NetworkTables if present, otherwise the value specified
      */
     public static <T> T getValue(String key, T defaultValue, Configuration config) {
@@ -201,7 +219,8 @@ public final class Dashboard {
     }
 
     /**
-     * Adds a {@link Sendable} to the active entries to be updated. 
+     * Adds a {@link Sendable} to the active entries to be updated.
+     *
      * @param key the key on NetworkTables
      * @param sendable the Sendable to put on NetworkTables
      */

@@ -24,10 +24,10 @@ public final class ValueEntry<T> implements NTEntry<T> {
      * Constructs a new ValueEntry, creating the entry on NetworkTables, and finding the {@link Mapping} for the specified {@code valueClass}.
      * This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.
      *
-     * @param key          the key on NetworkTables
-     * @param valueClass   the class type of the {@code initialValue}
+     * @param key the key on NetworkTables
+     * @param valueClass the class type of the {@code initialValue}
      * @param initialValue the value to initially publish to NetworkTables
-     * @param config       the configuration to use for the Mapping
+     * @param config the configuration to use for the Mapping
      */
     public ValueEntry(String key, Class<T> valueClass, T initialValue, Configuration config) {
         this.config = config;

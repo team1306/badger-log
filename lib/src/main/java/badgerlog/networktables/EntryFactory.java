@@ -20,10 +20,11 @@ public final class EntryFactory {
     /**
      * Creates a new {@link NTEntry} from the specified key, value, and configuration.
      *
-     * @param key    the key on NetworkTables
-     * @param value  the value to use with NetworkTables
+     * @param key the key on NetworkTables
+     * @param value the value to use with NetworkTables
      * @param config the configuration for the specified value
-     * @param <T>    the type to use
+     * @param <T> the type to use
+     *
      * @return a new NTEntry that matches the value and configuration
      */
     @SuppressWarnings("unchecked")

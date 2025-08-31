@@ -16,7 +16,7 @@ public final class SendableEntry implements NTUpdatable, AutoCloseable {
     /**
      * Constructs a new SendableEntry, registering and publishing the {@link Sendable}
      *
-     * @param key      the key to use on NetworkTables
+     * @param key the key to use on NetworkTables
      * @param sendable the Sendable to publish
      */
     public SendableEntry(String key, Sendable sendable) {

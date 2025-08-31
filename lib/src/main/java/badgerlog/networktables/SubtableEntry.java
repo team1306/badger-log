@@ -26,8 +26,8 @@ public final class SubtableEntry<T> implements NTEntry<T> {
      * Constructs a new SubtableEntry, creating all the entries on NetworkTables under the specified key.
      * This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.
      *
-     * @param key          the top level key to use on NetworkTables, all other entries will be nested under it.
-     * @param struct       the struct to use for creating the entries
+     * @param key the top level key to use on NetworkTables, all other entries will be nested under it.
+     * @param struct the struct to use for creating the entries
      * @param initialValue the initial value to be published to NetworkTables
      */
     public SubtableEntry(String key, Struct<T> struct, T initialValue) {
@@ -37,25 +37,6 @@ public final class SubtableEntry<T> implements NTEntry<T> {
         buffer = ByteBuffer.allocate(struct.getSize());
 
         entries = Subtables.createEntries(struct, key, initialValue);
-    }
-
-    @Override
-    public T retrieveValue() {
-        buffer.clear();
-
-        for (Map.Entry<NTEntry<?>, Subtables.PrimType<?>> entry : entries.entrySet()) {
-            Subtables.Packer<Object> packer = (Subtables.Packer<Object>) entry.getValue().packer();
-            NTEntry<Object> ntEntry = (NTEntry<Object>) entry.getKey();
-            packer.pack(buffer, ntEntry.retrieveValue());
-        }
-
-        buffer.rewind();
-        return struct.unpack(buffer);
-    }
-
-    @Override
-    public String getKey() {
-        return key;
     }
 
     @SneakyThrows
@@ -79,5 +60,24 @@ public final class SubtableEntry<T> implements NTEntry<T> {
         }
 
         buffer.clear();
+    }
+
+    @Override
+    public T retrieveValue() {
+        buffer.clear();
+
+        for (Map.Entry<NTEntry<?>, Subtables.PrimType<?>> entry : entries.entrySet()) {
+            Subtables.Packer<Object> packer = (Subtables.Packer<Object>) entry.getValue().packer();
+            NTEntry<Object> ntEntry = (NTEntry<Object>) entry.getKey();
+            packer.pack(buffer, ntEntry.retrieveValue());
+        }
+
+        buffer.rewind();
+        return struct.unpack(buffer);
+    }
+
+    @Override
+    public String getKey() {
+        return key;
     }
 }
