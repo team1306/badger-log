@@ -41,7 +41,7 @@ jobs:
       
     - name: Run Spotless Apply
       working-directory: lib
-      run: ./gradlew spotlessApply
+      run: ./gradlew spotlessApply --build-file build.gradle
     
     - name: Check for changes
       id: verify-changed-files
