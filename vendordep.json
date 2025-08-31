@@ -9,7 +9,7 @@
   "fileName": "badger-log.json",
   "frcYear": "2025",
   "jsonUrl": "https://raw.githubusercontent.com/team1306/badger-log/master/vendordep.json",
-  "name": "Badger-Log",
+  "name": "BadgerLog",
   "jniDependencies": [],
   "mavenUrls": [
     "https://jitpack.io"
