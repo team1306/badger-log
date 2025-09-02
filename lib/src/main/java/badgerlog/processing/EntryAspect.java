@@ -25,7 +25,7 @@ public class EntryAspect {
 
     private boolean initialFieldPass = false;
 
-    @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(EntryAspect)")
+    @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(badgerlog.processing..*)")
     public void addAllEntryFields(JoinPoint thisJoinPoint) {
         Class<?> staticReference = thisJoinPoint.getSignature().getDeclaringType();
         Object workingClass = thisJoinPoint.getThis();
