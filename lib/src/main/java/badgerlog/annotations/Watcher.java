@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Watcher {
-    Class<?> type() default void.class;
+    Class<?> type();
+    EventType eventType() default EventType.ALL;
+    String name() default "";
     String[] keys() default {};
 }
