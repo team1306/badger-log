@@ -8,6 +8,8 @@ import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
 import badgerlog.networktables.ValueEntry;
 import badgerlog.utilities.CheckedNetworkTablesMap;
+import badgerlog.utilities.ErrorLogger;
+import badgerlog.utilities.Validation;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
@@ -49,8 +51,8 @@ public final class Dashboard {
      * @see #createSelectorFromEnum(String, Class, Enum, Consumer)
      */
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Consumer<Enum<T>> onValueChange) {
-        if (validateEnum(tEnum)) {
-            System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+        if (!Validation.validateEnum(tEnum)) {
+            ErrorLogger.normalError(key + " was trying to create an enum selector, but failed");
             return Optional.empty();
         }
         return createSelectorFromEnum(key, tEnum, tEnum.getEnumConstants()[0], onValueChange);
@@ -69,8 +71,8 @@ public final class Dashboard {
      * @return the created and published SendableChooser
      */
     public static <T extends Enum<T>> Optional<SendableChooser<Enum<T>>> createSelectorFromEnum(String key, Class<T> tEnum, Enum<T> startingValue, Consumer<Enum<T>> onValueChange) {
-        if (validateEnum(tEnum)) {
-            System.err.println(key + " was trying to create an enum selector, but failed. SKIPPING");
+        if (!Validation.validateEnum(tEnum)) {
+            ErrorLogger.normalError(key + " was trying to create an enum selector, but failed");
             return Optional.empty();
         }
         SendableChooser<Enum<T>> chooser = new SendableChooser<>();
@@ -87,17 +89,7 @@ public final class Dashboard {
         return Optional.of(chooser);
     }
 
-    private static <T extends Enum<T>> boolean validateEnum(Class<T> tEnum) {
-        if (!tEnum.isEnum()) {
-            System.err.println("Tried to create an enum selector, but the class was not an enum");
-            return true;
-        }
-        if (tEnum.getEnumConstants().length == 0) {
-            System.err.println("Tried to create an enum selector, but the enum had no values");
-            return true;
-        }
-        return false;
-    }
+    
 
     /**
      * Adds an implementation of {@link NT} to the keymap to keep track of created entries.

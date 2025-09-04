@@ -7,6 +7,7 @@ import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.PublisherNTUpdatable;
 import badgerlog.networktables.SendableEntry;
 import badgerlog.networktables.SubscriberNTUpdatable;
+import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Fields;
 import badgerlog.utilities.KeyParser;
 import edu.wpi.first.util.sendable.Sendable;
@@ -48,20 +49,17 @@ public class EntryAspect {
 
     private void handleField(Field field, Object instance) {
         if (instance == null && !Modifier.isStatic(field.getModifiers())) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
-                    .getName() + " is an instance field, with no instance. SKIPPING");
+            ErrorLogger.fieldError(field, "is an instance field with no instance");
             return;
         }
 
         if (Fields.getFieldValue(field, instance) == null) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
-                    .getName() + " is a uninitialized field after construction. SKIPPING");
+            ErrorLogger.fieldError(field, "is an uninitialized field after construction");
             return;
         }
 
         if (Modifier.isFinal(field.getModifiers())) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
-                    .getName() + " is a final field. SKIPPING");
+            ErrorLogger.fieldError(field, "is a final field");
             return;
         }
 
@@ -73,8 +71,7 @@ public class EntryAspect {
         }
 
         if (!config.isValidConfiguration()) {
-            System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
-                    .getName() + " had an invalid configuration created. SKIPPING");
+            ErrorLogger.fieldError(field, "had an invalid configuration created");
             return;
         }
 

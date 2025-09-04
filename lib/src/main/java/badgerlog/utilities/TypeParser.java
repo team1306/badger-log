@@ -32,7 +32,7 @@ public final class TypeParser {
             createStructReferencesFromEnum((Class<? extends Enum>) type, 0);
             struct = StructGenerator.genEnum((Class<? extends Enum>) type);
         } else {
-            System.err.println("Struct not generated for " + type.getSimpleName() + ". SKIPPING");
+            ErrorLogger.normalError("Struct not generated for " + type.getSimpleName());
             return;
         }
 

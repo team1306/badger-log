@@ -1,6 +1,7 @@
 package badgerlog.networktables;
 
 import badgerlog.annotations.configuration.Configuration;
+import badgerlog.utilities.ErrorLogger;
 import edu.wpi.first.util.struct.Struct;
 import lombok.SneakyThrows;
 
@@ -90,7 +91,8 @@ public final class Subtables {
                         .filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0]))
                         .toList();
                 if (structs.isEmpty()) {
-                    System.err.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
+                    ErrorLogger.customError("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
+                    System.err.println();
                     return false;
                 }
 
