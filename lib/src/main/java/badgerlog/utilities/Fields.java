@@ -1,4 +1,4 @@
-package badgerlog.processing;
+package badgerlog.utilities;
 
 import lombok.SneakyThrows;
 

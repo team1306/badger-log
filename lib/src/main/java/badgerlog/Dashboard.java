@@ -7,7 +7,7 @@ import badgerlog.networktables.NTEntry;
 import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
 import badgerlog.networktables.ValueEntry;
-import badgerlog.processing.CheckedNetworkTablesMap;
+import badgerlog.utilities.CheckedNetworkTablesMap;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;

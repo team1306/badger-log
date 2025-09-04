@@ -3,7 +3,7 @@ package badgerlog.networktables;
 import badgerlog.Dashboard;
 import badgerlog.annotations.StructType;
 import badgerlog.annotations.configuration.Configuration;
-import badgerlog.processing.TypeParser;
+import badgerlog.utilities.TypeParser;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructFetcher;
 import edu.wpi.first.util.struct.StructSerializable;

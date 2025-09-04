@@ -1,6 +1,6 @@
 package badgerlog.conversion;
 
-import badgerlog.processing.Fields;
+import badgerlog.utilities.Fields;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Measure;

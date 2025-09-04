@@ -1,4 +1,4 @@
-package badgerlog.processing;
+package badgerlog.utilities;
 
 import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
