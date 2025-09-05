@@ -1,29 +1,41 @@
 package badgerlog.events;
 
-import edu.wpi.first.networktables.NetworkTableEvent.Kind;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class EventRegistry {
-    private static final List<InterceptorEvent<?>> interceptorEvents = new ArrayList<>();
-    private static final List<WatcherEvent<?>> watcherEvents = new ArrayList<>();
+    private static final List<NTEvent> events = new ArrayList<>();
+    private static final Queue<NTEvent> eventQueue = new ConcurrentLinkedQueue<>();
     
     public static void updateEvents(){
-        NetworkTableInstance.getDefault().addListener(new String[] {""}, EnumSet.of(Kind.kValueAll), (value) -> {
-            System.out.println(value.topicInfo.name);
-        });
+        
+        for(NTEvent event : eventQueue){
+            NTEvent queuedEvent = eventQueue.poll();
+            if (queuedEvent == null) {
+                continue;
+            }
+            
+            handleEvent(queuedEvent);
+        }
     }
     
+    private static void handleEvent(NTEvent queuedEvent){
+        if(queuedEvent instanceof WatcherEvent<?> event){
+            //todo invoke the event
+        }
+        else if (queuedEvent instanceof InterceptorEvent<?> event){
+            //todo invoke the event
+        }    }
+    
     public static void addInterceptorEvent(InterceptorEvent<?> event){
-        interceptorEvents.add(event);
+        events.add(event);
         //Todo event starting logic
     }
     
     public static void addWatcherEvent(WatcherEvent<?> event){
-        watcherEvents.add(event);
+        events.add(event);
         //todo event starting logic
     }
     
