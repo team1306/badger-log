@@ -1,17 +1,25 @@
 package badgerlog.events;
 
-import java.util.ArrayList;
-import java.util.List;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.Timer;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
+
 public class EventRegistry {
-    private static final List<NTEvent> events = new ArrayList<>();
     private static final Queue<NTEvent> eventQueue = new ConcurrentLinkedQueue<>();
     
     public static void updateEvents(){
-        
-        for(NTEvent event : eventQueue){
+        Time initialTime = Seconds.of(Timer.getFPGATimestamp());
+        while(!eventQueue.isEmpty()){
+            Time nowTime = Seconds.of(Timer.getFPGATimestamp());
+            if((nowTime.minus(initialTime)).in(Milliseconds) > 5){
+                break;
+            }
+            
             NTEvent queuedEvent = eventQueue.poll();
             if (queuedEvent == null) {
                 continue;
@@ -27,16 +35,10 @@ public class EventRegistry {
         }
         else if (queuedEvent instanceof InterceptorEvent<?> event){
             //todo invoke the event
-        }    }
-    
-    public static void addInterceptorEvent(InterceptorEvent<?> event){
-        events.add(event);
-        //Todo event starting logic
+        }    
     }
     
-    public static void addWatcherEvent(WatcherEvent<?> event){
-        events.add(event);
-        //todo event starting logic
+    public static void addEvent(NTEvent event){
+        //Todo event queue logic
     }
-    
 }
