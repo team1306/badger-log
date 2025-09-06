@@ -24,6 +24,7 @@ import java.util.Arrays;
  * classes that have fields that use {@link Entry}.
  */
 @Aspect("pertypewithin(*)")
+@Deprecated
 public class EntryAspect {
 
     private boolean initialFieldPass = false;
