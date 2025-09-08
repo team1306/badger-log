@@ -9,6 +9,7 @@ import java.util.function.Supplier;
  * @param <T> the type of the entry
  */
 @SuppressWarnings("ClassCanBeRecord")
+@Deprecated
 public final class PublisherNTUpdatable<T> implements NTUpdatable {
 
     private final NTEntry<T> publisher;

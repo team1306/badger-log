@@ -9,6 +9,7 @@ import java.util.function.Consumer;
  * @param <T> the type of the entry
  */
 @SuppressWarnings("ClassCanBeRecord")
+@Deprecated
 public final class SubscriberNTUpdatable<T> implements NTUpdatable {
 
     private final NTEntry<T> subscriber;
