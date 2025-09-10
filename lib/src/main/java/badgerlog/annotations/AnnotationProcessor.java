@@ -18,6 +18,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @AutoService(Processor.class)
@@ -25,6 +27,8 @@ import java.util.Set;
 @SupportedAnnotationTypes("badgerlog.annotations.Entry")
 public class AnnotationProcessor extends AbstractProcessor {
 
+    public Map<String, String> potentialKeys = new HashMap<>();
+    
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Elements elementUtils = processingEnv.getElementUtils();
@@ -32,7 +36,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         // Use string literals for class names
         TypeElement sendableElement = elementUtils.getTypeElement("edu.wpi.first.util.sendable.Sendable");
         if (sendableElement == null) {
-            printError(null, Diagnostic.Kind.ERROR,
+            printMessage(null, Diagnostic.Kind.ERROR,
                     "Sendable interface not found");
             return false;
         }
@@ -52,8 +56,30 @@ public class AnnotationProcessor extends AbstractProcessor {
                     validateField(sendableType, field, annotation);
                 }
             }
+            
+            String potentialKey = generatePossibleKey(element);
+            if(potentialKeys.containsKey(potentialKey)){
+                printMessage(element, Kind.MANDATORY_WARNING, String.format("Duplicate key %s for '%s' and '%s'", potentialKey, potentialKeys.get(potentialKey), createElementName(element)));
+            }
+            else{
+                potentialKeys.put(potentialKey, createElementName(element));
+            }
         }
         return false;
+    }
+    
+    private String createElementName(Element element) {
+        String methodName = element.getSimpleName().toString();
+        String className = element.getEnclosingElement().getSimpleName().toString();
+        
+        return String.format("%s.%s", className, methodName);
+    }
+    
+    private String generatePossibleKey(Element element) {
+        if(element.getAnnotation(Key.class) != null){
+            return element.getAnnotation(Key.class).value();
+        }
+        return element.getSimpleName() + "/" + element.getEnclosingElement().getSimpleName();
     }
 
     private void validateMethod(ExecutableElement method, Entry annotation) {
@@ -64,26 +90,25 @@ public class AnnotationProcessor extends AbstractProcessor {
         switch (annotation.value()) {
             case PUBLISHER -> {
                 if (paramCount != 0) {
-                    printError(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s.%s()' must have exactly zero parameters, found %d",
-                            className, methodName, paramCount));
+                    printMessage(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s()' must have exactly zero parameters, found %d",
+                            createElementName(method), paramCount));
                 }
                 if (method.getReturnType().getKind() == TypeKind.VOID) {
-                    printError(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s.%s() must return a value",
-                            className, methodName));
+                    printMessage(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s() must return a value",
+                            createElementName(method)));
                 }
             }
             case SUBSCRIBER -> {
                 if (paramCount != 1) {
-                    printError(method, Kind.ERROR, String.format("Subscriber @Entry annotated method '%s.%s()' must have exactly one parameters, found %d",
-                            className, methodName, paramCount));
+                    printMessage(method, Kind.ERROR, String.format("Subscriber @Entry annotated method '%s()' must have exactly one parameters, found %d",
+                            createElementName(method), paramCount));
                 }
                 if (method.getReturnType().getKind() == TypeKind.VOID) {
-                    printError(method, Kind.WARNING, String.format("Subscriber @Entry annotated method '%s.%s() should not return a value",
-                            className, methodName));
+                    printMessage(method, Kind.WARNING, String.format("Subscriber @Entry annotated method '%s() should not return a value",
+                            createElementName(method)));
                 }
             }
-            case SENDABLE ->
-                    printError(method, Kind.ERROR, String.format("Sendable @Entry method '%s.%s()' cannot be a Sendable", className, methodName));
+            case SENDABLE -> printMessage(method, Kind.ERROR, String.format("Sendable @Entry method '%s()' cannot be a Sendable", createElementName(method)));
         }
     }
 
@@ -94,18 +119,18 @@ public class AnnotationProcessor extends AbstractProcessor {
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER -> {
                 if(field.getModifiers().contains(Modifier.FINAL)){
-                    printError(field, Kind.ERROR, String.format("Non-Sendable @Entry field '%s.%s' must be non-final", className, fieldName));
+                    printMessage(field, Kind.ERROR, String.format("Non-Sendable @Entry field '%s' must be non-final", createElementName(field)));
                 }
             }
             case SENDABLE -> {
                 if(!processingEnv.getTypeUtils().isSameType(sendableMirror, field.asType())) {
-                    printError(field, Kind.ERROR, String.format("Sendable @Entry field '%s.%s' must be a Sendable", className, fieldName));
+                    printMessage(field, Kind.ERROR, String.format("Sendable @Entry field '%s' must be a Sendable", createElementName(field)));
                 }
             }
         }
     }
 
-    private void printError(Element element, Kind messageType, String message) {
+    private void printMessage(Element element, Kind messageType, String message) {
         if (element != null) {
             processingEnv.getMessager().printMessage(messageType, message, element);
         } else {
