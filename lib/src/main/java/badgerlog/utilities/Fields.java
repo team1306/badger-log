@@ -2,7 +2,10 @@ package badgerlog.utilities;
 
 import lombok.SneakyThrows;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 /**
  * Internal class used by BadgerLog to simplify the accessing of fields with reflection.
@@ -12,6 +15,13 @@ public final class Fields {
     private Fields() {
     }
 
+    public static Field[] getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass, boolean instance){
+        return Arrays.stream(clazz.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(annotationClass))
+                .filter(field -> instance != Modifier.isStatic(field.getModifiers()))
+                .toArray(Field[]::new);
+    }
+    
     /**
      * {@code object} defaults to {@code null}. This method should only be used if the field is known to be static.
      *

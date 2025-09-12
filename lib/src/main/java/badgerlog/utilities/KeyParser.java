@@ -30,7 +30,7 @@ public final class KeyParser {
      *
      * @return a boolean indicating whether the field had a instance specific field value
      */
-    public static boolean createKeyFromField(Configuration config, Field field, Object instance) {
+    public static void createKeyFromField(Configuration config, Field field, Object instance) {
         String unparsedKey;
         if (config.getKey() == null || config.getKey().isBlank()) {
             unparsedKey = field.getDeclaringClass().getSimpleName() + "/" + field.getName();
@@ -42,7 +42,7 @@ public final class KeyParser {
 
         List<String> fieldNames = extractFieldNames(unparsedKey);
         if (fieldNames.isEmpty()) {
-            return false;
+            return;
         }
 
         Map<String, String> fieldValues = new HashMap<>();
@@ -52,15 +52,14 @@ public final class KeyParser {
                 fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException e) {
                 config.makeInvalid();
-                System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
+                ErrorLogger.customError(field.getDeclaringClass().getSimpleName() + "." + field
                         .getName() + " was invalidated after key contained missing field.");
-                return false;
+                return;
             }
         }
 
         String parsedKey = replaceFields(unparsedKey, fieldValues);
         config.withKey(parsedKey);
-        return true;
     }
 
     private static List<String> extractFieldNames(String template) {
