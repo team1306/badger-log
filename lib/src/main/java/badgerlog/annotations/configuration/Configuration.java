@@ -131,6 +131,11 @@ public class Configuration {
      */
     public static Configuration createConfigurationFromFieldAnnotations(Field field) {
         Configuration config = new Configuration();
+        Annotation[] classAnnotations = field.getDeclaringClass().getAnnotations();
+        for (Annotation annotation : classAnnotations) {
+            handleAnnotation(annotation, config);
+        }
+        
         Annotation[] annotations = field.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);

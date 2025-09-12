@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Annotation to mark the configuration to use a specified converter.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.TYPE})
 @Repeatable(MultiUnitConversion.class)
 public @interface UnitConversion {
     /**
