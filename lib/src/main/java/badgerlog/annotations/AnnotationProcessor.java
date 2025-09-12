@@ -33,7 +33,6 @@ public class AnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Elements elementUtils = processingEnv.getElementUtils();
 
-        // Use string literals for class names
         TypeElement sendableElement = elementUtils.getTypeElement("edu.wpi.first.util.sendable.Sendable");
         if (sendableElement == null) {
             printMessage(null, Diagnostic.Kind.ERROR,
@@ -84,8 +83,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     private void validateMethod(ExecutableElement method, Entry annotation) {
         int paramCount = method.getParameters().size();
-        String methodName = method.getSimpleName().toString();
-        String className = method.getEnclosingElement().getSimpleName().toString();
 
         switch (annotation.value()) {
             case PUBLISHER -> {
@@ -113,9 +110,6 @@ public class AnnotationProcessor extends AbstractProcessor {
     }
 
     private void validateField(TypeMirror sendableMirror, VariableElement field, Entry annotation) {
-        String fieldName = field.getSimpleName().toString();
-        String className = field.getEnclosingElement().getSimpleName().toString();
-
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER -> {
                 if(field.getModifiers().contains(Modifier.FINAL)){
