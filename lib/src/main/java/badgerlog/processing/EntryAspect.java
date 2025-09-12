@@ -13,7 +13,6 @@ import badgerlog.utilities.KeyParser;
 import edu.wpi.first.util.sendable.Sendable;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Aspect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -23,7 +22,6 @@ import java.util.Arrays;
  * Internal aspect that enables BadgerLog to use instance fields without any configuration in the constructor of
  * classes that have fields that use {@link Entry}.
  */
-@Aspect("pertypewithin(*)")
 @Deprecated
 public class EntryAspect {
 
@@ -65,7 +63,8 @@ public class EntryAspect {
         }
 
         Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
-        boolean hasFieldValue = KeyParser.createKeyFromField(config, field, instance);
+        boolean hasFieldValue = false; 
+        KeyParser.createKeyFromField(config, field, instance);
 
         if (!hasFieldValue && initialFieldPass) {
             return;
