@@ -16,7 +16,7 @@ public class EventRegistry {
         Time initialTime = Seconds.of(Timer.getFPGATimestamp());
         while(!eventQueue.isEmpty()){
             Time nowTime = Seconds.of(Timer.getFPGATimestamp());
-            if((nowTime.minus(initialTime)).in(Milliseconds) > 5){
+            if(nowTime.minus(initialTime).in(Milliseconds) > 5){
                 break;
             }
 
