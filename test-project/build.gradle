@@ -90,6 +90,7 @@ dependencies {
     aspect files("../lib/build/libs/lib.jar")
 
     implementation files("../lib/build/libs/lib.jar")
+    annotationProcessor files("../lib/build/libs/lib.jar")
 }
 
 sourceSets {

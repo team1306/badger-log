@@ -1,5 +1,7 @@
-package badgerlog.annotations;
+package badgerlog.processing;
 
+import badgerlog.annotations.Entry;
+import badgerlog.annotations.Key;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -16,6 +18,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import java.util.HashMap;
@@ -25,7 +28,7 @@ import java.util.Set;
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("badgerlog.annotations.Entry")
-public class AnnotationProcessor extends AbstractProcessor {
+public class EntryAnnotationProcessor extends AbstractProcessor {
 
     public Map<String, String> potentialKeys = new HashMap<>();
     
@@ -34,13 +37,22 @@ public class AnnotationProcessor extends AbstractProcessor {
         Elements elementUtils = processingEnv.getElementUtils();
 
         TypeElement sendableElement = elementUtils.getTypeElement("edu.wpi.first.util.sendable.Sendable");
+        TypeElement objectElement = elementUtils.getTypeElement("java.lang.Object");
+        
         if (sendableElement == null) {
             printMessage(null, Diagnostic.Kind.ERROR,
                     "Sendable interface not found");
             return false;
         }
 
+        if (objectElement == null) {
+            printMessage(null, Diagnostic.Kind.ERROR,
+                    "Object not found");
+            return false;
+        }
+
         TypeMirror sendableType = sendableElement.asType();
+        TypeMirror objectType = objectElement.asType();
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Entry.class)) {
             Entry annotation = element.getAnnotation(Entry.class);
@@ -48,12 +60,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             switch (element.getKind()) {
                 case METHOD -> {
                     ExecutableElement method = (ExecutableElement) element;
-                    validateMethod(method, annotation);
+                    validateMethod(objectType, method, annotation);
                 }
                 case FIELD -> {
                     VariableElement field = (VariableElement) element;
                     validateField(sendableType, field, annotation);
                 }
+                default -> {}
             }
             
             String potentialKey = generatePossibleKey(element);
@@ -81,7 +94,8 @@ public class AnnotationProcessor extends AbstractProcessor {
         return element.getSimpleName() + "/" + element.getEnclosingElement().getSimpleName();
     }
 
-    private void validateMethod(ExecutableElement method, Entry annotation) {
+    private void validateMethod(TypeMirror objectType, ExecutableElement method, Entry annotation) {
+        Types typeUtils =  processingEnv.getTypeUtils();
         int paramCount = method.getParameters().size();
 
         switch (annotation.value()) {
@@ -94,6 +108,10 @@ public class AnnotationProcessor extends AbstractProcessor {
                     printMessage(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s() must return a value",
                             createElementName(method)));
                 }
+                if(typeUtils.isSameType(method.getReturnType(), objectType)){
+                    printMessage(method, Kind.WARNING, String.format("Publisher @Ebtry method '%s()' should return the final type and not object", 
+                            createElementName(method)));
+                }
             }
             case SUBSCRIBER -> {
                 if (paramCount != 1) {
@@ -104,20 +122,27 @@ public class AnnotationProcessor extends AbstractProcessor {
                     printMessage(method, Kind.WARNING, String.format("Subscriber @Entry annotated method '%s() should not return a value",
                             createElementName(method)));
                 }
+                if(method.getParameters().size() == 1 && typeUtils.isSameType(method.getParameters().get(0).asType(), objectType)){
+                    printMessage(method, Kind.WARNING, String.format("Subscriber @Ebtry method '%s()' should have the final type and not object as a parameter", 
+                            createElementName(method)));
+                }
             }
             case SENDABLE -> printMessage(method, Kind.ERROR, String.format("Sendable @Entry method '%s()' cannot be a Sendable", createElementName(method)));
+            case INTELLIGENT -> printMessage(method, Kind.ERROR, String.format("Intelligent @Entry method '%s()' should not use intelligent", createElementName(method)));
         }
     }
 
     private void validateField(TypeMirror sendableMirror, VariableElement field, Entry annotation) {
+        Types typeUtils =  processingEnv.getTypeUtils();
+        
         switch (annotation.value()) {
-            case PUBLISHER, SUBSCRIBER -> {
+            case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
                 if(field.getModifiers().contains(Modifier.FINAL)){
                     printMessage(field, Kind.ERROR, String.format("Non-Sendable @Entry field '%s' must be non-final", createElementName(field)));
                 }
             }
             case SENDABLE -> {
-                if(!processingEnv.getTypeUtils().isSameType(sendableMirror, field.asType())) {
+                if(!typeUtils.isSameType(sendableMirror, field.asType())) {
                     printMessage(field, Kind.ERROR, String.format("Sendable @Entry field '%s' must be a Sendable", createElementName(field)));
                 }
             }
