@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 /**
@@ -15,10 +14,9 @@ public final class Fields {
     private Fields() {
     }
 
-    public static Field[] getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass, boolean instance){
+    public static Field[] getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass){
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(annotationClass))
-                .filter(field -> instance != Modifier.isStatic(field.getModifiers()))
                 .toArray(Field[]::new);
     }
     
