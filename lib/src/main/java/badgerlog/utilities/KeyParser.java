@@ -28,7 +28,6 @@ public final class KeyParser {
      * @param field the field to generate the key from
      * @param instance the instance used to reference the field
      *
-     * @return a boolean indicating whether the field had a instance specific field value
      */
     public static void createKeyFromField(Configuration config, Field field, Object instance) {
         String unparsedKey;
@@ -50,10 +49,10 @@ public final class KeyParser {
             try {
                 Field valueField = instance.getClass().getDeclaredField(fieldName);
                 fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
-            } catch (NoSuchFieldException e) {
+            } catch (NoSuchFieldException | NullPointerException e) {
                 config.makeInvalid();
                 ErrorLogger.customError(field.getDeclaringClass().getSimpleName() + "." + field
-                        .getName() + " was invalidated after key contained missing field.");
+                        .getName() + " was invalidated after key contained invalid field.");
                 return;
             }
         }
