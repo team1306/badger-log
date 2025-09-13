@@ -2,6 +2,7 @@ package badgerlog.processing;
 
 import badgerlog.Dashboard;
 import badgerlog.annotations.Entry;
+import badgerlog.annotations.EntryType;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.MockNTEntry;
@@ -24,44 +25,47 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Aspect("pertypewithin(*)")
+@Aspect("pertarget(get(@badgerlog.annotations.Entry * *) || set(@badgerlog.annotations.Entry * *))")
 public class FieldAspect {
-    private final Map<FieldData, NTEntry<?>> entries = new HashMap<>();
+    @Deprecated
+    private final Map<FieldData, EntryData> entries = new HashMap<>();
     
-    @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog.processing..*))")
+    @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*)")
     public void onlyRobotCode() {}
     
-    @Pointcut("initialization(*.new(..))")
+    @Deprecated
+    @Pointcut("execution(*.new(..))")
     public void newInitialization() {}
 
+    @Deprecated
     @Pointcut("staticinitialization(*)")
     public void staticInitialization() {}
     
-    @Pointcut("get(@badgerlog.annotations.Entry * *))")
+    @Pointcut("get(@badgerlog.annotations.Entry * *)")
     public void entryAccess(){}
     
     @Pointcut("set(@badgerlog.annotations.Entry * *)")
     public void entryUpdate(){}
     
+    @Deprecated
     @After("onlyRobotCode() && newInitialization()")
     public void createFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
-        Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class, true);
+        Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
         Arrays.stream(fields).forEach(field -> createFieldEntry(field, instance));
     }
     
-    @After("onlyRobotCode() && staticInitialization()")
-    public void createStaticFieldEntries(JoinPoint joinPoint){
-        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
-        Field[] fields = Fields.getFieldsWithAnnotation(clazz, Entry.class, false);
-        Arrays.stream(fields).forEach(field -> createFieldEntry(field, null));
-    }
-    
     private void createFieldEntry(Field field, Object instance){
+        @Deprecated
+        FieldData data = new FieldData(field.getName(), instance);
+        if(entries.containsKey(data)){
+            return;
+        }
         if (Fields.getFieldValue(field, instance) == null) {
             ErrorLogger.fieldError(field, "is an uninitialized field after construction");
             return;
         }
+        
         Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
         KeyParser.createKeyFromField(config, field, instance);
 
@@ -74,8 +78,8 @@ public class FieldAspect {
         Entry annotation = field.getAnnotation(Entry.class);
         
         switch (annotation.value()) {
-            case PUBLISHER, SUBSCRIBER -> {
-                entries.put(new FieldData(field.getName(), instance), entry);
+            case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
+                entries.put(data, new EntryData(entry, annotation.value()));
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
@@ -85,7 +89,11 @@ public class FieldAspect {
     @SneakyThrows
     @Around("onlyRobotCode() && entryAccess()")
     public Object getFieldEntry(ProceedingJoinPoint pjp){
-        NTEntry<?> entry = entries.get(new FieldData(pjp.getSignature().getName(), pjp.getTarget()));
+        EntryData data = entries.get(new FieldData(pjp.getSignature().getName(), pjp.getTarget()));
+        if (data == null || (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT)) {
+            return pjp.proceed();
+        }
+        NTEntry<?> entry = data.entry;
         return entry.retrieveValue();
     }
     
@@ -94,11 +102,16 @@ public class FieldAspect {
     @Around("onlyRobotCode() && entryUpdate()")
     public Object setFieldEntry(ProceedingJoinPoint pjp){
         Object arg = pjp.getArgs()[0];
-        NTEntry<Object> entry = (NTEntry<Object>) entries.get(new FieldData(pjp.getSignature().getName(), pjp.getTarget()));
+        EntryData data = entries.get(new FieldData(pjp.getSignature().getName(), pjp.getTarget()));
+        if (data == null || (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT)) {
+            return pjp.proceed(pjp.getArgs());
+        }
+        NTEntry<Object> entry = (NTEntry<Object>) data.entry;
         entry.publishValue(arg);
         
         return pjp.proceed(new Object[]{arg});
     }
     
     private record FieldData(String fieldName, Object instance){}
+    private record EntryData(NTEntry<?> entry, EntryType entryType){}
 }

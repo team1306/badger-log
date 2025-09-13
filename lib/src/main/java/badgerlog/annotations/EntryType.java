@@ -15,5 +15,6 @@ public enum EntryType {
     /**
      * Puts a Sendable value to NetworkTables
      */
-    SENDABLE
+    SENDABLE,
+    INTELLIGENT
 }
