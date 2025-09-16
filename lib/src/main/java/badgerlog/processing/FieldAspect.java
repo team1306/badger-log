@@ -27,19 +27,13 @@ import java.util.Map;
 
 @Aspect("pertarget(get(@badgerlog.annotations.Entry * *) || set(@badgerlog.annotations.Entry * *))")
 public class FieldAspect {
-    @Deprecated
-    private final Map<FieldData, EntryData> entries = new HashMap<>();
+    private final Map<String, EntryData> entries = new HashMap<>();
     
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*)")
     public void onlyRobotCode() {}
     
-    @Deprecated
     @Pointcut("execution(*.new(..))")
     public void newInitialization() {}
-
-    @Deprecated
-    @Pointcut("staticinitialization(*)")
-    public void staticInitialization() {}
     
     @Pointcut("get(@badgerlog.annotations.Entry * *)")
     public void entryAccess(){}
@@ -47,7 +41,6 @@ public class FieldAspect {
     @Pointcut("set(@badgerlog.annotations.Entry * *)")
     public void entryUpdate(){}
     
-    @Deprecated
     @After("onlyRobotCode() && newInitialization()")
     public void createFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
@@ -56,8 +49,8 @@ public class FieldAspect {
     }
     
     private void createFieldEntry(Field field, Object instance){
-        @Deprecated
-        FieldData data = new FieldData(field.getName(), instance);
+        String data = field.getName();
+        fieldMap.put(data, field);
         if(entries.containsKey(data)){
             return;
         }
@@ -86,13 +79,23 @@ public class FieldAspect {
         }
     }
     
+    private final Map<String, Field> fieldMap = new HashMap<>();
+    
     @SneakyThrows
     @Around("onlyRobotCode() && entryAccess()")
     public Object getFieldEntry(ProceedingJoinPoint pjp){
-        EntryData data = entries.get(new FieldData(pjp.getSignature().getName(), pjp.getTarget()));
-        if (data == null || (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT)) {
+        String name = pjp.getSignature().getName();
+        EntryData data = entries.get(name);
+        Field targetField = fieldMap.get(name);
+        
+        if(data == null || Fields.getFieldValue(targetField, pjp.getTarget()) == null){
             return pjp.proceed();
         }
+        
+        if (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT) {
+            return pjp.proceed();
+        }
+        
         NTEntry<?> entry = data.entry;
         return entry.retrieveValue();
     }
@@ -102,8 +105,15 @@ public class FieldAspect {
     @Around("onlyRobotCode() && entryUpdate()")
     public Object setFieldEntry(ProceedingJoinPoint pjp){
         Object arg = pjp.getArgs()[0];
-        EntryData data = entries.get(new FieldData(pjp.getSignature().getName(), pjp.getTarget()));
-        if (data == null || (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT)) {
+        String name = pjp.getSignature().getName();
+        EntryData data = entries.get(name);
+        Field targetField = fieldMap.get(name);
+        
+        if(data == null || Fields.getFieldValue(targetField, pjp.getTarget()) == null){
+            return pjp.proceed();
+        }
+        
+        if (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT) {
             return pjp.proceed(pjp.getArgs());
         }
         NTEntry<Object> entry = (NTEntry<Object>) data.entry;
@@ -112,6 +122,5 @@ public class FieldAspect {
         return pjp.proceed(new Object[]{arg});
     }
     
-    private record FieldData(String fieldName, Object instance){}
     private record EntryData(NTEntry<?> entry, EntryType entryType){}
 }
