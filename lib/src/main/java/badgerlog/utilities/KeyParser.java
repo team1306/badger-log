@@ -3,6 +3,7 @@ package badgerlog.utilities;
 import badgerlog.annotations.configuration.Configuration;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,21 +23,11 @@ public final class KeyParser {
     public static boolean hasFieldKey(String key){
         return !extractFieldNames(key).isEmpty();
     }
-
-    /**
-     * Creates a NetworkTables key from a field's definition. Uses the fields name and containing class for the key if
-     * not specifically defined by the field.
-     * Invalidates the configuration if the field format is invalid.
-     *
-     * @param config the configuration object to get the key and apply the key to
-     * @param field the field to generate the key from
-     * @param instance the instance used to reference the field
-     *
-     */
-    public static void createKeyFromField(Configuration config, Field field, Object instance) {
+    
+    public static void createKeyFromMember(Configuration config, Member member, Object instance) {
         String unparsedKey;
         if (config.getKey() == null || config.getKey().isBlank()) {
-            unparsedKey = field.getDeclaringClass().getSimpleName() + "/" + field.getName();
+            unparsedKey = member.getDeclaringClass().getSimpleName() + "/" + member.getName();
         } else {
             unparsedKey = config.getKey();
         }
@@ -55,7 +46,7 @@ public final class KeyParser {
                 fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException | NullPointerException e) {
                 config.makeInvalid();
-                ErrorLogger.customError(field.getDeclaringClass().getSimpleName() + "." + field
+                ErrorLogger.customError(member.getDeclaringClass().getSimpleName() + "." + member
                         .getName() + " was invalidated after key contained invalid field.");
                 return;
             }

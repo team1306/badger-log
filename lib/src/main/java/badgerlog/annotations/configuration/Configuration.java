@@ -7,7 +7,8 @@ import edu.wpi.first.util.struct.Struct;
 import lombok.Getter;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.util.HashMap;
 
 /**
@@ -121,22 +122,15 @@ public class Configuration {
         this.isValidConfiguration = false;
         return this;
     }
-
-    /**
-     * Creates a configuration object from field annotations using the annotation handlers.
-     *
-     * @param field the field to create the object from
-     *
-     * @return a configuration object from field annotations
-     */
-    public static Configuration createConfigurationFromFieldAnnotations(Field field) {
+    
+    public static <T extends Member & AnnotatedElement> Configuration createConfigurationFromAnnotations(T element) {
         Configuration config = new Configuration();
-        Annotation[] classAnnotations = field.getDeclaringClass().getAnnotations();
+        Annotation[] classAnnotations = element.getDeclaringClass().getAnnotations();
         for (Annotation annotation : classAnnotations) {
             handleAnnotation(annotation, config);
         }
         
-        Annotation[] annotations = field.getDeclaredAnnotations();
+        Annotation[] annotations = element.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);
         }

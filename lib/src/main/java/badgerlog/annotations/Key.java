@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Annotation to mark the configuration to use the specified key instead of generating one.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Key {
     /**
      * {@return the key to use instead of the generated one}

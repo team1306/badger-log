@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Annotation to allow the {@link UnitConversion} annotation to appear multiple times on a field.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.TYPE})
+@Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
 public @interface MultiUnitConversion {
     /**
      *
