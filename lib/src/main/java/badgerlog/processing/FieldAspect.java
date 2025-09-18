@@ -27,23 +27,23 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Aspect("pertarget(get(@badgerlog.annotations.Entry * *) || set(@badgerlog.annotations.Entry * *))")
+@Aspect("pertarget((entryAccess(badgerlog.annotations.Entry) || entryUpdate(badgerlog.annotations.Entry)) && onlyRobotCode())")
 public class FieldAspect {
-    private final Map<String, EntryData> entries = new HashMap<>();
+    private final Map<String, NTEntry<?>> entries = new HashMap<>();
     private static final Set<String> fullyProcessedFields = new HashSet<>();
     private final Map<String, Field> fieldMap = new HashMap<>();
     
-    @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*)")
+    @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
     public void onlyRobotCode() {}
     
     @Pointcut("execution(*.new(..))")
     public void newInitialization() {}
     
-    @Pointcut("get(@badgerlog.annotations.Entry * *)")
-    public void entryAccess(){}
+    @Pointcut("@annotation(entry) && get(* *)")
+    public void entryAccess(Entry entry){}
     
-    @Pointcut("set(@badgerlog.annotations.Entry * *)")
-    public void entryUpdate(){}
+    @Pointcut("@annotation(entry) && set(* *)")
+    public void entryUpdate(Entry entry){}
     
     @After("onlyRobotCode() && newInitialization()")
     public void createFieldEntries(JoinPoint joinPoint){
@@ -82,7 +82,7 @@ public class FieldAspect {
         
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
-                entries.put(data, new EntryData(entry, annotation.value()));
+                entries.put(data, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
@@ -90,44 +90,50 @@ public class FieldAspect {
     }
     
     @SneakyThrows
-    @Around("onlyRobotCode() && entryAccess()")
-    public Object getFieldEntry(ProceedingJoinPoint pjp){
+    @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
+    public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation){
         String name = pjp.getSignature().getName();
-        EntryData data = entries.get(name);
+        NTEntry<?> entry = entries.get(name);
         Field targetField = fieldMap.get(name);
+        EntryType entryType = annotation.value();
         
-        if(data == null || Fields.getFieldValue(targetField, pjp.getTarget()) == null){
+        if(entry == null || targetField == null){
             return pjp.proceed();
         }
         
-        if (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT) {
+        if(Fields.getFieldValue(targetField, pjp.getTarget()) == null){
             return pjp.proceed();
         }
         
-        NTEntry<?> entry = data.entry;
+        if (entryType != EntryType.SUBSCRIBER && entryType != EntryType.INTELLIGENT) {
+            return pjp.proceed();
+        }
+        
         return entry.retrieveValue();
     }
     
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    @Around("onlyRobotCode() && entryUpdate() && args(arg)")
-    public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg){
+    @Around(value = "onlyRobotCode() && entryUpdate(annotation) && args(arg)", argNames = "pjp, arg, annotation")
+    public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation){
         String name = pjp.getSignature().getName();
-        EntryData data = entries.get(name);
+        NTEntry<Object> entry = (NTEntry<Object>) entries.get(name);
         Field targetField = fieldMap.get(name);
-        
-        if(data == null || Fields.getFieldValue(targetField, pjp.getTarget()) == null){
-            return pjp.proceed();
-        }
-        
-        if (data.entryType != EntryType.PUBLISHER && data.entryType != EntryType.INTELLIGENT) {
+        EntryType entryType = annotation.value();
+
+        if(entry == null || targetField == null){
             return pjp.proceed(pjp.getArgs());
         }
-        NTEntry<Object> entry = (NTEntry<Object>) data.entry;
+        
+        if(Fields.getFieldValue(targetField, pjp.getTarget()) == null){
+            return pjp.proceed(pjp.getArgs());
+        }
+        
+        if (entryType != EntryType.PUBLISHER && entryType != EntryType.INTELLIGENT) {
+            return pjp.proceed(pjp.getArgs());
+        }
         entry.publishValue(arg);
         
         return pjp.proceed(new Object[]{arg});
     }
-    
-    private record EntryData(NTEntry<?> entry, EntryType entryType){}
 }
