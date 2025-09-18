@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id "com.diffplug.spotless" version "7.2.1"
+    id "com.diffplug.spotless" version "7.2.1"
 	id("io.freefair.lombok") version "8.12.2.1"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.+'
 	id 'maven-publish'
@@ -32,9 +32,10 @@ dependencies {
 
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 
-    implementation 'com.google.auto.service:auto-service:1.0-rc5'
-    
-	implementation "org.aspectj:aspectjrt:1.9.24"
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc5'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc5'    
+	
+    implementation "org.aspectj:aspectjrt:1.9.24"
 	runtimeOnly 'org.aspectj:aspectjweaver:1.9.24'
 
 	aspect 'org.aspectj:aspectjtools:1.9.24'

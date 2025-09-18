@@ -56,7 +56,7 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Entry.class)) {
             Entry annotation = element.getAnnotation(Entry.class);
-
+            
             switch (element.getKind()) {
                 case METHOD -> {
                     ExecutableElement method = (ExecutableElement) element;
@@ -134,6 +134,10 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
 
     private void validateField(TypeMirror sendableMirror, VariableElement field, Entry annotation) {
         Types typeUtils =  processingEnv.getTypeUtils();
+
+        if(field.getModifiers().contains(Modifier.STATIC)){
+            printMessage(field, Kind.ERROR, String.format("@Entry field '%s' must not be static", createElementName(field)));
+        }
         
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
