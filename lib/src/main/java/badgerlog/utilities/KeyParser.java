@@ -18,6 +18,10 @@ public final class KeyParser {
 
     private KeyParser() {
     }
+    
+    public static boolean hasFieldKey(String key){
+        return !extractFieldNames(key).isEmpty();
+    }
 
     /**
      * Creates a NetworkTables key from a field's definition. Uses the fields name and containing class for the key if

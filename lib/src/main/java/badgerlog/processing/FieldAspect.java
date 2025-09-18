@@ -23,11 +23,15 @@ import org.aspectj.lang.annotation.Pointcut;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Aspect("pertarget(get(@badgerlog.annotations.Entry * *) || set(@badgerlog.annotations.Entry * *))")
 public class FieldAspect {
     private final Map<String, EntryData> entries = new HashMap<>();
+    private static final Set<String> fullyProcessedFields = new HashSet<>();
+    private final Map<String, Field> fieldMap = new HashMap<>();
     
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*)")
     public void onlyRobotCode() {}
@@ -45,21 +49,27 @@ public class FieldAspect {
     public void createFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
-        Arrays.stream(fields).forEach(field -> createFieldEntry(field, instance));
+        Arrays.stream(fields)
+                .filter(field -> !fullyProcessedFields.contains(field.getName()))
+                .filter(field -> !entries.containsKey(field.getName()))
+                .forEach(field -> createFieldEntry(field, instance));
     }
     
     private void createFieldEntry(Field field, Object instance){
         String data = field.getName();
         fieldMap.put(data, field);
-        if(entries.containsKey(data)){
-            return;
-        }
+        
         if (Fields.getFieldValue(field, instance) == null) {
             ErrorLogger.fieldError(field, "is an uninitialized field after construction");
             return;
         }
         
         Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
+        
+        if(config.getKey() == null || !KeyParser.hasFieldKey(config.getKey())){
+            fullyProcessedFields.add(field.getName());
+        }
+        
         KeyParser.createKeyFromField(config, field, instance);
 
         if (!config.isValidConfiguration()) {
@@ -78,8 +88,6 @@ public class FieldAspect {
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
         }
     }
-    
-    private final Map<String, Field> fieldMap = new HashMap<>();
     
     @SneakyThrows
     @Around("onlyRobotCode() && entryAccess()")
@@ -102,9 +110,8 @@ public class FieldAspect {
     
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    @Around("onlyRobotCode() && entryUpdate()")
-    public Object setFieldEntry(ProceedingJoinPoint pjp){
-        Object arg = pjp.getArgs()[0];
+    @Around("onlyRobotCode() && entryUpdate() && args(arg)")
+    public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg){
         String name = pjp.getSignature().getName();
         EntryData data = entries.get(name);
         Field targetField = fieldMap.get(name);
@@ -113,7 +120,7 @@ public class FieldAspect {
             return pjp.proceed();
         }
         
-        if (data.entryType != EntryType.SUBSCRIBER && data.entryType != EntryType.INTELLIGENT) {
+        if (data.entryType != EntryType.PUBLISHER && data.entryType != EntryType.INTELLIGENT) {
             return pjp.proceed(pjp.getArgs());
         }
         NTEntry<Object> entry = (NTEntry<Object>) data.entry;
