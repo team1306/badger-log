@@ -113,20 +113,7 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
                             createElementName(method)));
                 }
             }
-            case SUBSCRIBER -> {
-                if (paramCount != 1) {
-                    printMessage(method, Kind.ERROR, String.format("Subscriber @Entry annotated method '%s()' must have exactly one parameters, found %d",
-                            createElementName(method), paramCount));
-                }
-                if (method.getReturnType().getKind() == TypeKind.VOID) {
-                    printMessage(method, Kind.WARNING, String.format("Subscriber @Entry annotated method '%s() should not return a value",
-                            createElementName(method)));
-                }
-                if(method.getParameters().size() == 1 && typeUtils.isSameType(method.getParameters().get(0).asType(), objectType)){
-                    printMessage(method, Kind.WARNING, String.format("Subscriber @Ebtry method '%s()' should have the final type and not object as a parameter", 
-                            createElementName(method)));
-                }
-            }
+            case SUBSCRIBER -> printMessage(method, Kind.ERROR, String.format("Subscriber @Entry method '%s()' cannot be a Subscriber", createElementName(method)));
             case SENDABLE -> printMessage(method, Kind.ERROR, String.format("Sendable @Entry method '%s()' cannot be a Sendable", createElementName(method)));
             case INTELLIGENT -> printMessage(method, Kind.ERROR, String.format("Intelligent @Entry method '%s()' should not use intelligent", createElementName(method)));
         }
