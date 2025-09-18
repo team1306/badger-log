@@ -40,13 +40,10 @@ public final class ValueEntry<T> implements NTEntry<T> {
         this.entry = Dashboard.defaultTable.getEntry(key).getTopic().getGenericEntry(networkTableType.getValueStr());
 
         publishValue(initialValue);
-        System.out.println(entry.get().getType());
     }
 
     @Override
     public void publishValue(T value) {
-        boolean valid = entry.isValid();
-        boolean exists = entry.exists();
         entry.setValue(fieldValueMapping.toNT(value, config));
     }
 
