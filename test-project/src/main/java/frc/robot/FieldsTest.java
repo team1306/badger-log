@@ -53,6 +53,7 @@ public class FieldsTest implements Testing {
 
     public FieldsTest(String descriptor) {
         this.descriptor = descriptor;
+        getBasicInteger();
     }
 
 
@@ -67,5 +68,10 @@ public class FieldsTest implements Testing {
         height = Millimeter.of(2).plus(height);
         rotation2d = Rotation2d.fromDegrees(1).plus(rotation2d);
         this.record = new CustomRecord(Math.random(), (int) (Math.random() * 4 + 2));
+    }
+    
+    @Entry(EntryType.PUBLISHER)
+    private double getBasicInteger(){
+        return basicInteger * 0.333f;
     }
 }
