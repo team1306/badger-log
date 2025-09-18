@@ -56,21 +56,21 @@ public class FieldAspect {
     }
     
     private void createFieldEntry(Field field, Object instance){
-        String data = field.getName();
-        fieldMap.put(data, field);
+        String name = field.getName();
+        fieldMap.put(name, field);
         
         if (Fields.getFieldValue(field, instance) == null) {
             ErrorLogger.fieldError(field, "is an uninitialized field after construction");
             return;
         }
         
-        Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
+        Configuration config = Configuration.createConfigurationFromAnnotations(field);
         
         if(config.getKey() == null || !KeyParser.hasFieldKey(config.getKey())){
-            fullyProcessedFields.add(field.getName());
+            fullyProcessedFields.add(name);
         }
         
-        KeyParser.createKeyFromField(config, field, instance);
+        KeyParser.createKeyFromMember(config, field, instance);
 
         if (!config.isValidConfiguration()) {
             ErrorLogger.fieldError(field, "had an invalid configuration created");
@@ -82,7 +82,7 @@ public class FieldAspect {
         
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
-                entries.put(data, entry);
+                entries.put(name, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
