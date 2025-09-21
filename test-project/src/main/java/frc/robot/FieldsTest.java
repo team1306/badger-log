@@ -17,7 +17,7 @@ import static edu.wpi.first.units.Units.Millimeter;
 public class FieldsTest implements Testing {
 
     @Entry(EntryType.PUBLISHER)
-    public int basicInteger = 1;
+    public static int basicInteger = 1;
 
     @Entry(EntryType.SUBSCRIBER)
     @Key("Auto/AutoWaitTime")
@@ -64,7 +64,7 @@ public class FieldsTest implements Testing {
 
     @Override
     public void update() {
-        basicInteger ++;
+//        basicInteger ++;
         height = Millimeter.of(2).plus(height);
         rotation2d = Rotation2d.fromDegrees(1).plus(rotation2d);
         this.record = new CustomRecord(Math.random(), (int) (Math.random() * 4 + 2));

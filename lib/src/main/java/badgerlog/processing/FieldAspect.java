@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Aspect("pertarget((entryAccess(badgerlog.annotations.Entry) || entryUpdate(badgerlog.annotations.Entry)) && onlyRobotCode())")
+@Aspect
 public class FieldAspect {
     private final Map<String, NTEntry<?>> entries = new HashMap<>();
     private static final Set<String> fullyProcessedFields = new HashSet<>();

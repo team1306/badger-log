@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-@Aspect("pertarget(getterMethodExecution(badgerlog.annotations.Entry) && onlyRobotCode())")
+@Aspect
 public class MethodAspect {
     private static final Set<String> fullyProcessedMethods = new HashSet<>();
     
