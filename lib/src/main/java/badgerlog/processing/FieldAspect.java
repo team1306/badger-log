@@ -21,16 +21,16 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Aspect
 public class FieldAspect {
-    private final Map<String, NTEntry<?>> entries = new HashMap<>();
-    private static final Set<String> fullyProcessedFields = new HashSet<>();
+    //todo needs class as a key as well -- for specifically static block and stuff
+    private final Map<Class<?>, Map<Object, Map<String, NTEntry<?>>>> entries = new HashMap<>();
+    //todo needs class as a key as well -- maybe merge with entries
     private final Map<String, Field> fieldMap = new HashMap<>();
     
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
@@ -45,13 +45,25 @@ public class FieldAspect {
     @Pointcut("@annotation(entry) && set(* *)")
     public void entryUpdate(Entry entry){}
     
+    @After("staticinitialization(*) && onlyRobotCode()")
+    public void createStaticFieldEntries(JoinPoint joinPoint){
+        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        entries.put(null, new HashMap<>());
+
+        Field[] fields = Fields.getFieldsWithAnnotation(clazz, Entry.class);
+        Arrays.stream(fields)
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .forEach(field -> createFieldEntry(field, null));
+    }
+    
     @After("onlyRobotCode() && newInitialization()")
-    public void createFieldEntries(JoinPoint joinPoint){
+    public void createInstanceFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
+        entries.put(instance, new HashMap<>());
+        
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
         Arrays.stream(fields)
-                .filter(field -> !fullyProcessedFields.contains(field.getName()))
-                .filter(field -> !entries.containsKey(field.getName()))
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
                 .forEach(field -> createFieldEntry(field, instance));
     }
     
@@ -60,14 +72,14 @@ public class FieldAspect {
         fieldMap.put(name, field);
         
         if (Fields.getFieldValue(field, instance) == null) {
-            ErrorLogger.fieldError(field, "is an uninitialized field after construction");
+            ErrorLogger.fieldError(field, "is an uninitialized field");
             return;
         }
         
         Configuration config = Configuration.createConfigurationFromAnnotations(field);
         
         if(config.getKey() == null || !KeyParser.hasFieldKey(config.getKey())){
-            fullyProcessedFields.add(name);
+            //warning instead
         }
         
         KeyParser.createKeyFromMember(config, field, instance);
@@ -82,7 +94,7 @@ public class FieldAspect {
         
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
-                entries.put(name, entry);
+                entries.get(instance).put(name, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
@@ -93,7 +105,8 @@ public class FieldAspect {
     @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
     public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation){
         String name = pjp.getSignature().getName();
-        NTEntry<?> entry = entries.get(name);
+        //todo add null check
+        NTEntry<?> entry = entries.get(pjp.getTarget()).get(name);
         Field targetField = fieldMap.get(name);
         EntryType entryType = annotation.value();
         
@@ -117,7 +130,8 @@ public class FieldAspect {
     @Around(value = "onlyRobotCode() && entryUpdate(annotation) && args(arg)", argNames = "pjp, arg, annotation")
     public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation){
         String name = pjp.getSignature().getName();
-        NTEntry<Object> entry = (NTEntry<Object>) entries.get(name);
+        //todo add null check
+        NTEntry<Object> entry = (NTEntry<Object>) entries.get(pjp.getTarget()).get(name);
         Field targetField = fieldMap.get(name);
         EntryType entryType = annotation.value();
 
