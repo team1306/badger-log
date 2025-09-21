@@ -25,6 +25,11 @@ public class Configuration {
      * {@return the key on NetworkTables}
      */
     private String key = null;
+
+    /**
+     * {@return the table on NetworkTables}
+     */
+    private String table = null;
     /**
      * {@return the struct publishing option}
      */
@@ -120,6 +125,11 @@ public class Configuration {
      */
     public Configuration makeInvalid() {
         this.isValidConfiguration = false;
+        return this;
+    }
+    
+    public Configuration withTable(String table){
+        this.table = table;
         return this;
     }
     
