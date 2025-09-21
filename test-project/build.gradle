@@ -93,6 +93,15 @@ dependencies {
     annotationProcessor files("../lib/build/libs/lib.jar")
 }
 
+tasks.register('simulate') {
+    dependsOn('buildLib', 'simulateJava')
+}
+
+tasks.register('buildLib', GradleBuild) {
+    dir = '../lib'
+    tasks = ['build']
+}
+
 sourceSets {
     files("../lib/build/libs/lib-sources.jar")
 }
