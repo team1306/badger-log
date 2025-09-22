@@ -24,14 +24,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 @Aspect
 public class FieldAspect {
     //todo needs class as a key as well -- for specifically static block and stuff
-    private final Map<Class<?>, Map<Object, Map<String, NTEntry<?>>>> entries = new HashMap<>();
-    //todo needs class as a key as well -- maybe merge with entries
-    private final Map<String, Field> fieldMap = new HashMap<>();
+    private final Entries entries = new Entries(new HashMap<>());
     
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
     public void onlyRobotCode() {}
@@ -48,8 +45,8 @@ public class FieldAspect {
     @After("staticinitialization(*) && onlyRobotCode()")
     public void createStaticFieldEntries(JoinPoint joinPoint){
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
-        entries.put(null, new HashMap<>());
-
+        entries.put(clazz, new ClassData(new HashMap<>(), new HashMap<>()));
+        
         Field[] fields = Fields.getFieldsWithAnnotation(clazz, Entry.class);
         Arrays.stream(fields)
                 .filter(field -> Modifier.isStatic(field.getModifiers()))
@@ -59,7 +56,7 @@ public class FieldAspect {
     @After("onlyRobotCode() && newInitialization()")
     public void createInstanceFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
-        entries.put(instance, new HashMap<>());
+        entries.put(instance.getClass(), new ClassData(new HashMap<>(), new HashMap<>()));
         
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
         Arrays.stream(fields)
@@ -68,8 +65,9 @@ public class FieldAspect {
     }
     
     private void createFieldEntry(Field field, Object instance){
+        Class<?> clazz = field.getDeclaringClass();
         String name = field.getName();
-        fieldMap.put(name, field);
+        entries.getClassData(clazz).addField(field);
         
         if (Fields.getFieldValue(field, instance) == null) {
             ErrorLogger.fieldError(field, "is an uninitialized field");
@@ -94,7 +92,7 @@ public class FieldAspect {
         
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
-                entries.get(instance).put(name, entry);
+                entries.getInstanceEntries(clazz, instance).addEntry(name, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));

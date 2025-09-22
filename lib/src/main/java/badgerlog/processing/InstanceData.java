@@ -1,0 +1,11 @@
+package badgerlog.processing;
+
+import badgerlog.networktables.NTEntry;
+
+import java.util.Map;
+
+public record InstanceData(Map<String, NTEntry<?>> entries) {
+    public void addEntry(String name, NTEntry<?> entry) {
+        entries.put(name, entry);
+    }
+}
