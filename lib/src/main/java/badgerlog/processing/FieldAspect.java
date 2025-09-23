@@ -27,7 +27,6 @@ import java.util.HashMap;
 
 @Aspect
 public class FieldAspect {
-    //todo needs class as a key as well -- for specifically static block and stuff
     private final Entries entries = new Entries(new HashMap<>());
     
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
@@ -42,26 +41,13 @@ public class FieldAspect {
     @Pointcut("@annotation(entry) && set(* *)")
     public void entryUpdate(Entry entry){}
     
-    @After("staticinitialization(*) && onlyRobotCode()")
-    public void createStaticFieldEntries(JoinPoint joinPoint){
-        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
-        entries.put(clazz, new ClassData(new HashMap<>(), new HashMap<>()));
-        
-        Field[] fields = Fields.getFieldsWithAnnotation(clazz, Entry.class);
-        Arrays.stream(fields)
-                .filter(field -> Modifier.isStatic(field.getModifiers()))
-                .forEach(field -> createFieldEntry(field, null));
-    }
-    
     @After("onlyRobotCode() && newInitialization()")
     public void createInstanceFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
         entries.put(instance.getClass(), new ClassData(new HashMap<>(), new HashMap<>()));
         
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
-        Arrays.stream(fields)
-                .filter(field -> !Modifier.isStatic(field.getModifiers()))
-                .forEach(field -> createFieldEntry(field, instance));
+        Arrays.stream(fields).forEach(field -> createFieldEntry(field, instance));
     }
     
     private void createFieldEntry(Field field, Object instance){
@@ -76,8 +62,13 @@ public class FieldAspect {
         
         Configuration config = Configuration.createConfigurationFromAnnotations(field);
         
-        if(config.getKey() == null || !KeyParser.hasFieldKey(config.getKey())){
-            //warning instead
+        if(config.getKey() == null){
+            ErrorLogger.fieldError(field, "has a missing key");
+            return;
+        }
+        
+        if(!KeyParser.hasFieldKey(config.getKey())){
+            // add instantiation order check
         }
         
         KeyParser.createKeyFromMember(config, field, instance);
@@ -92,7 +83,7 @@ public class FieldAspect {
         
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
-                entries.getInstanceEntries(clazz, instance).addEntry(name, entry);
+                entries.getInstanceEntries(clazz, Modifier.isStatic(field.getModifiers()) ? null : instance).addEntry(name, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
@@ -102,50 +93,64 @@ public class FieldAspect {
     @SneakyThrows
     @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
     public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation){
-        String name = pjp.getSignature().getName();
-        //todo add null check
-        NTEntry<?> entry = entries.get(pjp.getTarget()).get(name);
-        Field targetField = fieldMap.get(name);
         EntryType entryType = annotation.value();
-        
-        if(entry == null || targetField == null){
-            return pjp.proceed();
-        }
-        
-        if(Fields.getFieldValue(targetField, pjp.getTarget()) == null){
-            return pjp.proceed();
-        }
-        
         if (entryType != EntryType.SUBSCRIBER && entryType != EntryType.INTELLIGENT) {
             return pjp.proceed();
         }
+
+        String name = pjp.getSignature().getName();
+        Class<?> containingClass = pjp.getSignature().getDeclaringType();
+        Object target = pjp.getTarget();
+
+        NTEntry<?> entry = createNetworkTableEntry(name, containingClass, target);
+        Field targetField = entries.getFieldMap(containingClass).get(name);
+
+        if(entry == null || targetField == null){
+            return pjp.proceed(pjp.getArgs());
+        }
         
-        return entry.retrieveValue();
+        Object value = entry.retrieveValue();
+        Fields.setFieldValue(pjp.getTarget(), targetField, value);
+        return value;
     }
     
     @SuppressWarnings("unchecked")
     @SneakyThrows
     @Around(value = "onlyRobotCode() && entryUpdate(annotation) && args(arg)", argNames = "pjp, arg, annotation")
     public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation){
-        String name = pjp.getSignature().getName();
-        //todo add null check
-        NTEntry<Object> entry = (NTEntry<Object>) entries.get(pjp.getTarget()).get(name);
-        Field targetField = fieldMap.get(name);
         EntryType entryType = annotation.value();
+        if (entryType != EntryType.PUBLISHER && entryType != EntryType.INTELLIGENT) {
+            return pjp.proceed(pjp.getArgs());
+        }
+
+        String name = pjp.getSignature().getName();
+        Class<?> containingClass = pjp.getSignature().getDeclaringType();
+        Object target = pjp.getTarget();
+        
+        NTEntry<Object> entry = (NTEntry<Object>) createNetworkTableEntry(name, containingClass, target);
+        Field targetField = entries.getFieldMap(containingClass).get(name);
 
         if(entry == null || targetField == null){
             return pjp.proceed(pjp.getArgs());
         }
         
-        if(Fields.getFieldValue(targetField, pjp.getTarget()) == null){
+        if(Fields.getFieldValue(targetField, target) == null){
+            ErrorLogger.customError(String.format("Field %s was null when it should not have been", pjp.getSignature().getName()));
             return pjp.proceed(pjp.getArgs());
         }
         
-        if (entryType != EntryType.PUBLISHER && entryType != EntryType.INTELLIGENT) {
-            return pjp.proceed(pjp.getArgs());
-        }
         entry.publishValue(arg);
         
         return pjp.proceed(new Object[]{arg});
+    }
+    
+    private NTEntry<?> createNetworkTableEntry(String name, Class<?> containingClass, Object target){
+        InstanceData instanceData = entries.getInstanceEntries(containingClass, target);
+
+        if(instanceData == null){
+            ErrorLogger.customError(String.format("Instance data for %s was not found", containingClass.getSimpleName()));
+            return null;
+        }
+        return instanceData.getEntry(name);
     }
 }

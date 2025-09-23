@@ -8,4 +8,8 @@ public record InstanceData(Map<String, NTEntry<?>> entries) {
     public void addEntry(String name, NTEntry<?> entry) {
         entries.put(name, entry);
     }
+    
+    public NTEntry<?> getEntry(String name) {
+        return entries.get(name);
+    }
 }
