@@ -44,7 +44,8 @@ public class FieldAspect {
     @After("onlyRobotCode() && newInitialization()")
     public void createInstanceFieldEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
-        entries.put(instance.getClass(), new ClassData(new HashMap<>(), new HashMap<>()));
+        entries.addInstance(instance.getClass(), instance);
+        entries.addInstance(instance.getClass(), null);
         
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
         Arrays.stream(fields).forEach(field -> createFieldEntry(field, instance));
@@ -62,17 +63,17 @@ public class FieldAspect {
         
         Configuration config = Configuration.createConfigurationFromAnnotations(field);
         
+        KeyParser.createKeyFromMember(config, field, instance);
+
         if(config.getKey() == null){
             ErrorLogger.fieldError(field, "has a missing key");
             return;
         }
-        
+
         if(!KeyParser.hasFieldKey(config.getKey())){
             // add instantiation order check
         }
         
-        KeyParser.createKeyFromMember(config, field, instance);
-
         if (!config.isValidConfiguration()) {
             ErrorLogger.fieldError(field, "had an invalid configuration created");
             return;
@@ -102,15 +103,14 @@ public class FieldAspect {
         Class<?> containingClass = pjp.getSignature().getDeclaringType();
         Object target = pjp.getTarget();
 
-        NTEntry<?> entry = createNetworkTableEntry(name, containingClass, target);
-        Field targetField = entries.getFieldMap(containingClass).get(name);
+        FieldEntryData entryData = createFieldData(name, containingClass, target);
 
-        if(entry == null || targetField == null){
-            return pjp.proceed(pjp.getArgs());
+        if(!entryData.valid()){
+            return pjp.proceed();
         }
-        
-        Object value = entry.retrieveValue();
-        Fields.setFieldValue(pjp.getTarget(), targetField, value);
+
+        Object value = entryData.entry().retrieveValue();
+        Fields.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
         return value;
     }
     
@@ -127,30 +127,48 @@ public class FieldAspect {
         Class<?> containingClass = pjp.getSignature().getDeclaringType();
         Object target = pjp.getTarget();
         
-        NTEntry<Object> entry = (NTEntry<Object>) createNetworkTableEntry(name, containingClass, target);
-        Field targetField = entries.getFieldMap(containingClass).get(name);
+        FieldEntryData entryData = createFieldData(name, containingClass, target);
 
-        if(entry == null || targetField == null){
+        if(!entryData.valid()){
             return pjp.proceed(pjp.getArgs());
         }
         
-        if(Fields.getFieldValue(targetField, target) == null){
+        if(Fields.getFieldValue(entryData.targetField(), target) == null){
             ErrorLogger.customError(String.format("Field %s was null when it should not have been", pjp.getSignature().getName()));
             return pjp.proceed(pjp.getArgs());
         }
-        
+
+        NTEntry<Object> entry = (NTEntry<Object>) entryData.entry();
         entry.publishValue(arg);
         
         return pjp.proceed(new Object[]{arg});
     }
     
-    private NTEntry<?> createNetworkTableEntry(String name, Class<?> containingClass, Object target){
-        InstanceData instanceData = entries.getInstanceEntries(containingClass, target);
-
-        if(instanceData == null){
-            ErrorLogger.customError(String.format("Instance data for %s was not found", containingClass.getSimpleName()));
-            return null;
+    private FieldEntryData createFieldData(String name, Class<?> containingClass, Object target) {
+        ClassData data = entries.getClassData(containingClass);
+        if(data == null) {
+            return new FieldEntryData(false, null, null);
         }
-        return instanceData.getEntry(name);
+
+        InstanceData instanceData = data.instanceEntries().get(target);
+        Field field = data.fieldMap().get(name);
+        
+        if (instanceData == null) {
+            return new FieldEntryData(false, null, null);
+        }
+        
+        if(field == null) {
+            return new FieldEntryData(false, null, null);
+        }
+        
+        NTEntry<?> entry = instanceData.getEntry(name);
+        
+        if(entry == null) {
+            return new FieldEntryData(false, null, null);
+        }
+        
+        return new FieldEntryData(true, entry, field);
     }
+
+    private record FieldEntryData(boolean valid, NTEntry<?> entry, Field targetField) {}
 }
