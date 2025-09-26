@@ -1,17 +1,11 @@
 package badgerlog.utilities;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 
 public class ErrorLogger {
-    public static void methodError(Method method, String message){
+    public static void memberError(Member method, String message){
         System.err.println(method.getDeclaringClass().getSimpleName() + "." + method
                 .getName() + "() " + message + ".\nSKIPPING\n");
-    }
-    
-    public static void fieldError(Field field, String message){
-        System.err.println(field.getDeclaringClass().getSimpleName() + "." + field
-                .getName() + " " + message + ".\nSKIPPING\n");
     }
     
     public static void normalError(String message){
