@@ -6,6 +6,7 @@ import badgerlog.annotations.EntryType;
 import badgerlog.annotations.Key;
 import badgerlog.annotations.Struct;
 import badgerlog.annotations.StructType;
+import badgerlog.annotations.Table;
 import badgerlog.annotations.UnitConversion;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,7 +21,8 @@ public class FieldsTest implements Testing {
     public static int basicInteger = 1;
 
     @Entry(EntryType.SUBSCRIBER)
-    @Key("Auto/AutoWaitTime")
+    @Table("Auto")
+    @Key("AutoWaitTime")
     public double waitTime = 0;
 
     @Entry(EntryType.SUBSCRIBER)
