@@ -51,7 +51,7 @@ public class EventAspect {
 
     private void delegateEventMethod(Method method, Object workingClass){
         if(method.isAnnotationPresent(Watcher.class) && method.isAnnotationPresent(Interceptor.class)) {
-            ErrorLogger.methodError(method, "is annotated with @Watcher and @Interceptor. When it can only be annotated with one");
+            ErrorLogger.memberError(method, "is annotated with @Watcher and @Interceptor. When it can only be annotated with one");
             return;
         }
 
