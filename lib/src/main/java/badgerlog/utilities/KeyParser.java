@@ -20,17 +20,38 @@ public final class KeyParser {
     private KeyParser() {
     }
     
-    public static boolean hasFieldKey(String key){
-        return !extractFieldNames(key).isEmpty();
+    public static boolean missingFieldKey(String key){
+        return extractFieldNames(key).isEmpty();
     }
     
-    public static void createKeyFromMember(Configuration config, Member member, Object instance) {
-        String unparsedKey;
-        if (config.getKey() == null || config.getKey().isBlank()) {
-            unparsedKey = member.getDeclaringClass().getSimpleName() + "/" + member.getName();
-        } else {
-            unparsedKey = config.getKey();
+    public static void createKeyFromMember(Configuration config, Member member, Object instance, int instanceCount) {
+        String existingTableName = config.getTable();
+        String existingKeyName = config.getKey();
+        
+        StringBuilder keyBuilder = new StringBuilder();
+        
+        if(existingTableName == null){
+            keyBuilder.append(member.getDeclaringClass().getSimpleName());
         }
+        keyBuilder.append("/");
+        
+        if(existingKeyName == null || existingKeyName.isBlank()){
+            keyBuilder.append(member.getName());
+        }
+        else{
+            keyBuilder.append(existingKeyName);   
+        }
+        
+        if(instanceCount > 1 && missingFieldKey(keyBuilder.toString())){
+            int beforeKey = keyBuilder.indexOf("/");
+            if(beforeKey == -1){
+                keyBuilder.append(instanceCount);
+            }
+            else{
+                keyBuilder.insert(beforeKey, instanceCount);
+            }
+        }
+        String unparsedKey = keyBuilder.toString();
 
         config.withKey(unparsedKey);
 

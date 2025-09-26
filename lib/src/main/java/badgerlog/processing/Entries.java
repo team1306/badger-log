@@ -19,7 +19,7 @@ public record Entries(Map<Class<?>, ClassData> classDataMap) {
         if(classData == null) {
             return new InstanceData(new HashMap<>());
         }
-        return classData.instanceEntries().get(instance);
+        return classData.getInstanceEntries().get(instance);
     }
     
     public void addInstance(Class<?> clazz, Object instance) {
@@ -29,10 +29,14 @@ public record Entries(Map<Class<?>, ClassData> classDataMap) {
             classDataMap.put(clazz, classData);
         }
         
-        classData.instanceEntries().put(instance, new InstanceData(new HashMap<>()));
+        classData.getInstanceEntries().putIfAbsent(instance, new InstanceData(new HashMap<>()));
+        
+        if(instance != null){
+            classData.incrementInstanceCount();
+        }
     }
     
     public Map<String, Field> getFieldMap(Class<?> type) {
-        return Map.copyOf(classDataMap.get(type).fieldMap());
+        return Map.copyOf(classDataMap.get(type).getFieldMap());
     }
 }
