@@ -7,10 +7,12 @@ import badgerlog.annotations.configuration.Configuration;
 import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.MockNTEntry;
 import badgerlog.networktables.NTEntry;
+import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
 import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Fields;
 import badgerlog.utilities.KeyParser;
+import badgerlog.utilities.Methods;
 import edu.wpi.first.util.sendable.Sendable;
 import lombok.SneakyThrows;
 import org.aspectj.lang.JoinPoint;
@@ -20,13 +22,16 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 
 @Aspect
-public class FieldAspect {
+public class EntryAspect {
     private final Entries entries = new Entries(new HashMap<>());
     
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
@@ -40,6 +45,9 @@ public class FieldAspect {
     
     @Pointcut("@annotation(entry) && set(* *)")
     public void entryUpdate(Entry entry){}
+
+    @Pointcut("@annotation(entry) && execution(* *()) && !execution(void *())")
+    public void getterMethodExecution(Entry entry) {} 
     
     @After("onlyRobotCode() && newInitialization()")
     public void createInstanceFieldEntries(JoinPoint joinPoint){
@@ -49,7 +57,26 @@ public class FieldAspect {
         
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
         Arrays.stream(fields).forEach(field -> createFieldEntry(field, instance));
+        
+        Method[] methods = Methods.getMethodsWithAnnotation(instance.getClass(), Entry.class);
+        Arrays.stream(methods).forEach(method -> createMethodEntry(method, instance));
     }
+    
+    private <T extends Member & AnnotatedElement> Configuration createConfigurationFromMember(T member, Object instance) {
+        Class<?> clazz = member.getDeclaringClass();
+
+        Configuration config = Configuration.createConfigurationFromAnnotations(member);
+
+        KeyParser.createKeyFromMember(config, member, instance, entries.getClassData(clazz).getInstanceCount());
+
+        if(config.getKey() == null){
+            ErrorLogger.memberError(member, "has a missing key");
+            return config.makeInvalid();
+        }
+        
+        return config;
+    }
+    
     
     private void createFieldEntry(Field field, Object instance){
         Class<?> clazz = field.getDeclaringClass();
@@ -57,25 +84,14 @@ public class FieldAspect {
         entries.getClassData(clazz).addField(field);
         
         if (Fields.getFieldValue(field, instance) == null) {
-            ErrorLogger.fieldError(field, "is an uninitialized field");
+            ErrorLogger.memberError(field, "is an uninitialized field");
             return;
         }
         
-        Configuration config = Configuration.createConfigurationFromAnnotations(field);
-        
-        KeyParser.createKeyFromMember(config, field, instance);
-
-        if(config.getKey() == null){
-            ErrorLogger.fieldError(field, "has a missing key");
-            return;
-        }
-
-        if(!KeyParser.hasFieldKey(config.getKey())){
-            // add instantiation order check
-        }
+        Configuration config = createConfigurationFromMember(field, instance);
         
         if (!config.isValidConfiguration()) {
-            ErrorLogger.fieldError(field, "had an invalid configuration created");
+            ErrorLogger.memberError(field, "had an invalid configuration created");
             return;
         }
 
@@ -89,6 +105,23 @@ public class FieldAspect {
             }
             case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance)));
         }
+    }
+    
+    private void createMethodEntry(Method method, Object instance){
+        if (method.getAnnotation(Entry.class).value() != EntryType.PUBLISHER) {
+            ErrorLogger.memberError(method, "cannot be a non-publisher entry");
+            return;
+        }
+        
+        Configuration config = createConfigurationFromMember(method, instance);
+
+        if (!config.isValidConfiguration()) {
+            ErrorLogger.memberError(method, "had an invalid configuration created");
+            return;
+        }
+        
+        NTEntry<Object> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Methods.invokeMethod(method, instance), config);
+        Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Methods.invokeMethod(method, instance)));
     }
     
     @SneakyThrows
@@ -150,8 +183,8 @@ public class FieldAspect {
             return new FieldEntryData(false, null, null);
         }
 
-        InstanceData instanceData = data.instanceEntries().get(target);
-        Field field = data.fieldMap().get(name);
+        InstanceData instanceData = data.getInstanceEntries().get(target);
+        Field field = data.getFieldMap().get(name);
         
         if (instanceData == null) {
             return new FieldEntryData(false, null, null);
