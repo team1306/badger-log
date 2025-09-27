@@ -16,7 +16,7 @@ public class Robot extends TimedRobot {
     private List<Testing> testingList;
     
     public Robot() {
-        testingList = List.of(new ComplexTest(), new MethodsTest(), new FieldsTest("fieldsInitial"), new FieldsTest("fieldsFinal"));
+        testingList = List.of(new ComplexTest(), new MethodsTest(), new FieldsTest("fieldsInitial"), new FieldsTest("fieldsFinal"), new ClassTest());
     }
 
     @Override
