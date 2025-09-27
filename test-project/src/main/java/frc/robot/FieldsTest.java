@@ -15,13 +15,13 @@ import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Millimeter;
 
+@Table("Auto - {descriptor}")
 public class FieldsTest implements Testing {
 
     @Entry(EntryType.PUBLISHER)
     public static int basicInteger = 1;
 
     @Entry(EntryType.SUBSCRIBER)
-    @Table("Auto")
     @Key("AutoWaitTime")
     public double waitTime = 0;
 

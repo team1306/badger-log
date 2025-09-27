@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,10 +30,9 @@ public final class KeyParser {
         String existingKeyName = config.getKey();
         
         StringBuilder keyBuilder = new StringBuilder();
-        
-        if(existingTableName == null){
-            keyBuilder.append(member.getDeclaringClass().getSimpleName());
-        }
+
+        String newTable = Objects.requireNonNullElseGet(existingTableName, () -> member.getDeclaringClass().getSimpleName());
+        keyBuilder.append(newTable);
         keyBuilder.append("/");
         
         if(existingKeyName == null || existingKeyName.isBlank()){

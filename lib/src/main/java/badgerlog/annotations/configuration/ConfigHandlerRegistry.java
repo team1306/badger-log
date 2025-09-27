@@ -4,6 +4,7 @@ import badgerlog.annotations.AutoGenerateStruct;
 import badgerlog.annotations.Key;
 import badgerlog.annotations.MultiUnitConversion;
 import badgerlog.annotations.Struct;
+import badgerlog.annotations.Table;
 import badgerlog.annotations.UnitConversion;
 
 import java.lang.annotation.Annotation;
@@ -22,6 +23,7 @@ public final class ConfigHandlerRegistry {
         registerHandler(MultiUnitConversion.class, new MultiUnitConversionHandler());
         registerHandler(Key.class, new KeyHandler());
         registerHandler(AutoGenerateStruct.class, new AutoGenerateStructHandler());
+        registerHandler(Table.class, new TableHandler());
     }
 
     private ConfigHandlerRegistry() {
