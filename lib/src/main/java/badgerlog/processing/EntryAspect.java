@@ -3,6 +3,7 @@ package badgerlog.processing;
 import badgerlog.Dashboard;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
+import badgerlog.annotations.NoEntry;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.MockNTEntry;
@@ -46,6 +47,12 @@ public class EntryAspect {
     @Pointcut("@annotation(entry) && set(* *)")
     public void entryUpdate(Entry entry){}
 
+    @Pointcut("!@annotation(badgerlog.annotations.Entry) && get(!final * (@badgerlog.annotations.Entry *).*)")
+    public void entryAccessInEntryClass() {}
+
+    @Pointcut("!@annotation(badgerlog.annotations.Entry) && set(!final * (@badgerlog.annotations.Entry *).*)")
+    public void entryUpdateInEntryClass() {}
+
     @Pointcut("@annotation(entry) && execution(* *()) && !execution(void *())")
     public void getterMethodExecution(Entry entry) {} 
     
@@ -60,6 +67,16 @@ public class EntryAspect {
         
         Method[] methods = Methods.getMethodsWithAnnotation(instance.getClass(), Entry.class);
         Arrays.stream(methods).forEach(method -> createMethodEntry(method, instance));
+        
+        if(instance.getClass().isAnnotationPresent(Entry.class)) {
+            Field[] allFields = instance.getClass().getFields();
+            Arrays.stream(allFields)
+                    .filter(field -> !Arrays.asList(fields).contains(field))
+                    .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                    .filter(field -> !Modifier.isFinal(field.getModifiers()))
+                    .filter(field -> !field.isAnnotationPresent(NoEntry.class))
+                    .forEach(field -> createFieldEntry(field, instance));
+        }
     }
     
     private <T extends Member & AnnotatedElement> Configuration createConfigurationFromMember(T member, Object instance) {
@@ -102,6 +119,10 @@ public class EntryAspect {
         NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
         
+        if(annotation == null){
+            annotation = instance.getClass().getAnnotation(Entry.class);
+        }
+        
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
                 entries.getInstanceEntries(clazz, Modifier.isStatic(field.getModifiers()) ? null : instance).addEntry(name, entry);
@@ -128,7 +149,7 @@ public class EntryAspect {
         Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Methods.invokeMethod(method, instance)));
     }
     
-    @SneakyThrows
+    @SneakyThrows(Throwable.class)
     @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
     public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation){
         EntryType entryType = annotation.value();
@@ -152,7 +173,7 @@ public class EntryAspect {
     }
     
     @SuppressWarnings("unchecked")
-    @SneakyThrows
+    @SneakyThrows(Throwable.class)
     @Around(value = "onlyRobotCode() && entryUpdate(annotation) && args(arg)", argNames = "pjp, arg, annotation")
     public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation){
         EntryType entryType = annotation.value();
@@ -179,6 +200,20 @@ public class EntryAspect {
         entry.publishValue(arg);
         
         return pjp.proceed(new Object[]{arg});
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Around("onlyRobotCode() && entryUpdateInEntryClass() && args(arg)")
+    public Object setClassFieldEntry(ProceedingJoinPoint pjp, Object arg){
+        Entry annotation = (Entry) pjp.getSignature().getDeclaringType().getAnnotation(Entry.class);
+        return setFieldEntry(pjp, arg, annotation);  
+    }
+
+    @SuppressWarnings("unchecked")
+    @Around("onlyRobotCode() && entryAccessInEntryClass()")
+    public Object getClassFieldEntry(ProceedingJoinPoint pjp){
+        Entry annotation = (Entry) pjp.getSignature().getDeclaringType().getAnnotation(Entry.class);
+        return getFieldEntry(pjp, annotation);
     }
     
     private FieldEntryData createFieldData(String name, Class<?> containingClass, Object target) {
