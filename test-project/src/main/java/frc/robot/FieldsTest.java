@@ -55,7 +55,6 @@ public class FieldsTest implements Testing {
 
     public FieldsTest(String descriptor) {
         this.descriptor = descriptor;
-        getBasicInteger();
     }
 
 
@@ -66,7 +65,7 @@ public class FieldsTest implements Testing {
 
     @Override
     public void update() {
-        basicInteger ++;
+        basicInteger += (int)(Math.random() * 10);
         height = Millimeter.of(2).plus(height);
         rotation2d = Rotation2d.fromDegrees(1).plus(rotation2d);
         this.record = new CustomRecord(Math.random(), (int) (Math.random() * 4 + 2));

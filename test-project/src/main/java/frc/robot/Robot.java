@@ -30,6 +30,5 @@ public class Robot extends TimedRobot {
         Dashboard.update();
 
         testingList.forEach(Testing::update);
-        ((FieldsTest) testingList.get(2)).basicInteger = (int)(Math.random() * 100);
     }
 }
