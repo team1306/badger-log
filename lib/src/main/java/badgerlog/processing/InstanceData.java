@@ -12,4 +12,8 @@ public record InstanceData(Map<String, NTEntry<?>> entries) {
     public NTEntry<?> getEntry(String name) {
         return entries.get(name);
     }
+    
+    public boolean hasEntry(String name) {
+        return entries.containsKey(name);
+    }
 }

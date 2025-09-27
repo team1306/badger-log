@@ -95,6 +95,10 @@ public class EntryAspect {
             return;
         }
 
+        if(Modifier.isStatic(field.getModifiers()) && entries.getInstanceEntries(clazz, null).hasEntry(name)){
+            return;
+        }
+        
         NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields.getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
         
