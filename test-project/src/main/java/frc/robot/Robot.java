@@ -30,5 +30,6 @@ public class Robot extends TimedRobot {
         Dashboard.update();
 
         testingList.forEach(Testing::update);
+        StaticTest.staticDouble ++;
     }
 }
