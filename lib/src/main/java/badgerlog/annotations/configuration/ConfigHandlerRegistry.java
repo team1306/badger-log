@@ -30,7 +30,7 @@ public final class ConfigHandlerRegistry {
     }
 
     /**
-     * Registers a annotation handler.
+     * Registers an annotation handler.
      *
      * @param annotationType the class representing the annotation
      * @param handler the handler to register

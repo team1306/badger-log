@@ -112,7 +112,7 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
                             createElementName(method)));
                 }
                 if(typeUtils.isSameType(method.getReturnType(), objectType)){
-                    printMessage(method, Kind.WARNING, String.format("Publisher @Ebtry method '%s()' should return the final type and not object", 
+                    printMessage(method, Kind.WARNING, String.format("Publisher @Entry method '%s()' should return the final type and not object", 
                             createElementName(method)));
                 }
             }
