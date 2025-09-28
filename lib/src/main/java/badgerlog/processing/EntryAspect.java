@@ -56,23 +56,42 @@ public class EntryAspect {
     @Pointcut("@annotation(entry) && execution(* *()) && !execution(void *())")
     public void getterMethodExecution(Entry entry) {} 
     
+    @After("onlyRobotCode() && staticinitialization(*)")
+    public void createStaticEntries(JoinPoint joinPoint) {
+        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        entries.addInstance(clazz, null);
+        
+        Field[] fields = Fields.getFieldsWithAnnotation(clazz, Entry.class);
+        Arrays.stream(fields)
+                .filter(this::isMemberStatic)
+                .forEach(field -> createFieldEntry(field, null));
+
+        Method[] methods = Methods.getMethodsWithAnnotation(clazz, Entry.class);
+        Arrays.stream(methods)
+                .filter(this::isMemberStatic)
+                .forEach(method -> createMethodEntry(method, null));
+    }
+    
     @After("onlyRobotCode() && newInitialization()")
-    public void createInstanceFieldEntries(JoinPoint joinPoint){
+    public void createInstanceEntries(JoinPoint joinPoint){
         Object instance = joinPoint.getThis();
         entries.addInstance(instance.getClass(), instance);
-        entries.addInstance(instance.getClass(), null);
         
         Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
-        Arrays.stream(fields).forEach(field -> createFieldEntry(field, instance));
+        Arrays.stream(fields)
+                .filter(this::isMemberNonStatic)
+                .forEach(field -> createFieldEntry(field, instance));
         
         Method[] methods = Methods.getMethodsWithAnnotation(instance.getClass(), Entry.class);
-        Arrays.stream(methods).forEach(method -> createMethodEntry(method, instance));
+        Arrays.stream(methods)
+                .filter(this::isMemberNonStatic)
+                .forEach(method -> createMethodEntry(method, instance));
         
         if(instance.getClass().isAnnotationPresent(Entry.class)) {
             Field[] allFields = instance.getClass().getFields();
             Arrays.stream(allFields)
                     .filter(field -> !Arrays.asList(fields).contains(field))
-                    .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                    .filter(this::isMemberNonStatic)
                     .filter(field -> !Modifier.isFinal(field.getModifiers()))
                     .filter(field -> !field.isAnnotationPresent(NoEntry.class))
                     .forEach(field -> createFieldEntry(field, instance));
@@ -84,7 +103,11 @@ public class EntryAspect {
 
         Configuration config = Configuration.createConfigurationFromAnnotations(member);
 
-        KeyParser.createKeyFromMember(config, member, instance, entries.getClassData(clazz).getInstanceCount());
+        if(isMemberNonStatic(member)) {
+            KeyParser.createKeyFromMember(config, member, instance, entries.getClassData(clazz).getInstanceCount());
+        } else {
+            KeyParser.createKeyFromStaticMember(config, member);
+        }
 
         if(config.getKey() == null){
             ErrorLogger.memberError(member, "has a missing key");
@@ -120,7 +143,7 @@ public class EntryAspect {
         Entry annotation = field.getAnnotation(Entry.class);
         
         if(annotation == null){
-            annotation = instance.getClass().getAnnotation(Entry.class);
+            annotation = clazz.getAnnotation(Entry.class);
         }
         
         switch (annotation.value()) {
@@ -241,6 +264,14 @@ public class EntryAspect {
         
         return new FieldEntryData(true, entry, field);
     }
+    
+    private boolean isMemberStatic(Member field){
+        return Modifier.isStatic(field.getModifiers());
+    }
 
+    private boolean isMemberNonStatic(Member field){
+        return !isMemberStatic(field);
+    }
+    
     private record FieldEntryData(boolean valid, NTEntry<?> entry, Field targetField) {}
 }
