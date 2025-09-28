@@ -26,21 +26,7 @@ public final class KeyParser {
     }
     
     public static void createKeyFromMember(Configuration config, Member member, Object instance, int instanceCount) {
-        String existingTableName = config.getTable();
-        String existingKeyName = config.getKey();
-        
-        StringBuilder keyBuilder = new StringBuilder();
-
-        String newTable = Objects.requireNonNullElseGet(existingTableName, () -> member.getDeclaringClass().getSimpleName());
-        keyBuilder.append(newTable);
-        keyBuilder.append("/");
-        
-        if(existingKeyName == null || existingKeyName.isBlank()){
-            keyBuilder.append(member.getName());
-        }
-        else{
-            keyBuilder.append(existingKeyName);   
-        }
+        StringBuilder keyBuilder = new StringBuilder(createUnparsedKey(config, member));
         
         if(instanceCount > 1 && missingFieldKey(keyBuilder.toString())){
             int beforeKey = keyBuilder.indexOf("/");
@@ -63,7 +49,7 @@ public final class KeyParser {
         Map<String, String> fieldValues = new HashMap<>();
         for (String fieldName : fieldNames) {
             try {
-                Field valueField = instance.getClass().getDeclaredField(fieldName);
+                Field valueField = member.getDeclaringClass().getDeclaredField(fieldName);
                 fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException | NullPointerException e) {
                 config.makeInvalid();
@@ -75,6 +61,37 @@ public final class KeyParser {
 
         String parsedKey = replaceFields(unparsedKey, fieldValues);
         config.withKey(parsedKey);
+    }
+    
+    public static void createKeyFromStaticMember(Configuration config, Member member){
+        String unparsedKey = createUnparsedKey(config, member);
+        
+        List<String> fieldNames = extractFieldNames(unparsedKey);
+        Map<String, String> emptyReplaceMap = fieldNames.stream().collect(HashMap::new, (map, value) -> map.put(value, ""), HashMap::putAll);
+    
+        unparsedKey = replaceFields(unparsedKey, emptyReplaceMap);
+
+        config.withKey(unparsedKey);
+    }
+
+    private static String createUnparsedKey(Configuration config, Member member) {
+        String existingTableName = config.getTable();
+        String existingKeyName = config.getKey();
+
+        StringBuilder keyBuilder = new StringBuilder();
+
+        String newTable = Objects.requireNonNullElseGet(existingTableName, () -> member.getDeclaringClass().getSimpleName());
+        keyBuilder.append(newTable);
+        keyBuilder.append("/");
+
+        if(existingKeyName == null || existingKeyName.isBlank()){
+            keyBuilder.append(member.getName());
+        }
+        else{
+            keyBuilder.append(existingKeyName);
+        }
+        
+        return keyBuilder.toString();
     }
 
     private static List<String> extractFieldNames(String template) {
