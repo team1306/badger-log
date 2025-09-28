@@ -6,7 +6,7 @@ import badgerlog.conversion.Mappings;
 import edu.wpi.first.networktables.NetworkTableType;
 
 /**
- * Internal implementation of all the primitive mappings.
+ * Implementations of all the primitive mappings.
  */
 public final class BaseMappings {
 

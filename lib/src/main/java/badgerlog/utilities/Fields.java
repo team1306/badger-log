@@ -7,13 +7,19 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 /**
- * Internal class used by BadgerLog to simplify the accessing of fields with reflection.
+ * Simplifies the accessing of fields and their values.
  */
 public final class Fields {
 
     private Fields() {
     }
 
+    /**
+     * Gets a list of declared fields within a class that are annotated by {@code annotationClass}
+     * @param clazz the class to get the fields from
+     * @param annotationClass the annotation to check the fields for
+     * @return an array of the fields annotated with the specified annotation
+     */
     public static Field[] getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass){
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(annotationClass))

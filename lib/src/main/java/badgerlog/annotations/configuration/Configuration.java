@@ -25,7 +25,6 @@ public class Configuration {
      * {@return the key on NetworkTables}
      */
     private String key = null;
-
     /**
      * {@return the table on NetworkTables}
      */
@@ -127,7 +126,12 @@ public class Configuration {
         this.isValidConfiguration = false;
         return this;
     }
-    
+
+    /**
+     * {@return the configuration object for method chaining}
+     *
+     * @param table the table above the key on NetworkTables
+     */
     public Configuration withTable(String table){
         this.table = table;
         return this;

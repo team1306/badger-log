@@ -4,7 +4,7 @@ import badgerlog.annotations.UnitConversion;
 import badgerlog.conversion.UnitConversions;
 
 /**
- * Internal class to handle the {@link UnitConversion} annotation.
+ * Handles the {@link UnitConversion} annotation.
  */
 public final class UnitConversionHandler implements ConfigHandler<UnitConversion> {
     @Override

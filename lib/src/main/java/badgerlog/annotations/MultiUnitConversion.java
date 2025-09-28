@@ -6,13 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to allow the {@link UnitConversion} annotation to appear multiple times on a field.
+ * Allows the {@link UnitConversion} annotation to appear multiple times on an element.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
 public @interface MultiUnitConversion {
     /**
-     *
      * {@return the array of UnitConversion annotations}
      */
     UnitConversion[] value();

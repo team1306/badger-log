@@ -4,7 +4,7 @@ import badgerlog.annotations.AutoGenerateStruct;
 import badgerlog.annotations.Struct;
 
 /**
- * Internal class to handle the {@link Struct} annotation.
+ * Handles the {@link Struct} annotation.
  */
 public final class AutoGenerateStructHandler implements ConfigHandler<AutoGenerateStruct> {
     @Override

@@ -11,7 +11,7 @@ import edu.wpi.first.util.struct.StructSerializable;
 import java.util.Optional;
 
 /**
- * Internal class used by BadgerLog to create {@link NTEntry} from a key, value, and configuration.
+ * Creates a {@link NTEntry} from a key, value, and configuration.
  */
 public final class EntryFactory {
     private EntryFactory() {

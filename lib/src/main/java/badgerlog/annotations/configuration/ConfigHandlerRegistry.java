@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Internal class used to register handlers for specific annotations.
+ * Registers handlers for specific annotations to be used when generating a configuration.
  */
 public final class ConfigHandlerRegistry {
     private static final Map<Class<? extends Annotation>, ConfigHandler<?>> handlers = new HashMap<>();

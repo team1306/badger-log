@@ -16,5 +16,8 @@ public enum EntryType {
      * Puts a Sendable value to NetworkTables
      */
     SENDABLE,
+    /**
+     * Sends a value to NetworkTables when a field is set, and get a value form NetworkTables when a field is retrieved
+     */
     INTELLIGENT
 }

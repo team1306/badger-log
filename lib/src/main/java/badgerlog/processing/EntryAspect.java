@@ -10,6 +10,9 @@ import badgerlog.networktables.MockNTEntry;
 import badgerlog.networktables.NTEntry;
 import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
+import badgerlog.processing.data.ClassData;
+import badgerlog.processing.data.Entries;
+import badgerlog.processing.data.InstanceData;
 import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Fields;
 import badgerlog.utilities.KeyParser;
@@ -31,6 +34,9 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * Utilizes AspectJ to weave entry generation and management into target classes.
+ */
 @Aspect
 public class EntryAspect {
     private final Entries entries = new Entries(new HashMap<>());
@@ -245,8 +251,8 @@ public class EntryAspect {
             return new FieldEntryData(false, null, null);
         }
 
-        InstanceData instanceData = data.getInstanceEntries().get(target);
-        Field field = data.getFieldMap().get(name);
+        InstanceData instanceData = data.instanceEntries().get(target);
+        Field field = data.fieldMap().get(name);
         
         if (instanceData == null) {
             return new FieldEntryData(false, null, null);

@@ -7,7 +7,7 @@ import edu.wpi.first.util.struct.StructGenerator;
 import java.lang.reflect.RecordComponent;
 
 /**
- * Internal class used by BadgerLog to auto generate structs
+ * Generates structs from predefined types.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class TypeParser {
@@ -16,8 +16,9 @@ public final class TypeParser {
     }
 
     /**
-     * Tries to create a struct from a class and apply it to a configuration. The class should either be a record or an
-     * Enum.
+     * Tries to create a struct from a class and apply it to a configuration. 
+     * 
+     * <p>The class should either be a record or an Enum.</p>
      *
      * @param config the configuration object to attach the generated struct to
      * @param type the type class

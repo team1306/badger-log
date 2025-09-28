@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark the configuration to use a specific struct publishing option.
+ * Marks the configuration to use a specific struct publishing option.
  *
  * @see StructType
  */
@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Struct {
     /**
-     *
      * {@return the struct options to use for the field}
      */
     StructType value();

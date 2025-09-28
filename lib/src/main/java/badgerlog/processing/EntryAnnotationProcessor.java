@@ -25,12 +25,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Processes any annotations annotated with {@link Entry} and ensures that they match the requirements.
+ */
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("badgerlog.annotations.Entry")
 public class EntryAnnotationProcessor extends AbstractProcessor {
 
-    public Map<String, String> potentialKeys = new HashMap<>();
+    private final Map<String, String> potentialKeys = new HashMap<>();
     
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

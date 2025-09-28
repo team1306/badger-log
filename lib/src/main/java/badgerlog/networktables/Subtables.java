@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Internal class used by BadgerLog to create subtables from a Struct schema.
+ * Creates subtables from a struct's schema.
  */
 public final class Subtables {
     private static final HashMap<String, PrimType<?>> primitiveTypeMap = new HashMap<>();
@@ -42,6 +42,7 @@ public final class Subtables {
 
     /**
      * Creates an ordered map that contains all the entries created from the {@code struct} schema.
+     * 
      * <p>Uses a buffer to pack the {@code initialValue} of the struct in, and then construct the entries from.
      * Empties the entire map if the {@code struct}'s schema is invalid.</p>
      *
