@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * Implements the {@code StructType.SUB_TABLE} type for NetworkTables.
- * 
+ *
  * <p>It creates an entry for every primitive type in the struct schema, and puts it under different subtables based off
  * the nesting in the schema.</p>
  *
@@ -26,7 +26,7 @@ public final class SubtableEntry<T> implements NTEntry<T> {
 
     /**
      * Constructs a new SubtableEntry, creating all the entries on NetworkTables under the specified key.
-     * 
+     *
      * <p>This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.</p>
      *
      * @param key the top level key to use on NetworkTables, all other entries will be nested under it.

@@ -97,7 +97,7 @@ public final class BaseMappings {
             return ntValue.intValue();
         }
     };
-    
+
     private static final Mapping<Integer, Long> integer1Mapping = new Mapping<>(Integer.class, Long.class, NetworkTableType.kInteger) {
 
         @Override

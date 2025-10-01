@@ -29,7 +29,7 @@ public record ClassData(Map<String, Field> fieldMap, Map<Object, InstanceData> i
     /**
      * {@return the number of instances currently present for the class}
      */
-    public int getInstanceCount(){
+    public int getInstanceCount() {
         return Math.toIntExact(instanceEntries().keySet().stream().filter(Objects::nonNull).count());
     }
 }

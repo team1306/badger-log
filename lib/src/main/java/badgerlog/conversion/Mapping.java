@@ -5,10 +5,10 @@ import edu.wpi.first.networktables.NetworkTableType;
 import lombok.Getter;
 
 /**
- * Represents an abstract converter back and forth between two types. 
- * 
+ * Represents an abstract converter back and forth between two types.
+ *
  * <p>Used internally by the Mapping system to convert a value to a valid NetworkTables value.</p>
- * 
+ *
  * @param <StartType> the starting type of the mapping
  * @param <NTType> the ending type of the mapping
  */

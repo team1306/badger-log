@@ -18,7 +18,7 @@ public final class StructValueEntry<T> implements NTEntry<T> {
      * Constructs a new StructValueEntry and creates the entry on NetworkTables.
      *
      * <p>This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.</p>
-     *      
+     *
      * @param key the key on NetworkTables
      * @param struct the struct to use for the NetworkTables entry
      * @param initialValue the initial value to be published to NetworkTables

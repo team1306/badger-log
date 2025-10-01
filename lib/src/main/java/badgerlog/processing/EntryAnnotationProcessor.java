@@ -34,23 +34,21 @@ import java.util.Set;
 public class EntryAnnotationProcessor extends AbstractProcessor {
 
     private final Map<String, String> potentialKeys = new HashMap<>();
-    
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Elements elementUtils = processingEnv.getElementUtils();
 
         TypeElement sendableElement = elementUtils.getTypeElement("edu.wpi.first.util.sendable.Sendable");
         TypeElement objectElement = elementUtils.getTypeElement("java.lang.Object");
-        
+
         if (sendableElement == null) {
-            printMessage(null, Diagnostic.Kind.ERROR,
-                    "Sendable interface not found");
+            printMessage(null, Diagnostic.Kind.ERROR, "Sendable interface not found");
             return false;
         }
 
         if (objectElement == null) {
-            printMessage(null, Diagnostic.Kind.ERROR,
-                    "Object not found");
+            printMessage(null, Diagnostic.Kind.ERROR, "Object not found");
             return false;
         }
 
@@ -59,7 +57,7 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Entry.class)) {
             Entry annotation = element.getAnnotation(Entry.class);
-            
+
             switch (element.getKind()) {
                 case METHOD -> {
                     ExecutableElement method = (ExecutableElement) element;
@@ -69,71 +67,78 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
                     VariableElement field = (VariableElement) element;
                     validateField(sendableType, field, annotation);
                 }
-                default -> {}
+                default -> {
+                }
             }
-            
+
             String potentialKey = generatePossibleKey(element);
-            if(potentialKeys.containsKey(potentialKey)){
-                printMessage(element, Kind.MANDATORY_WARNING, String.format("Duplicate key %s for '%s' and '%s'", potentialKey, potentialKeys.get(potentialKey), createElementName(element)));
-            }
-            else{
+            if (potentialKeys.containsKey(potentialKey)) {
+                printMessage(element, Kind.MANDATORY_WARNING, String
+                        .format("Duplicate key %s for '%s' and '%s'", potentialKey, potentialKeys
+                                .get(potentialKey), createElementName(element)));
+            } else {
                 potentialKeys.put(potentialKey, createElementName(element));
             }
         }
         return false;
     }
-    
+
     private String createElementName(Element element) {
         String methodName = element.getSimpleName().toString();
         String className = element.getEnclosingElement().getSimpleName().toString();
-        
+
         return String.format("%s.%s", className, methodName);
     }
-    
+
     private String generatePossibleKey(Element element) {
-        if(element.getAnnotation(Key.class) != null){
+        if (element.getAnnotation(Key.class) != null) {
             return element.getAnnotation(Key.class).value();
         }
         return element.getSimpleName() + "/" + element.getEnclosingElement().getSimpleName();
     }
 
     private void validateMethod(TypeMirror objectType, ExecutableElement method, Entry annotation) {
-        Types typeUtils =  processingEnv.getTypeUtils();
+        Types typeUtils = processingEnv.getTypeUtils();
         int paramCount = method.getParameters().size();
 
         switch (annotation.value()) {
             case PUBLISHER -> {
                 if (paramCount != 0) {
-                    printMessage(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s()' must have exactly zero parameters, found %d",
-                            createElementName(method), paramCount));
+                    printMessage(method, Kind.ERROR, String
+                            .format("Publisher @Entry annotated method '%s()' must have exactly zero parameters, found %d", createElementName(method), paramCount));
                 }
                 if (method.getReturnType().getKind() == TypeKind.VOID) {
-                    printMessage(method, Kind.ERROR, String.format("Publisher @Entry annotated method '%s() must return a value",
-                            createElementName(method)));
+                    printMessage(method, Kind.ERROR, String
+                            .format("Publisher @Entry annotated method '%s() must return a value", createElementName(method)));
                 }
-                if(typeUtils.isSameType(method.getReturnType(), objectType)){
-                    printMessage(method, Kind.WARNING, String.format("Publisher @Entry method '%s()' should return the final type and not object", 
-                            createElementName(method)));
+                if (typeUtils.isSameType(method.getReturnType(), objectType)) {
+                    printMessage(method, Kind.WARNING, String
+                            .format("Publisher @Entry method '%s()' should return the final type and not object", createElementName(method)));
                 }
             }
-            case SUBSCRIBER -> printMessage(method, Kind.ERROR, String.format("Subscriber @Entry method '%s()' cannot be a Subscriber", createElementName(method)));
-            case SENDABLE -> printMessage(method, Kind.ERROR, String.format("Sendable @Entry method '%s()' cannot be a Sendable", createElementName(method)));
-            case INTELLIGENT -> printMessage(method, Kind.ERROR, String.format("Intelligent @Entry method '%s()' should not use intelligent", createElementName(method)));
+            case SUBSCRIBER -> printMessage(method, Kind.ERROR, String
+                    .format("Subscriber @Entry method '%s()' cannot be a Subscriber", createElementName(method)));
+            case SENDABLE -> printMessage(method, Kind.ERROR, String
+                    .format("Sendable @Entry method '%s()' cannot be a Sendable", createElementName(method)));
+            case INTELLIGENT -> printMessage(method, Kind.ERROR, String
+                    .format("Intelligent @Entry method '%s()' should not use intelligent", createElementName(method)));
         }
     }
 
     private void validateField(TypeMirror sendableMirror, VariableElement field, Entry annotation) {
-        Types typeUtils =  processingEnv.getTypeUtils();
-        
+        Types typeUtils = processingEnv.getTypeUtils();
+
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
-                if(field.getModifiers().contains(Modifier.FINAL)){
-                    printMessage(field, Kind.ERROR, String.format("Non-Sendable @Entry field '%s' must be non-final", createElementName(field)));
+                if (field.getModifiers().contains(Modifier.FINAL)) {
+                    printMessage(field, Kind.ERROR, String
+                            .format("Non-Sendable @Entry field '%s' must be non-final", createElementName(field)));
                 }
             }
             case SENDABLE -> {
-                if(!typeUtils.isSameType(sendableMirror, field.asType())) {
-                    printMessage(field, Kind.ERROR, String.format("Sendable @Entry field '%s' must be a Sendable", createElementName(field)));
+                if (!typeUtils.isSameType(sendableMirror, field.asType())) {
+                    printMessage(field, Kind.ERROR, String
+                            .format("Sendable @Entry field '%s' must be a Sendable", createElementName(field)));
                 }
             }
         }

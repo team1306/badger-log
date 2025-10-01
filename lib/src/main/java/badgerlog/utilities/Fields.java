@@ -16,16 +16,18 @@ public final class Fields {
 
     /**
      * Gets a list of declared fields within a class that are annotated by {@code annotationClass}
+     *
      * @param clazz the class to get the fields from
      * @param annotationClass the annotation to check the fields for
+     *
      * @return an array of the fields annotated with the specified annotation
      */
-    public static Field[] getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass){
+    public static Field[] getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(annotationClass))
                 .toArray(Field[]::new);
     }
-    
+
     /**
      * {@code object} defaults to {@code null}. This method should only be used if the field is known to be static.
      *

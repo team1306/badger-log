@@ -132,18 +132,18 @@ public class Configuration {
      *
      * @param table the table above the key on NetworkTables
      */
-    public Configuration withTable(String table){
+    public Configuration withTable(String table) {
         this.table = table;
         return this;
     }
-    
+
     public static <T extends Member & AnnotatedElement> Configuration createConfigurationFromAnnotations(T element) {
         Configuration config = new Configuration();
         Annotation[] classAnnotations = element.getDeclaringClass().getAnnotations();
         for (Annotation annotation : classAnnotations) {
             handleAnnotation(annotation, config);
         }
-        
+
         Annotation[] annotations = element.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);

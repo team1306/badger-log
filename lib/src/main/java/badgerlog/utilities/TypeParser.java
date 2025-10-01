@@ -16,8 +16,8 @@ public final class TypeParser {
     }
 
     /**
-     * Tries to create a struct from a class and apply it to a configuration. 
-     * 
+     * Tries to create a struct from a class and apply it to a configuration.
+     *
      * <p>The class should either be a record or an Enum.</p>
      *
      * @param config the configuration object to attach the generated struct to

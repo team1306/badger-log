@@ -42,7 +42,7 @@ public final class Subtables {
 
     /**
      * Creates an ordered map that contains all the entries created from the {@code struct} schema.
-     * 
+     *
      * <p>Uses a buffer to pack the {@code initialValue} of the struct in, and then construct the entries from.
      * Empties the entire map if the {@code struct}'s schema is invalid.</p>
      *
@@ -92,7 +92,8 @@ public final class Subtables {
                         .filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0]))
                         .toList();
                 if (structs.isEmpty()) {
-                    ErrorLogger.customError("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
+                    ErrorLogger.customError("INVALID Struct definition: " + baseStruct
+                            .getTypeName() + ". REMOVING ALL");
                     System.err.println();
                     return false;
                 }

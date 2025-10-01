@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks an element to be collected and have NetworkTables entries created for it.
+ *
  * @see EntryType
  */
 @Retention(RetentionPolicy.RUNTIME)

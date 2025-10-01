@@ -11,12 +11,12 @@ import static edu.wpi.first.units.Units.Seconds;
 
 public class EventRegistry {
     private static final Queue<EventPair<?>> eventQueue = new ConcurrentLinkedQueue<>();
-    
-    public static void updateEvents(){
+
+    public static void updateEvents() {
         Time initialTime = Seconds.of(Timer.getFPGATimestamp());
-        while(!eventQueue.isEmpty()){
+        while (!eventQueue.isEmpty()) {
             Time nowTime = Seconds.of(Timer.getFPGATimestamp());
-            if(nowTime.minus(initialTime).in(Milliseconds) > 5){
+            if (nowTime.minus(initialTime).in(Milliseconds) > 5) {
                 break;
             }
 
@@ -24,23 +24,22 @@ public class EventRegistry {
             if (queuedEvent == null) {
                 continue;
             }
-            
+
             handleEvent(queuedEvent);
         }
     }
-    
-    private static <T> void handleEvent(EventPair<T> queuedEvent){
-        if(queuedEvent.event() instanceof WatcherEvent<?> event){
+
+    private static <T> void handleEvent(EventPair<T> queuedEvent) {
+        if (queuedEvent.event() instanceof WatcherEvent<?> event) {
             ((WatcherEvent<T>) event).invoke(queuedEvent.data);
-        }
-        else if (queuedEvent.event() instanceof InterceptorEvent<?> event){
+        } else if (queuedEvent.event() instanceof InterceptorEvent<?> event) {
             ((InterceptorEvent<T>) event).invoke(queuedEvent.data);
-        }    
+        }
     }
-    
-    public static void addEvent(NTEvent event){
+
+    public static void addEvent(NTEvent event) {
         //Todo event queue logic
     }
-    
-    private record EventPair<T>(NTEvent event, EventData<T> data){}
+
+    private record EventPair<T>(NTEvent event, EventData<T> data) {}
 }

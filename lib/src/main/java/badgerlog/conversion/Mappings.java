@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Finds and registers mappings for use in the Mapping system. 
- * 
- * <p>Maintains a list of mappings, so that there is only one mapping per starting type; there are never two mappings for the same class.</p>
+ * Finds and registers mappings for use in the Mapping system.
+ *
+ * <p>Maintains a list of mappings, so that there is only one mapping per starting type; there are never two mappings
+ * for the same class.</p>
  */
 public final class Mappings {
 
@@ -28,8 +29,8 @@ public final class Mappings {
     }
 
     /**
-     * Finds a {@link Mapping} with the specified type class. 
-     * 
+     * Finds a {@link Mapping} with the specified type class.
+     *
      * <p>It checks to ensure there is exactly one Mapping for the class.</p>
      *
      * @param type the class representing the type

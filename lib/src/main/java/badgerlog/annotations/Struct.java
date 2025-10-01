@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  *
  * @see StructType
  */
-@Target({ElementType.FIELD,  ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Struct {
     /**

@@ -23,34 +23,35 @@ public final class KeyParser {
 
     /**
      * Checks whether a key doesn't contain a potential field specific key.
+     *
      * @param key the key to check
+     *
      * @return if the key is missing a potential field specific key
      */
-    public static boolean missingFieldKey(String key){
+    public static boolean missingFieldKey(String key) {
         return extractFieldNames(key).isEmpty();
     }
 
     /**
-     * Creates a key and assigns it in the {@code config} using the provided config, member, and instance. 
-     * 
-     * <p>Basic procedure is defined as such: Use the predefined key or table when assigned, 
-     * otherwise create a table with the class name and a key with the member's name. 
+     * Creates a key and assigns it in the {@code config} using the provided config, member, and instance.
+     *
+     * <p>Basic procedure is defined as such: Use the predefined key or table when assigned,
+     * otherwise create a table with the class name and a key with the member's name.
      * Then, assign any field specific parts of the key to the value on the field specified.</p>
-     * 
-     * @param config the configuration to both get data from and apply the final key to 
+     *
+     * @param config the configuration to both get data from and apply the final key to
      * @param member the member to generate the key for
      * @param instance the instance for the instance specific keys
      * @param instanceCount the number of instances that have already been created
      */
     public static void createKeyFromMember(Configuration config, Member member, Object instance, int instanceCount) {
         StringBuilder keyBuilder = new StringBuilder(createUnparsedKey(config, member));
-        
-        if(instanceCount > 1 && missingFieldKey(keyBuilder.toString())){
+
+        if (instanceCount > 1 && missingFieldKey(keyBuilder.toString())) {
             int beforeKey = keyBuilder.indexOf("/");
-            if(beforeKey == -1){
+            if (beforeKey == -1) {
                 keyBuilder.append(instanceCount);
-            }
-            else{
+            } else {
                 keyBuilder.insert(beforeKey, instanceCount);
             }
         }
@@ -82,17 +83,20 @@ public final class KeyParser {
 
     /**
      * Creates a key for a static member and assigns it in the {@code config} using the provided config and member.
-     * 
-     * <p>This drops any instance specific key values, but otherwise follows the {@link #createKeyFromMember(Configuration, Member, Object, int)} procedure.</p>
-     * @param config the configuration to both get data from and apply the final key to 
+     *
+     * <p>This drops any instance specific key values, but otherwise follows the
+     * {@link #createKeyFromMember(Configuration, Member, Object, int)} procedure.</p>
+     *
+     * @param config the configuration to both get data from and apply the final key to
      * @param member the static member to generate the key for
      */
-    public static void createKeyFromStaticMember(Configuration config, Member member){
+    public static void createKeyFromStaticMember(Configuration config, Member member) {
         String unparsedKey = createUnparsedKey(config, member);
-        
+
         List<String> fieldNames = extractFieldNames(unparsedKey);
-        Map<String, String> emptyReplaceMap = fieldNames.stream().collect(HashMap::new, (map, value) -> map.put(value, ""), HashMap::putAll);
-    
+        Map<String, String> emptyReplaceMap = fieldNames.stream()
+                .collect(HashMap::new, (map, value) -> map.put(value, ""), HashMap::putAll);
+
         unparsedKey = replaceFields(unparsedKey, emptyReplaceMap);
 
         config.withKey(unparsedKey);
@@ -104,17 +108,17 @@ public final class KeyParser {
 
         StringBuilder keyBuilder = new StringBuilder();
 
-        String newTable = Objects.requireNonNullElseGet(existingTableName, () -> member.getDeclaringClass().getSimpleName());
+        String newTable = Objects.requireNonNullElseGet(existingTableName, () -> member.getDeclaringClass()
+                .getSimpleName());
         keyBuilder.append(newTable);
         keyBuilder.append("/");
 
-        if(existingKeyName == null || existingKeyName.isBlank()){
+        if (existingKeyName == null || existingKeyName.isBlank()) {
             keyBuilder.append(member.getName());
-        }
-        else{
+        } else {
             keyBuilder.append(existingKeyName);
         }
-        
+
         return keyBuilder.toString();
     }
 
