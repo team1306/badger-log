@@ -6,7 +6,7 @@ import badgerlog.conversion.Mappings;
 import edu.wpi.first.networktables.NetworkTableType;
 
 /**
- * Internal implementation of all the primitive mappings.
+ * Implementations of all the primitive mappings.
  */
 public final class BaseMappings {
 
@@ -85,28 +85,29 @@ public final class BaseMappings {
         }
     };
 
-    private static final Mapping<Integer, Integer> integerMapping = new Mapping<>(int.class, int.class, NetworkTableType.kInteger) {
+    private static final Mapping<Integer, Long> integerMapping = new Mapping<>(int.class, long.class, NetworkTableType.kInteger) {
 
         @Override
-        public Integer toNT(Integer startValue, Configuration config) {
-            return startValue;
+        public Long toNT(Integer startValue, Configuration config) {
+            return startValue.longValue();
         }
 
         @Override
-        public Integer toStart(Integer ntValue, Configuration config) {
-            return ntValue;
+        public Integer toStart(Long ntValue, Configuration config) {
+            return ntValue.intValue();
         }
     };
-    private static final Mapping<Integer, Integer> integer1Mapping = new Mapping<>(Integer.class, Integer.class, NetworkTableType.kInteger) {
+
+    private static final Mapping<Integer, Long> integer1Mapping = new Mapping<>(Integer.class, Long.class, NetworkTableType.kInteger) {
 
         @Override
-        public Integer toNT(Integer startValue, Configuration config) {
-            return startValue;
+        public Long toNT(Integer startValue, Configuration config) {
+            return startValue.longValue();
         }
 
         @Override
-        public Integer toStart(Integer ntValue, Configuration config) {
-            return ntValue;
+        public Integer toStart(Long ntValue, Configuration config) {
+            return ntValue.intValue();
         }
     };
 

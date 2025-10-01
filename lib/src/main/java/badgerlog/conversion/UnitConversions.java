@@ -21,7 +21,8 @@ import static edu.wpi.first.units.Units.Radians;
 
 /**
  * Internal class used by BadgerLog to manage and create {@link UnitConverter}.
- * This wraps the WPILib Units system into an interface that can use any string form of the unit.
+ *
+ * <p>This wraps the WPILib Units system into an interface that can use any string form of the unit.</p>
  */
 public final class UnitConversions {
 

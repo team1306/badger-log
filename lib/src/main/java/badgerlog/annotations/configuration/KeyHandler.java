@@ -3,7 +3,7 @@ package badgerlog.annotations.configuration;
 import badgerlog.annotations.Key;
 
 /**
- * Internal class to handle the {@link Key} annotation.
+ * Handles the {@link Key} annotation.
  */
 public final class KeyHandler implements ConfigHandler<Key> {
     @Override

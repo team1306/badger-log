@@ -2,88 +2,295 @@ package badgerlog.processing;
 
 import badgerlog.Dashboard;
 import badgerlog.annotations.Entry;
+import badgerlog.annotations.EntryType;
+import badgerlog.annotations.NoEntry;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.networktables.EntryFactory;
-import badgerlog.networktables.PublisherNTUpdatable;
+import badgerlog.networktables.MockNTEntry;
+import badgerlog.networktables.NTEntry;
+import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
-import badgerlog.networktables.SubscriberNTUpdatable;
+import badgerlog.processing.data.ClassData;
+import badgerlog.processing.data.Entries;
+import badgerlog.processing.data.InstanceData;
 import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Fields;
 import badgerlog.utilities.KeyParser;
+import badgerlog.utilities.Methods;
 import edu.wpi.first.util.sendable.Sendable;
+import lombok.SneakyThrows;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
- * Internal aspect that enables BadgerLog to use instance fields without any configuration in the constructor of
- * classes that have fields that use {@link Entry}.
+ * Utilizes AspectJ to weave entry generation and management into target classes.
  */
-@Aspect("pertypewithin(*)")
+@Aspect
 public class EntryAspect {
+    private final Entries entries = new Entries(new HashMap<>());
 
-    private boolean initialFieldPass = false;
+    @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
+    public void onlyRobotCode() {
+    }
 
-    @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(badgerlog.processing..*)")
-    public void addAllEntryFields(JoinPoint thisJoinPoint) {
-        Class<?> staticReference = thisJoinPoint.getSignature().getDeclaringType();
-        Object workingClass = thisJoinPoint.getThis();
+    @Pointcut("execution(*.new(..))")
+    public void newInitialization() {
+    }
 
-        Arrays.stream(staticReference.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Entry.class))
-                .filter(field -> !Modifier.isStatic(field.getModifiers()))
-                .forEach(field -> handleField(field, workingClass));
+    @Pointcut("@annotation(entry) && get(* *)")
+    public void entryAccess(Entry entry) {
+    }
 
-        if (!initialFieldPass) {
-            Arrays.stream(staticReference.getDeclaredFields())
-                    .filter(field -> field.isAnnotationPresent(Entry.class))
-                    .filter(field -> Modifier.isStatic(field.getModifiers()))
-                    .forEach(field -> handleField(field, workingClass));
-            initialFieldPass = true;
+    @Pointcut("@annotation(entry) && set(* *)")
+    public void entryUpdate(Entry entry) {
+    }
+
+    @Pointcut("!@annotation(badgerlog.annotations.Entry) && get(!final * (@badgerlog.annotations.Entry *).*)")
+    public void entryAccessInEntryClass() {
+    }
+
+    @Pointcut("!@annotation(badgerlog.annotations.Entry) && set(!final * (@badgerlog.annotations.Entry *).*)")
+    public void entryUpdateInEntryClass() {
+    }
+
+    @Pointcut("@annotation(entry) && execution(* *()) && !execution(void *())")
+    public void getterMethodExecution(Entry entry) {
+    }
+
+    @After("onlyRobotCode() && staticinitialization(*)")
+    public void createStaticEntries(JoinPoint joinPoint) {
+        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        entries.addInstance(clazz, null);
+
+        Field[] fields = Fields.getFieldsWithAnnotation(clazz, Entry.class);
+        Arrays.stream(fields)
+                .filter(this::isMemberStatic)
+                .forEach(field -> createFieldEntry(field, null));
+
+        Method[] methods = Methods.getMethodsWithAnnotation(clazz, Entry.class);
+        Arrays.stream(methods)
+                .filter(this::isMemberStatic)
+                .forEach(method -> createMethodEntry(method, null));
+    }
+
+    @After("onlyRobotCode() && newInitialization()")
+    public void createInstanceEntries(JoinPoint joinPoint) {
+        Object instance = joinPoint.getThis();
+        entries.addInstance(instance.getClass(), instance);
+
+        Field[] fields = Fields.getFieldsWithAnnotation(instance.getClass(), Entry.class);
+        Arrays.stream(fields)
+                .filter(this::isMemberNonStatic)
+                .forEach(field -> createFieldEntry(field, instance));
+
+        Method[] methods = Methods.getMethodsWithAnnotation(instance.getClass(), Entry.class);
+        Arrays.stream(methods)
+                .filter(this::isMemberNonStatic)
+                .forEach(method -> createMethodEntry(method, instance));
+
+        if (instance.getClass().isAnnotationPresent(Entry.class)) {
+            Field[] allFields = instance.getClass().getFields();
+            Arrays.stream(allFields)
+                    .filter(field -> !Arrays.asList(fields).contains(field))
+                    .filter(this::isMemberNonStatic)
+                    .filter(field -> !Modifier.isFinal(field.getModifiers()))
+                    .filter(field -> !field.isAnnotationPresent(NoEntry.class))
+                    .forEach(field -> createFieldEntry(field, instance));
         }
     }
 
-    private void handleField(Field field, Object instance) {
-        if (instance == null && !Modifier.isStatic(field.getModifiers())) {
-            ErrorLogger.fieldError(field, "is an instance field with no instance");
-            return;
+    private <T extends Member & AnnotatedElement> Configuration createConfigurationFromMember(T member, Object instance) {
+        Class<?> clazz = member.getDeclaringClass();
+
+        Configuration config = Configuration.createConfigurationFromAnnotations(member);
+
+        if (isMemberNonStatic(member)) {
+            KeyParser.createKeyFromMember(config, member, instance, entries.getClassData(clazz).getInstanceCount());
+        } else {
+            KeyParser.createKeyFromStaticMember(config, member);
         }
+
+        if (config.getKey() == null) {
+            ErrorLogger.memberError(member, "has a missing key");
+            return config.makeInvalid();
+        }
+
+        return config;
+    }
+
+
+    private void createFieldEntry(Field field, Object instance) {
+        Class<?> clazz = field.getDeclaringClass();
+        String name = field.getName();
+        entries.getClassData(clazz).addField(field);
 
         if (Fields.getFieldValue(field, instance) == null) {
-            ErrorLogger.fieldError(field, "is an uninitialized field after construction");
+            ErrorLogger.memberError(field, "is an uninitialized field");
             return;
         }
 
-        if (Modifier.isFinal(field.getModifiers())) {
-            ErrorLogger.fieldError(field, "is a final field");
-            return;
-        }
-
-        Configuration config = Configuration.createConfigurationFromFieldAnnotations(field);
-        boolean hasFieldValue = KeyParser.createKeyFromField(config, field, instance);
-
-        if (!hasFieldValue && initialFieldPass) {
-            return;
-        }
+        Configuration config = createConfigurationFromMember(field, instance);
 
         if (!config.isValidConfiguration()) {
-            ErrorLogger.fieldError(field, "had an invalid configuration created");
+            ErrorLogger.memberError(field, "had an invalid configuration created");
             return;
         }
 
-        var entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields
+        if (Modifier.isStatic(field.getModifiers()) && entries.getInstanceEntries(clazz, null).hasEntry(name)) {
+            return;
+        }
+
+        NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Fields
                 .getFieldValue(field, instance), config);
         Entry annotation = field.getAnnotation(Entry.class);
 
-        Dashboard.addNetworkTableEntry(config.getKey(), switch (annotation.value()) {
-            case PUBLISHER -> new PublisherNTUpdatable<>(entry, () -> Fields.getFieldValue(field, instance));
-            case SUBSCRIBER ->
-                new SubscriberNTUpdatable<>(entry, value -> Fields.setFieldValue(instance, field, value));
-            case SENDABLE -> new SendableEntry(config.getKey(), (Sendable) Fields.getFieldValue(field, instance));
-        });
+        if (annotation == null) {
+            annotation = clazz.getAnnotation(Entry.class);
+        }
+
+        switch (annotation.value()) {
+            case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
+                entries.getInstanceEntries(clazz, Modifier.isStatic(field.getModifiers()) ? null : instance)
+                        .addEntry(name, entry);
+                Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
+            }
+            case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config
+                    .getKey(), (Sendable) Fields.getFieldValue(field, instance)));
+        }
     }
+
+    private void createMethodEntry(Method method, Object instance) {
+        if (method.getAnnotation(Entry.class).value() != EntryType.PUBLISHER) {
+            ErrorLogger.memberError(method, "cannot be a non-publisher entry");
+            return;
+        }
+
+        Configuration config = createConfigurationFromMember(method, instance);
+
+        if (!config.isValidConfiguration()) {
+            ErrorLogger.memberError(method, "had an invalid configuration created");
+            return;
+        }
+
+        NTEntry<Object> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Methods
+                .invokeMethod(method, instance), config);
+        Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Methods
+                .invokeMethod(method, instance)));
+    }
+
+    @SneakyThrows(Throwable.class)
+    @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
+    public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation) {
+        EntryType entryType = annotation.value();
+        if (entryType != EntryType.SUBSCRIBER && entryType != EntryType.INTELLIGENT) {
+            return pjp.proceed();
+        }
+
+        String name = pjp.getSignature().getName();
+        Class<?> containingClass = pjp.getSignature().getDeclaringType();
+        Object target = pjp.getTarget();
+
+        FieldEntryData entryData = createFieldData(name, containingClass, target);
+
+        if (!entryData.valid()) {
+            return pjp.proceed();
+        }
+
+        Object value = entryData.entry().retrieveValue();
+        Fields.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
+        return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    @SneakyThrows(Throwable.class)
+    @Around(value = "onlyRobotCode() && entryUpdate(annotation) && args(arg)", argNames = "pjp, arg, annotation")
+    public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation) {
+        EntryType entryType = annotation.value();
+        if (entryType != EntryType.PUBLISHER && entryType != EntryType.INTELLIGENT) {
+            return pjp.proceed(pjp.getArgs());
+        }
+
+        String name = pjp.getSignature().getName();
+        Class<?> containingClass = pjp.getSignature().getDeclaringType();
+        Object target = pjp.getTarget();
+
+        FieldEntryData entryData = createFieldData(name, containingClass, target);
+
+        if (!entryData.valid()) {
+            return pjp.proceed(pjp.getArgs());
+        }
+
+        if (Fields.getFieldValue(entryData.targetField(), target) == null) {
+            ErrorLogger.customError(String.format("Field %s was null when it should not have been", pjp.getSignature()
+                    .getName()));
+            return pjp.proceed(pjp.getArgs());
+        }
+
+        NTEntry<Object> entry = (NTEntry<Object>) entryData.entry();
+        entry.publishValue(arg);
+
+        return pjp.proceed(new Object[] {arg});
+    }
+
+    @SuppressWarnings("unchecked")
+    @Around("onlyRobotCode() && entryUpdateInEntryClass() && args(arg)")
+    public Object setClassFieldEntry(ProceedingJoinPoint pjp, Object arg) {
+        Entry annotation = (Entry) pjp.getSignature().getDeclaringType().getAnnotation(Entry.class);
+        return setFieldEntry(pjp, arg, annotation);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Around("onlyRobotCode() && entryAccessInEntryClass()")
+    public Object getClassFieldEntry(ProceedingJoinPoint pjp) {
+        Entry annotation = (Entry) pjp.getSignature().getDeclaringType().getAnnotation(Entry.class);
+        return getFieldEntry(pjp, annotation);
+    }
+
+    private FieldEntryData createFieldData(String name, Class<?> containingClass, Object target) {
+        ClassData data = entries.getClassData(containingClass);
+        if (data == null) {
+            return new FieldEntryData(false, null, null);
+        }
+
+        InstanceData instanceData = data.instanceEntries().get(target);
+        Field field = data.fieldMap().get(name);
+
+        if (instanceData == null) {
+            return new FieldEntryData(false, null, null);
+        }
+
+        if (field == null) {
+            return new FieldEntryData(false, null, null);
+        }
+
+        NTEntry<?> entry = instanceData.getEntry(name);
+
+        if (entry == null) {
+            return new FieldEntryData(false, null, null);
+        }
+
+        return new FieldEntryData(true, entry, field);
+    }
+
+    private boolean isMemberStatic(Member field) {
+        return Modifier.isStatic(field.getModifiers());
+    }
+
+    private boolean isMemberNonStatic(Member field) {
+        return !isMemberStatic(field);
+    }
+
+    private record FieldEntryData(boolean valid, NTEntry<?> entry, Field targetField) {}
 }

@@ -5,14 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a field to not have an entry created for it if using the class level {@link Entry}.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Watcher {
-    Class<?> type();
-
-    EventType eventType() default EventType.ALL;
-
-    String name() default "";
-
-    String[] keys() default {};
+@Target({ElementType.FIELD})
+public @interface NoEntry {
 }

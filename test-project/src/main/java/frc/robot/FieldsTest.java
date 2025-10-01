@@ -1,19 +1,28 @@
 package frc.robot;
 
-import badgerlog.annotations.*;
+import badgerlog.annotations.AutoGenerateStruct;
+import badgerlog.annotations.Entry;
+import badgerlog.annotations.EntryType;
+import badgerlog.annotations.Key;
+import badgerlog.annotations.Struct;
+import badgerlog.annotations.StructType;
+import badgerlog.annotations.Table;
+import badgerlog.annotations.UnitConversion;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Millimeter;
 
+@Table("Auto - {descriptor}")
 public class FieldsTest implements Testing {
 
     @Entry(EntryType.PUBLISHER)
-    public int basicInteger = 1;
+    public static int basicInteger = 1;
 
     @Entry(EntryType.SUBSCRIBER)
-    @Key("Auto/AutoWaitTime")
+    @Key("AutoWaitTime")
     public double waitTime = 0;
 
     @Entry(EntryType.SUBSCRIBER)
@@ -31,6 +40,7 @@ public class FieldsTest implements Testing {
     @Entry(EntryType.SUBSCRIBER)
     @UnitConversion(value = "in", converterId = "translation")
     @UnitConversion(value = "radian", converterId = "rotation")
+    @Struct(StructType.MAPPING)
     public Pose2d robotPose = Pose2d.kZero;
 
     @Entry(EntryType.PUBLISHER)
@@ -55,6 +65,14 @@ public class FieldsTest implements Testing {
 
     @Override
     public void update() {
-
+        basicInteger += (int)(Math.random() * 10);
+        height = Millimeter.of(2).plus(height);
+        rotation2d = Rotation2d.fromDegrees(1).plus(rotation2d);
+        this.record = new CustomRecord(Math.random(), (int) (Math.random() * 4 + 2));
+    }
+    
+    @Entry(EntryType.PUBLISHER)
+    private double getBasicInteger(){
+        return basicInteger * 0.333f;
     }
 }

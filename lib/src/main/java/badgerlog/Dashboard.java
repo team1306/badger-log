@@ -89,7 +89,6 @@ public final class Dashboard {
         return Optional.of(chooser);
     }
 
-    
 
     /**
      * Adds an implementation of {@link NT} to the keymap to keep track of created entries.

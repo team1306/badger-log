@@ -13,7 +13,7 @@ import edu.wpi.first.units.measure.*;
 import static edu.wpi.first.units.Units.*;
 
 /**
- * Internal implementations of all the {@link Measure} mappings.
+ * Implementations of all the {@link Measure} mappings.
  */
 public final class UnitMappings {
 

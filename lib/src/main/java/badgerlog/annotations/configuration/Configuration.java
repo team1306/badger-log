@@ -7,7 +7,8 @@ import edu.wpi.first.util.struct.Struct;
 import lombok.Getter;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.util.HashMap;
 
 /**
@@ -24,6 +25,10 @@ public class Configuration {
      * {@return the key on NetworkTables}
      */
     private String key = null;
+    /**
+     * {@return the table on NetworkTables}
+     */
+    private String table = null;
     /**
      * {@return the struct publishing option}
      */
@@ -123,15 +128,23 @@ public class Configuration {
     }
 
     /**
-     * Creates a configuration object from field annotations using the annotation handlers.
+     * {@return the configuration object for method chaining}
      *
-     * @param field the field to create the object from
-     *
-     * @return a configuration object from field annotations
+     * @param table the table above the key on NetworkTables
      */
-    public static Configuration createConfigurationFromFieldAnnotations(Field field) {
+    public Configuration withTable(String table) {
+        this.table = table;
+        return this;
+    }
+
+    public static <T extends Member & AnnotatedElement> Configuration createConfigurationFromAnnotations(T element) {
         Configuration config = new Configuration();
-        Annotation[] annotations = field.getDeclaredAnnotations();
+        Annotation[] classAnnotations = element.getDeclaringClass().getAnnotations();
+        for (Annotation annotation : classAnnotations) {
+            handleAnnotation(annotation, config);
+        }
+
+        Annotation[] annotations = element.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);
         }

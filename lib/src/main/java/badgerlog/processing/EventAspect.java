@@ -32,35 +32,35 @@ public class EventAspect {
             initialFieldPass = true;
         }
     }
-    
+
     private void handleInterceptorMethod(Method method, Object workingClass) {
-        if(!Validation.validateInterceptorMethod(method)) {
+        if (!Validation.validateInterceptorMethod(method)) {
             return;
         }
-        
+
         //todo handle interceptor
     }
-    
+
     private void handleWatcherMethod(Method method, Object workingClass) {
-        if(!Validation.validateWatcherMethod(method)) {
+        if (!Validation.validateWatcherMethod(method)) {
             return;
         }
-        
-        //todo handle watcher        
+
+        //todo handle watcher
     }
 
-    private void delegateEventMethod(Method method, Object workingClass){
-        if(method.isAnnotationPresent(Watcher.class) && method.isAnnotationPresent(Interceptor.class)) {
-            ErrorLogger.methodError(method, "is annotated with @Watcher and @Interceptor. When it can only be annotated with one");
+    private void delegateEventMethod(Method method, Object workingClass) {
+        if (method.isAnnotationPresent(Watcher.class) && method.isAnnotationPresent(Interceptor.class)) {
+            ErrorLogger
+                    .memberError(method, "is annotated with @Watcher and @Interceptor. When it can only be annotated with one");
             return;
         }
 
-        if(method.isAnnotationPresent(Watcher.class)){
+        if (method.isAnnotationPresent(Watcher.class)) {
             handleWatcherMethod(method, workingClass);
-        }
-        else if(method.isAnnotationPresent(Interceptor.class)) {
+        } else if (method.isAnnotationPresent(Interceptor.class)) {
             handleInterceptorMethod(method, workingClass);
         }
     }
-    
+
 }
