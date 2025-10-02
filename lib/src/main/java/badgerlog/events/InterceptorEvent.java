@@ -2,7 +2,7 @@ package badgerlog.events;
 
 import java.util.function.Function;
 
-public record InterceptorEvent<T>(Class<T> type, Function<EventData<T>, T> valueConsumer) implements NTEvent {
+public record InterceptorEvent<T>(Class<T> type, Function<EventData<T>, T> valueConsumer) {
     public T invoke(EventData<T> value) {
         return valueConsumer.apply(value);
     }
