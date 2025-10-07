@@ -64,9 +64,7 @@ public class EventRegistry {
     }
 
     public static List<? extends InterceptorEvent<?>> getInterceptorData(String name, String key, Class<?> type) {
-        Predicate<InterceptorData> matchesIdentifier = data -> data.metadata()
-                .name()
-                .equals(name) || Arrays.stream(data.metadata()
+        Predicate<InterceptorData> matchesIdentifier = data -> (!data.metadata().name().isBlank() && data.metadata().name().equals(name)) || Arrays.stream(data.metadata()
                 .keys()).anyMatch(value -> value.contains(key));
 
         var matchingInterceptor = interceptorData.stream()
@@ -79,7 +77,7 @@ public class EventRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    private static InterceptorEvent<Object> createBlankInterceptorEvent(Class<?> type) {
+    public static InterceptorEvent<Object> createBlankInterceptorEvent(Class<?> type) {
         return new InterceptorEvent<>((Class<Object>) type, EventData::newValue);
     }
 

@@ -1,5 +1,6 @@
 package badgerlog.processing;
 
+import badgerlog.annotations.EventType;
 import badgerlog.annotations.Interceptor;
 import badgerlog.annotations.Watcher;
 import badgerlog.events.EventMetadata;
@@ -45,7 +46,7 @@ public class EventAspect {
         }
         Interceptor interceptor = method.getAnnotation(Interceptor.class);
 
-        EventMetadata metadata = new EventMetadata(interceptor.keys(), interceptor.name(), interceptor.eventType(), interceptor.priority());
+        EventMetadata metadata = new EventMetadata(interceptor.keys(), interceptor.name(), EventType.ALL, interceptor.priority());
         InterceptorEvent<?> event = new InterceptorEvent<>((Class<Object>) method.getReturnType(), (data) -> Methods.invokeMethod(method, workingClass, data));
         EventRegistry.registerInterceptor(event, metadata);
     }

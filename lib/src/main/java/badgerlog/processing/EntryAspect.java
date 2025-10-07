@@ -3,8 +3,12 @@ package badgerlog.processing;
 import badgerlog.Dashboard;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
+import badgerlog.annotations.Event;
 import badgerlog.annotations.NoEntry;
 import badgerlog.annotations.configuration.Configuration;
+import badgerlog.events.EventData;
+import badgerlog.events.EventRegistry;
+import badgerlog.events.InterceptorEvent;
 import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.MockNTEntry;
 import badgerlog.networktables.NTEntry;
@@ -18,6 +22,7 @@ import badgerlog.utilities.Fields;
 import badgerlog.utilities.KeyParser;
 import badgerlog.utilities.Methods;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.Timer;
 import lombok.SneakyThrows;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -33,6 +38,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Utilizes AspectJ to weave entry generation and management into target classes.
@@ -210,7 +217,25 @@ public class EntryAspect {
 
         Object value = entryData.entry().retrieveValue();
         Fields.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
+
+        value = runMatchingInterceptors(entryData, value);
+        
         return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object runMatchingInterceptors(FieldEntryData entryData, Object initialValue) {
+        Event eventAnnotation = entryData.targetField().getAnnotation(Event.class);
+        Class<?> type = entryData.targetField.getType();
+        List<InterceptorEvent<Object>> interceptors = EventRegistry.getInterceptorData(entryData.entry.getKey(), eventAnnotation == null ? "" : eventAnnotation.name(), type)
+                .stream()
+                .map(interceptor -> (InterceptorEvent<Object>) interceptor)
+                .toList();
+
+        Function<Object, EventData<?>> eventDataSupplier = (value) -> new EventData<>(entryData.entry.getKey(), Timer.getFPGATimestamp(), null, value);
+        return interceptors.stream()
+                .map(InterceptorEvent::valueConsumer)
+                .reduce(initialValue, (value, event) -> event.apply((EventData<Object>) eventDataSupplier.apply(value)), (value1, value2) -> value2);
     }
 
     @SuppressWarnings("unchecked")
@@ -239,9 +264,12 @@ public class EntryAspect {
         }
 
         NTEntry<Object> entry = (NTEntry<Object>) entryData.entry();
-        entry.publishValue(arg);
+        
+        Object value = arg;
+        value = runMatchingInterceptors(entryData, value);
+        entry.publishValue(value);
 
-        return pjp.proceed(new Object[] {arg});
+        return pjp.proceed(new Object[] {value});
     }
 
     @SuppressWarnings("unchecked")
