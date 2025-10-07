@@ -69,6 +69,7 @@ public class EventRegistry {
 
         var matchingInterceptor = interceptorData.stream()
                 .filter(matchesIdentifier)
+                .filter(data -> data.interceptorEvent.matches(type))
                 .sorted(Comparator.comparingInt(value -> value.metadata.priority()))
                 .map(InterceptorData::interceptorEvent)
                 .toList();

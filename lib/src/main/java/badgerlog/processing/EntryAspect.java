@@ -197,6 +197,7 @@ public class EntryAspect {
                 .invokeMethod(method, instance)));
     }
 
+    @SuppressWarnings("unchecked")
     @SneakyThrows(Throwable.class)
     @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
     public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation) {
@@ -215,10 +216,13 @@ public class EntryAspect {
             return pjp.proceed();
         }
 
-        Object value = entryData.entry().retrieveValue();
-        Fields.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
+        NTEntry<Object> entry = (NTEntry<Object>) entryData.entry();
 
+        Object value = entry.retrieveValue();
         value = runMatchingInterceptors(entryData, value);
+        
+        Fields.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
+        entry.publishValue(value);
         
         return value;
     }
