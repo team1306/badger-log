@@ -2,7 +2,12 @@ package badgerlog.processing;
 
 import badgerlog.annotations.Interceptor;
 import badgerlog.annotations.Watcher;
+import badgerlog.events.EventMetadata;
+import badgerlog.events.EventRegistry;
+import badgerlog.events.InterceptorEvent;
+import badgerlog.events.WatcherEvent;
 import badgerlog.utilities.ErrorLogger;
+import badgerlog.utilities.Methods;
 import badgerlog.utilities.Validation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -33,26 +38,35 @@ public class EventAspect {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleInterceptorMethod(Method method, Object workingClass) {
         if (!Validation.validateInterceptorMethod(method)) {
             return;
         }
+        Interceptor interceptor = method.getAnnotation(Interceptor.class);
 
-        //todo handle interceptor
+        EventMetadata metadata = new EventMetadata(interceptor.keys(), interceptor.name(), interceptor.eventType(), interceptor.priority());
+        InterceptorEvent<?> event = new InterceptorEvent<>((Class<Object>) method.getReturnType(), (data) -> Methods.invokeMethod(method, workingClass, data));
+        EventRegistry.registerInterceptor(event, metadata);
     }
 
+    @SuppressWarnings("unchecked")
     private void handleWatcherMethod(Method method, Object workingClass) {
         if (!Validation.validateWatcherMethod(method)) {
             return;
         }
 
-        //todo handle watcher
+        Watcher watcher = method.getAnnotation(Watcher.class);
+        
+        EventMetadata metadata = new EventMetadata(watcher.keys(), watcher.name(), watcher.eventType(), 0);
+        WatcherEvent<?> event = new WatcherEvent<>((Class<Object>) method.getReturnType(), (data) -> Methods.invokeMethod(method, workingClass, data));
+        EventRegistry.registerWatcher(event, metadata);
     }
 
     private void delegateEventMethod(Method method, Object workingClass) {
         if (method.isAnnotationPresent(Watcher.class) && method.isAnnotationPresent(Interceptor.class)) {
             ErrorLogger
-                    .memberError(method, "is annotated with @Watcher and @Interceptor. When it can only be annotated with one");
+                    .memberError(method, "is annotated with both @Watcher and @Interceptor. When it can only be annotated with one");
             return;
         }
 

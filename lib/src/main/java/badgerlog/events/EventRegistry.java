@@ -6,10 +6,13 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Predicate;
 
 public class EventRegistry {
     private static final Queue<WatcherPair<?>> eventQueue = new ConcurrentLinkedQueue<>();
@@ -45,21 +48,44 @@ public class EventRegistry {
                     case ALL -> Kind.kValueAll;
                 });
 
-        networkTableInstance.addListener(new String[] {metadata.key()}, validMessages, (ntEvent) -> addNetworkTablesWatcherEvent(event, ntEvent));
+        networkTableInstance.addListener(metadata.keys(), validMessages, (ntEvent) -> addNetworkTablesWatcherEvent(event, ntEvent));
+        watcherData.add(new WatcherData(event, metadata));
     }
 
-    public static void registerInterceptor(EventMetadata metadata, InterceptorEvent<?> event) {
-
+    public static void registerInterceptor(InterceptorEvent<?> event, EventMetadata metadata) {
+        interceptorData.add(new InterceptorData(event, metadata));
     }
-    
-    public static void addNetworkTablesWatcherEvent(WatcherEvent<?> watcherEvent, NetworkTableEvent event){
-        EventData<Object> data = new EventData<>(event.topicInfo.name, Timer.getFPGATimestamp(), null, event.valueData.value.getValue());
-//        eventQueue.add(new WatcherPair<>(watcherEvent, data));
+
+    @SuppressWarnings("unchecked")
+    public static void addNetworkTablesWatcherEvent(WatcherEvent<?> watcherEvent, NetworkTableEvent event) {
+        EventData<Object> data = new EventData<>(event.valueData.getTopic()
+                .getName(), Timer.getFPGATimestamp(), null, event.valueData.value.getValue());
+        eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) watcherEvent, data));
+    }
+
+    public static List<? extends InterceptorEvent<?>> getInterceptorData(String name, String key, Class<?> type) {
+        Predicate<InterceptorData> matchesIdentifier = data -> data.metadata()
+                .name()
+                .equals(name) || Arrays.stream(data.metadata()
+                .keys()).anyMatch(value -> value.contains(key));
+
+        var matchingInterceptor = interceptorData.stream()
+                .filter(matchesIdentifier)
+                .sorted(Comparator.comparingInt(value -> value.metadata.priority()))
+                .map(InterceptorData::interceptorEvent)
+                .toList();
+
+        return matchingInterceptor.isEmpty() ? List.of(createBlankInterceptorEvent(type)) : matchingInterceptor;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static InterceptorEvent<Object> createBlankInterceptorEvent(Class<?> type) {
+        return new InterceptorEvent<>((Class<Object>) type, EventData::newValue);
     }
 
     private record WatcherPair<T>(WatcherEvent<T> watcher, EventData<T> data) {}
 
-    private record WatcherData(EventMetadata data, WatcherEvent<?> watcherEvent) {}
+    private record WatcherData(WatcherEvent<?> watcherEvent, EventMetadata data) {}
 
-    private record InterceptorData(EventMetadata data, InterceptorEvent<?> watcherEvent) {}
+    private record InterceptorData(InterceptorEvent<?> interceptorEvent, EventMetadata metadata) {}
 }
