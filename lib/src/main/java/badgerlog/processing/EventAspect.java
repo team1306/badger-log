@@ -13,6 +13,7 @@ import badgerlog.utilities.Validation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -20,23 +21,31 @@ import java.util.Arrays;
 
 @Aspect
 public class EventAspect {
-    private boolean initialFieldPass = false;
 
-    @After("execution(*.new(..)) && !within(edu.wpi.first..*) && !within(badgerlog.processing..*)")
-    public void addAllEventMethods(JoinPoint thisJoinPoint) {
-        Class<?> staticReference = thisJoinPoint.getSignature().getDeclaringType();
-        Object workingClass = thisJoinPoint.getThis();
+    @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
+    public void onlyRobotCode() {
+    }
 
-        Arrays.stream(staticReference.getDeclaredMethods())
+    @Pointcut("execution(*.new(..))")
+    public void newInitialization() {
+    }
+
+    @After("onlyRobotCode() && staticinitialization(*)")
+    public void createStaticEvents(JoinPoint joinPoint) {
+        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        Arrays.stream(clazz.getDeclaredMethods())
+                .filter(method -> Modifier.isStatic(method.getModifiers()))
+                .forEach(method -> delegateEventMethod(method, null));
+    }
+
+    @After("onlyRobotCode() && newInitialization()")
+    public void createInstanceEvents(JoinPoint joinPoint) {
+        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        Object workingClass = joinPoint.getThis();
+        
+        Arrays.stream(clazz.getDeclaredMethods())
                 .filter(method -> !Modifier.isStatic(method.getModifiers()))
                 .forEach(method -> delegateEventMethod(method, workingClass));
-
-        if (!initialFieldPass) {
-            Arrays.stream(staticReference.getDeclaredMethods())
-                    .filter(method -> Modifier.isStatic(method.getModifiers()))
-                    .forEach(method -> delegateEventMethod(method, workingClass));
-            initialFieldPass = true;
-        }
     }
 
     @SuppressWarnings("unchecked")

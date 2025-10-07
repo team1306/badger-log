@@ -1,6 +1,7 @@
 package badgerlog;
 
 import badgerlog.annotations.configuration.Configuration;
+import badgerlog.events.EventRegistry;
 import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.NT;
 import badgerlog.networktables.NTEntry;
@@ -119,6 +120,7 @@ public final class Dashboard {
      */
     public static void update() {
         activeEntries.getUpdaters().values().forEach(NTUpdatable::update);
+        EventRegistry.updateEvents();
     }
 
     /**
