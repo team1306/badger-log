@@ -26,7 +26,7 @@ public class EventsTest implements Testing{
     public void update() {
     }
     
-    @Watcher(type = int.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
+    @Watcher(type = Long.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
     private void integerWatcher(EventData<Integer> data){
         System.out.println("EVENT value: "+data + "-> Fired");
     }

@@ -56,11 +56,10 @@ public class EventAspect {
         Interceptor interceptor = method.getAnnotation(Interceptor.class);
 
         EventMetadata metadata = new EventMetadata(interceptor.keys(), interceptor.name(), EventType.ALL, interceptor.priority());
-        InterceptorEvent<?> event = new InterceptorEvent<>((Class<Object>) method.getReturnType(), (data) -> Methods.invokeMethod(method, workingClass, data));
+        InterceptorEvent<?> event = new InterceptorEvent<>((Class<Object>) interceptor.type(), (data) -> Methods.invokeMethod(method, workingClass, data));
         EventRegistry.registerInterceptor(event, metadata);
     }
 
-    @SuppressWarnings("unchecked")
     private void handleWatcherMethod(Method method, Object workingClass) {
         if (!Validation.validateWatcherMethod(method)) {
             return;
@@ -69,7 +68,7 @@ public class EventAspect {
         Watcher watcher = method.getAnnotation(Watcher.class);
         
         EventMetadata metadata = new EventMetadata(watcher.keys(), watcher.name(), watcher.eventType(), 0);
-        WatcherEvent<?> event = new WatcherEvent<>((Class<Object>) method.getReturnType(), (data) -> Methods.invokeMethod(method, workingClass, data));
+        WatcherEvent<?> event = new WatcherEvent<>(watcher.type(), (data) -> Methods.invokeMethod(method, workingClass, data));
         EventRegistry.registerWatcher(event, metadata);
     }
 

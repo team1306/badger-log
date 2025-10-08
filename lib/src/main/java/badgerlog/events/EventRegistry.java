@@ -58,6 +58,14 @@ public class EventRegistry {
 
     @SuppressWarnings("unchecked")
     public static void addNetworkTablesWatcherEvent(WatcherEvent<?> watcherEvent, NetworkTableEvent event) {
+        Object value = event.valueData.value.getValue();
+        if (value == null) return;
+        Class<?> type = value.getClass();
+        
+        if(!watcherEvent.matches(type)){
+            return;
+        }
+        
         EventData<Object> data = new EventData<>(event.valueData.getTopic()
                 .getName(), Timer.getFPGATimestamp(), null, event.valueData.value.getValue());
         eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) watcherEvent, data));
