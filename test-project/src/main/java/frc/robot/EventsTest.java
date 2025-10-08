@@ -24,6 +24,7 @@ public class EventsTest implements Testing{
 
     @Override
     public void update() {
+        System.out.println(interceptorTest);
     }
     
     @Watcher(type = Long.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
@@ -31,7 +32,7 @@ public class EventsTest implements Testing{
         System.out.println("EVENT value: "+data + "-> Fired");
     }
     
-    @Interceptor(type = Integer.class, name = "IntTest", keys = "interceptorTest", priority = 4)
+    @Interceptor(type = int.class, name = "IntTest", keys = "interceptorTest", priority = 4)
     private Object clampingInterceptor(EventData<Integer> data){
         System.out.println("Intercepted");
         return Math.max(data.newValue(), 0);

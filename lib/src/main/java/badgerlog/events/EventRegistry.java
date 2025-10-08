@@ -71,10 +71,10 @@ public class EventRegistry {
         eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) watcherEvent, data));
     }
 
-    public static List<? extends InterceptorEvent<?>> getInterceptorData(String name, String key, Class<?> type) {
-        Predicate<InterceptorData> matchesIdentifier = data -> (!data.metadata().name().isBlank() && data.metadata().name().equals(name)) || Arrays.stream(data.metadata()
-                .keys()).anyMatch(value -> value.contains(key));
-
+    public static List<? extends InterceptorEvent<?>> getInterceptorData(String key, String name, Class<?> type) {
+        Predicate<InterceptorData> matchesIdentifier = 
+                data -> (!data.metadata().name().isBlank() && data.metadata().name().equals(name)) 
+                                || Arrays.stream(data.metadata().keys()).anyMatch(value -> value.contains(key));
         var matchingInterceptor = interceptorData.stream()
                 .filter(matchesIdentifier)
                 .filter(data -> data.interceptorEvent.matches(type))

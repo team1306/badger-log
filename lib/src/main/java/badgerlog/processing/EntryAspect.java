@@ -231,7 +231,8 @@ public class EntryAspect {
     private Object runMatchingInterceptors(FieldEntryData entryData, Object initialValue) {
         Event eventAnnotation = entryData.targetField().getAnnotation(Event.class);
         Class<?> type = entryData.targetField.getType();
-        List<InterceptorEvent<Object>> interceptors = EventRegistry.getInterceptorData(entryData.entry.getKey(), eventAnnotation == null ? "" : eventAnnotation.value(), type)
+        var allInterceptors = EventRegistry.getInterceptorData(entryData.entry.getKey(), eventAnnotation == null ? "" : eventAnnotation.value(), type);
+        List<InterceptorEvent<Object>> interceptors = allInterceptors
                 .stream()
                 .map(interceptor -> (InterceptorEvent<Object>) interceptor)
                 .toList();
