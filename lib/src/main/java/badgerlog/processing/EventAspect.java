@@ -1,13 +1,9 @@
 package badgerlog.processing;
 
-import badgerlog.annotations.EventType;
-import badgerlog.annotations.Interceptor;
 import badgerlog.annotations.Watcher;
 import badgerlog.events.EventMetadata;
 import badgerlog.events.EventRegistry;
-import badgerlog.events.InterceptorEvent;
 import badgerlog.events.WatcherEvent;
-import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Methods;
 import badgerlog.utilities.Validation;
 import org.aspectj.lang.JoinPoint;
@@ -33,9 +29,11 @@ public class EventAspect {
     @After("onlyRobotCode() && staticinitialization(*)")
     public void createStaticEvents(JoinPoint joinPoint) {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
-        Arrays.stream(clazz.getDeclaredMethods())
+        
+        Method[] methods = Methods.getMethodsWithAnnotation(clazz, Watcher.class);
+        Arrays.stream(methods)
                 .filter(method -> Modifier.isStatic(method.getModifiers()))
-                .forEach(method -> delegateEventMethod(method, null));
+                .forEach(method -> handleWatcherMethod(method, null));
     }
 
     @After("onlyRobotCode() && newInitialization()")
@@ -43,21 +41,10 @@ public class EventAspect {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
         Object workingClass = joinPoint.getThis();
         
-        Arrays.stream(clazz.getDeclaredMethods())
+        Method[] methods = Methods.getMethodsWithAnnotation(clazz, Watcher.class);
+        Arrays.stream(methods)
                 .filter(method -> !Modifier.isStatic(method.getModifiers()))
-                .forEach(method -> delegateEventMethod(method, workingClass));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void handleInterceptorMethod(Method method, Object workingClass) {
-        if (!Validation.validateInterceptorMethod(method)) {
-            return;
-        }
-        Interceptor interceptor = method.getAnnotation(Interceptor.class);
-
-        EventMetadata metadata = new EventMetadata(interceptor.keys(), interceptor.name(), EventType.ALL, interceptor.priority());
-        InterceptorEvent<?> event = new InterceptorEvent<>((Class<Object>) interceptor.type(), (data) -> Methods.invokeMethod(method, workingClass, data));
-        EventRegistry.registerInterceptor(event, metadata);
+                .forEach(method -> handleWatcherMethod(method, workingClass));
     }
 
     private void handleWatcherMethod(Method method, Object workingClass) {
@@ -67,23 +54,8 @@ public class EventAspect {
 
         Watcher watcher = method.getAnnotation(Watcher.class);
         
-        EventMetadata metadata = new EventMetadata(watcher.keys(), watcher.name(), watcher.eventType(), 0);
+        EventMetadata metadata = new EventMetadata(watcher.keys(), watcher.name(), watcher.eventType());
         WatcherEvent<?> event = new WatcherEvent<>(watcher.type(), (data) -> Methods.invokeMethod(method, workingClass, data));
         EventRegistry.registerWatcher(event, metadata);
     }
-
-    private void delegateEventMethod(Method method, Object workingClass) {
-        if (method.isAnnotationPresent(Watcher.class) && method.isAnnotationPresent(Interceptor.class)) {
-            ErrorLogger
-                    .memberError(method, "is annotated with both @Watcher and @Interceptor. When it can only be annotated with one");
-            return;
-        }
-
-        if (method.isAnnotationPresent(Watcher.class)) {
-            handleWatcherMethod(method, workingClass);
-        } else if (method.isAnnotationPresent(Interceptor.class)) {
-            handleInterceptorMethod(method, workingClass);
-        }
-    }
-
 }
