@@ -214,8 +214,7 @@ public class EntryAspect {
         Object value = entry.retrieveValue();
         
         Fields.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
-        entry.publishValue(value);
-        
+
         return value;
     }
 
