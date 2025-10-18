@@ -1,6 +1,6 @@
 package badgerlog.conversion;
 
-import badgerlog.utilities.Fields;
+import badgerlog.utilities.Members;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Measure;
@@ -34,13 +34,13 @@ public final class UnitConversions {
         HashMap<Unit, Set<String>> parts = Arrays.stream(fields)
                 .collect(Collectors.toSet())
                 .stream()
-                .map(Fields::getFieldValue)
+                .map(Members::getFieldValue)
                 .map(Unit.class::cast)
                 .collect(
                         HashMap::new, (map, unit) -> map.put(unit, new HashSet<>()), HashMap::putAll);
 
         for (Field field : fields) {
-            Unit unit = (Unit) Fields.getFieldValue(field);
+            Unit unit = (Unit) Members.getFieldValue(field);
             parts.get(unit).add(unit.name().toLowerCase(Locale.ROOT));
             parts.get(unit).add(unit.symbol().toLowerCase(Locale.ROOT));
             parts.get(unit).add(field.getName().toLowerCase(Locale.ROOT));

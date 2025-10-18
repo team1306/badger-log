@@ -68,7 +68,7 @@ public final class KeyParser {
         for (String fieldName : fieldNames) {
             try {
                 Field valueField = member.getDeclaringClass().getDeclaredField(fieldName);
-                fieldValues.put(fieldName, Fields.getFieldValue(valueField, instance).toString());
+                fieldValues.put(fieldName, Members.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException | NullPointerException e) {
                 config.makeInvalid();
                 ErrorLogger.customError(member.getDeclaringClass().getSimpleName() + "." + member
