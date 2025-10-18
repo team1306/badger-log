@@ -36,7 +36,7 @@ public class EventRegistry {
 
     private static final NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
 
-    public static void registerWatcher(WatcherEvent<?> event, EventMetadata metadata) {
+    public static void registerRawWatcher(WatcherEvent<?> event, EventMetadata metadata) {
         EnumSet<Kind> validMessages = EnumSet.of(
                 switch (metadata.type()) {
                     case INCOMING -> Kind.kValueRemote;
@@ -45,12 +45,16 @@ public class EventRegistry {
                 });
 
         networkTableInstance.addListener(metadata.keys(), validMessages, (ntEvent) -> addNetworkTablesWatcherEvent(event, ntEvent));
+    }
+    
+    public static void registerWatcher(WatcherEvent<?> event, EventMetadata metadata) {
         watcherData.add(new WatcherData(event, metadata));
     }
 
     @SuppressWarnings("unchecked")
-    public static void addNetworkTablesWatcherEvent(WatcherEvent<?> watcherEvent, NetworkTableEvent event) {
+    private static void addNetworkTablesWatcherEvent(WatcherEvent<?> watcherEvent, NetworkTableEvent event) {
         Object value = event.valueData.value.getValue();
+        
         if (value == null) return;
         Class<?> type = value.getClass();
         
@@ -59,7 +63,7 @@ public class EventRegistry {
         }
         
         EventData<Object> data = new EventData<>(event.valueData.getTopic()
-                .getName(), Timer.getFPGATimestamp(), null, event.valueData.value.getValue());
+                .getName(), Timer.getFPGATimestamp(), event.valueData.value.getValue());
         eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) watcherEvent, data));
     }
 
