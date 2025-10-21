@@ -12,7 +12,5 @@ public @interface Watcher {
 
     EventType eventType() default EventType.ALL;
 
-    String name() default "";
-
-    String[] keys() default {};
+    String name();
 }

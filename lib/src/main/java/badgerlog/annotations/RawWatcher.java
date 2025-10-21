@@ -12,5 +12,5 @@ public @interface RawWatcher {
 
     EventType eventType() default EventType.ALL;
     
-    String[] keys() default {};
+    String[] keys();
 }
