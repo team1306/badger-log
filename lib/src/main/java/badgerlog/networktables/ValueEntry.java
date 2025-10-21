@@ -19,6 +19,7 @@ public final class ValueEntry<T> implements NTEntry<T> {
     private final Mapping<T, Object> fieldValueMapping;
     private final GenericEntry entry;
     private final String key;
+    private final Class<?> type;
 
     /**
      * Constructs a new ValueEntry, creating the entry on NetworkTables, and finding the {@link Mapping} for the
@@ -34,6 +35,7 @@ public final class ValueEntry<T> implements NTEntry<T> {
     public ValueEntry(String key, Class<T> valueClass, T initialValue, Configuration config) {
         this.config = config;
         this.key = key;
+        this.type = valueClass;
 
         this.fieldValueMapping = Mappings.findMapping(valueClass);
 
@@ -56,6 +58,11 @@ public final class ValueEntry<T> implements NTEntry<T> {
     @Override
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return type;
     }
 
     @Override

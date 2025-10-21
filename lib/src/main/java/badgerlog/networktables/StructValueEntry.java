@@ -13,6 +13,7 @@ public final class StructValueEntry<T> implements NTEntry<T> {
 
     private final StructEntry<T> entry;
     private final String key;
+    private final Class<?> type;
 
     /**
      * Constructs a new StructValueEntry and creates the entry on NetworkTables.
@@ -25,6 +26,7 @@ public final class StructValueEntry<T> implements NTEntry<T> {
      */
     public StructValueEntry(String key, Struct<T> struct, T initialValue) {
         this.key = key;
+        this.type = initialValue.getClass();
         entry = Dashboard.defaultTable.getStructTopic(key, struct).getEntry(initialValue);
         publishValue(initialValue);
     }
@@ -42,6 +44,11 @@ public final class StructValueEntry<T> implements NTEntry<T> {
     @Override
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return type;
     }
 
     @Override

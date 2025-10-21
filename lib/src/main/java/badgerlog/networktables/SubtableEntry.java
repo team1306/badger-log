@@ -23,7 +23,8 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     private final ByteBuffer buffer;
 
     private final String key;
-
+    private final Class<?> type;
+    
     /**
      * Constructs a new SubtableEntry, creating all the entries on NetworkTables under the specified key.
      *
@@ -36,6 +37,7 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     public SubtableEntry(String key, Struct<T> struct, T initialValue) {
         this.struct = struct;
         this.key = key;
+        this.type = initialValue.getClass();
 
         buffer = ByteBuffer.allocate(struct.getSize());
 
@@ -82,5 +84,10 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     @Override
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return type;
     }
 }
