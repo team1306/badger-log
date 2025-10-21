@@ -42,7 +42,7 @@ public class EventsTest implements Testing{
         System.out.println("EVENT value: "+data + "-> Fired");
     }
 
-    @RawWatcher(type = Long.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
+    @RawWatcher(type = void.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
     private void integerRawWatcher(EventData<Integer> data){
         System.out.println("EVENT value RAW: "+data + "-> Fired");
     }

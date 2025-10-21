@@ -60,7 +60,8 @@ public class EventRegistry {
         for(NTEntry<?> entry : namedEntries){
             String actualKey = "/BadgerLog/" + entry.getKey();
             boolean equivalentKeys = ntEvent.valueData.getTopic().getName().startsWith(actualKey);
-            if(event.matches(entry.getType()) && equivalentKeys){
+            boolean typeMatch = event.matches(entry.getType()) || event.type().equals(void.class);
+            if(typeMatch && equivalentKeys){
                 EventData<Object> eventData = new EventData<>(entry.getKey(), Timer.getFPGATimestamp(), entry.retrieveValue());
                 eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) event, eventData));
             }
@@ -74,7 +75,7 @@ public class EventRegistry {
         if (value == null) return;
         Class<?> type = value.getClass();
         
-        if(!watcherEvent.matches(type)){
+        if(!watcherEvent.matches(type) && !watcherEvent.type().equals(void.class)){
             return;
         }
         
