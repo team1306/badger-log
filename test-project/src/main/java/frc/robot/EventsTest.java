@@ -1,18 +1,25 @@
 package frc.robot;
 
-import badgerlog.annotations.*;
+import badgerlog.annotations.Entry;
+import badgerlog.annotations.EntryType;
+import badgerlog.annotations.EventType;
+import badgerlog.annotations.RawWatcher;
+import badgerlog.annotations.Struct;
+import badgerlog.annotations.StructType;
+import badgerlog.annotations.Watched;
+import badgerlog.annotations.Watcher;
 import badgerlog.events.EventData;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 
 public class EventsTest implements Testing{
     
     @Entry(EntryType.SUBSCRIBER)
+    @Watched("integer")
     private int watcherTest = 1;
 
     @Entry(EntryType.SUBSCRIBER)
-    @Struct(StructType.STRUCT)
+    @Struct(StructType.SUB_TABLE)
+    @Watched("pose2d")
     private Pose2d robotPose = Pose2d.kZero;
     
     @Override
@@ -22,16 +29,21 @@ public class EventsTest implements Testing{
 
     @Override
     public void update() {
-        robotPose = new Pose2d(new Translation2d(), Rotation2d.fromRadians(Math.random()));
+
     }
 
-    @Watcher(type = Double.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
+    @Watcher(type = Pose2d.class, name = "pose2d", eventType = EventType.ALL)
     private void pose2dWatcher(EventData<Double> data){
         System.out.println("EVENT value for Pose 2d : "+data + "-> Fired");
     }
     
-    @Watcher(type = Long.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
+    @Watcher(type = int.class, name = "integer", eventType = EventType.ALL)
     private void integerWatcher(EventData<Integer> data){
         System.out.println("EVENT value: "+data + "-> Fired");
+    }
+
+    @RawWatcher(type = Long.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
+    private void integerRawWatcher(EventData<Integer> data){
+        System.out.println("EVENT value RAW: "+data + "-> Fired");
     }
 }
