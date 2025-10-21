@@ -39,8 +39,8 @@ public class EventAspect {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
         Object workingClass = joinPoint.getThis();
 
-        Members.iterateOverAnnotatedMethods(clazz, Watcher.class, true, method -> handleWatcherMethod(method, workingClass));
-        Members.iterateOverAnnotatedMethods(clazz, RawWatcher.class, true, method -> handleRawWatcherMethod(method, workingClass));
+        Members.iterateOverAnnotatedMethods(clazz, Watcher.class, false, method -> handleWatcherMethod(method, workingClass));
+        Members.iterateOverAnnotatedMethods(clazz, RawWatcher.class, false, method -> handleRawWatcherMethod(method, workingClass));
     }
 
     private void handleWatcherMethod(Method method, Object workingClass) {
@@ -50,8 +50,8 @@ public class EventAspect {
 
         Watcher watcher = method.getAnnotation(Watcher.class);
         
-        EventMetadata metadata = new EventMetadata(watcher.keys(), watcher.name(), watcher.eventType());
-        WatcherEvent<?> event = new WatcherEvent<>(getPrimitiveType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
+        EventMetadata metadata = new EventMetadata(null, watcher.name(), watcher.eventType());
+        WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
         EventRegistry.registerWatcher(event, metadata);
     }
 
@@ -63,20 +63,20 @@ public class EventAspect {
         RawWatcher watcher = method.getAnnotation(RawWatcher.class);
 
         EventMetadata metadata = new EventMetadata(watcher.keys(), null, watcher.eventType());
-        WatcherEvent<?> event = new WatcherEvent<>(getPrimitiveType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
+        WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
         EventRegistry.registerRawWatcher(event, metadata);
     }
 
-    public static Class<?> getPrimitiveType(Class<?> type) {
+    public static Class<?> getObjectType(Class<?> type) {
         var boxedToPrimitive = Map.ofEntries(
-                Map.entry(Integer.class, int.class),
-                Map.entry(Long.class, long.class),
-                Map.entry(Double.class, double.class),
-                Map.entry(Boolean.class, boolean.class),
-                Map.entry(Float.class, float.class),
-                Map.entry(Byte.class, byte.class),
-                Map.entry(Short.class, short.class),
-                Map.entry(Character.class, char.class),
+                Map.entry(int.class, Integer.class),
+                Map.entry(long.class, Long.class),
+                Map.entry(double.class, Double.class),
+                Map.entry(boolean.class, Boolean.class),
+                Map.entry(float.class, Float.class),
+                Map.entry(byte.class, Byte.class),
+                Map.entry(short.class, Short.class),
+                Map.entry(char.class, Character.class),
                 Map.entry(void.class, void.class)
         );
 

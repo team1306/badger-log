@@ -4,7 +4,9 @@ import badgerlog.Dashboard;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
 import badgerlog.annotations.NoEntry;
+import badgerlog.annotations.Watched;
 import badgerlog.annotations.configuration.Configuration;
+import badgerlog.events.EventRegistry;
 import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.MockNTEntry;
 import badgerlog.networktables.NTEntry;
@@ -137,6 +139,8 @@ public class EntryAspect {
         }
 
         NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members.getFieldValue(field, instance), config);
+        registerAnyManagedEvents(entry, field);
+        
         Entry annotation = field.getAnnotation(Entry.class);
 
         if (annotation == null) {
@@ -168,7 +172,16 @@ public class EntryAspect {
         }
 
         NTEntry<Object> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members.invokeMethod(method, instance), config);
+        registerAnyManagedEvents(entry, method);
+        
         Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Members.invokeMethod(method, instance)));
+    }
+    
+    private void registerAnyManagedEvents(NTEntry<?> entry, AnnotatedElement member){
+        Watched watched = member.getAnnotation(Watched.class);
+        if(watched == null) return;
+        
+        EventRegistry.addWatchedEntry(entry, Arrays.asList(watched.value()));
     }
 
     @SuppressWarnings("unchecked")
