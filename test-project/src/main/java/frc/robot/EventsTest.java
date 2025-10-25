@@ -32,12 +32,12 @@ public class EventsTest implements Testing{
 
     }
 
-    @Watcher(type = Pose2d.class, name = "pose2d", eventType = EventType.ALL)
+    @Watcher(type = Pose2d.class, name = "pose2d")
     private void pose2dWatcher(EventData<Double> data){
         System.out.println("EVENT value for Pose 2d : "+data + "-> Fired");
     }
     
-    @Watcher(type = int.class, name = "integer", eventType = EventType.ALL)
+    @Watcher(type = int.class, name = "integer")
     private void integerWatcher(EventData<Integer> data){
         System.out.println("EVENT value: "+data + "-> Fired");
     }

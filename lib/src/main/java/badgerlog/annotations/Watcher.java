@@ -9,8 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Watcher {
     Class<?> type();
-
-    EventType eventType() default EventType.ALL;
-
+    
     String name();
 }

@@ -1,5 +1,6 @@
 package badgerlog.processing;
 
+import badgerlog.annotations.EventType;
 import badgerlog.annotations.RawWatcher;
 import badgerlog.annotations.Watcher;
 import badgerlog.events.EventMetadata;
@@ -50,7 +51,7 @@ public class EventAspect {
 
         Watcher watcher = method.getAnnotation(Watcher.class);
         
-        EventMetadata metadata = new EventMetadata(null, watcher.name(), watcher.eventType());
+        EventMetadata metadata = new EventMetadata(null, watcher.name(), EventType.ALL);
         WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
         EventRegistry.registerWatcher(event, metadata);
     }
