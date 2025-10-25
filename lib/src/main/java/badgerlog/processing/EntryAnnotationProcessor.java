@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Processes any annotations annotated with {@link Entry} and ensures that they match the requirements.
+ * Processes any annotated elements with {@link Entry} and ensures that they match the requirements.
  */
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)

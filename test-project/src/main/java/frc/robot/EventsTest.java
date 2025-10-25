@@ -33,7 +33,7 @@ public class EventsTest implements Testing{
     }
 
     @Watcher(type = Pose2d.class, name = "pose2d")
-    private void pose2dWatcher(EventData<Double> data){
+    private void pose2dWatcher(EventData<Pose2d> data){
         System.out.println("EVENT value for Pose 2d : "+data + "-> Fired");
     }
     
@@ -43,7 +43,7 @@ public class EventsTest implements Testing{
     }
 
     @RawWatcher(type = void.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
-    private void integerRawWatcher(EventData<Integer> data){
+    private void integerRawWatcher(EventData<Object> data){
         System.out.println("EVENT value RAW: "+data + "-> Fired");
     }
 }
