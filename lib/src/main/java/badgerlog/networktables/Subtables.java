@@ -1,6 +1,7 @@
 package badgerlog.networktables;
 
 import badgerlog.annotations.configuration.Configuration;
+import badgerlog.utilities.ErrorLogger;
 import edu.wpi.first.util.struct.Struct;
 import lombok.SneakyThrows;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Internal class used by BadgerLog to create subtables from a Struct schema.
+ * Creates subtables from a struct's schema.
  */
 public final class Subtables {
     private static final HashMap<String, PrimType<?>> primitiveTypeMap = new HashMap<>();
@@ -41,6 +42,7 @@ public final class Subtables {
 
     /**
      * Creates an ordered map that contains all the entries created from the {@code struct} schema.
+     *
      * <p>Uses a buffer to pack the {@code initialValue} of the struct in, and then construct the entries from.
      * Empties the entire map if the {@code struct}'s schema is invalid.</p>
      *
@@ -90,7 +92,9 @@ public final class Subtables {
                         .filter(struct -> Objects.equals(struct.getTypeName(), partSplit[0]))
                         .toList();
                 if (structs.isEmpty()) {
-                    System.err.println("INVALID Struct definition: " + baseStruct.getTypeName() + ". REMOVING ALL");
+                    ErrorLogger.customError("INVALID Struct definition: " + baseStruct
+                            .getTypeName() + ". REMOVING ALL");
+                    System.err.println();
                     return false;
                 }
 

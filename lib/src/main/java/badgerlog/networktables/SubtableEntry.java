@@ -7,9 +7,10 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
- * An implementation of the {@code StructType.SUB_TABLE} for NetworkTables.
- * It creates an entry for every primitive type in the struct schema, and puts it under different subtables based off
- * the nesting in the schema.
+ * Implements the {@code StructType.SUB_TABLE} type for NetworkTables.
+ *
+ * <p>It creates an entry for every primitive type in the struct schema, and puts it under different subtables based off
+ * the nesting in the schema.</p>
  *
  * @param <T> the type to use. Does not need to be a valid NetworkTableType
  */
@@ -22,10 +23,12 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     private final ByteBuffer buffer;
 
     private final String key;
+    private final Class<?> type;
 
     /**
      * Constructs a new SubtableEntry, creating all the entries on NetworkTables under the specified key.
-     * This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.
+     *
+     * <p>This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.</p>
      *
      * @param key the top level key to use on NetworkTables, all other entries will be nested under it.
      * @param struct the struct to use for creating the entries
@@ -34,6 +37,7 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     public SubtableEntry(String key, Struct<T> struct, T initialValue) {
         this.struct = struct;
         this.key = key;
+        this.type = initialValue.getClass();
 
         buffer = ByteBuffer.allocate(struct.getSize());
 
@@ -80,5 +84,10 @@ public final class SubtableEntry<T> implements NTEntry<T> {
     @Override
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return type;
     }
 }

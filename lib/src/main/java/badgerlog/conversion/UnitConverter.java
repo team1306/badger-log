@@ -4,13 +4,13 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 
 /**
- * Internal interface used by BadgerLog to create a Unit mapping.
+ * Represents a mapping between a unit and a double value.
  *
  * @param <T> the unit type
  */
 public interface UnitConverter<T extends Unit> {
     /**
-     * Convert from a Measure to a double.
+     * Converts from a Measure to a double.
      *
      * @param value the measure to convert
      *
@@ -19,7 +19,7 @@ public interface UnitConverter<T extends Unit> {
     double convertTo(Measure<T> value);
 
     /**
-     * Convert from a double to a Measure using the Unit.
+     * Converts from a double to a Measure using the Unit.
      *
      * @param value the double value to convert
      *

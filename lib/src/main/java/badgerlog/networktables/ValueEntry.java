@@ -8,7 +8,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableType;
 
 /**
- * A wrapper for the {@link GenericEntry} that also uses the Mapping system.
+ * Wraps a {@link GenericEntry}, and allows for the use of the Mapping system.
  *
  * @param <T> the type to use. Does not need to be a valid NetworkTableType
  */
@@ -19,11 +19,13 @@ public final class ValueEntry<T> implements NTEntry<T> {
     private final Mapping<T, Object> fieldValueMapping;
     private final GenericEntry entry;
     private final String key;
+    private final Class<?> type;
 
     /**
      * Constructs a new ValueEntry, creating the entry on NetworkTables, and finding the {@link Mapping} for the
      * specified {@code valueClass}.
-     * This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.
+     *
+     * <p>This initially publishes the {@code initialValue} to make the entry appear on NetworkTables.</p>
      *
      * @param key the key on NetworkTables
      * @param valueClass the class type of the {@code initialValue}
@@ -33,6 +35,7 @@ public final class ValueEntry<T> implements NTEntry<T> {
     public ValueEntry(String key, Class<T> valueClass, T initialValue, Configuration config) {
         this.config = config;
         this.key = key;
+        this.type = valueClass;
 
         this.fieldValueMapping = Mappings.findMapping(valueClass);
 
@@ -55,6 +58,11 @@ public final class ValueEntry<T> implements NTEntry<T> {
     @Override
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return type;
     }
 
     @Override

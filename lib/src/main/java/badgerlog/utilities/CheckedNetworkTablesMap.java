@@ -1,4 +1,4 @@
-package badgerlog.processing;
+package badgerlog.utilities;
 
 import badgerlog.networktables.NT;
 import badgerlog.networktables.NTEntry;
@@ -25,6 +25,7 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
             NT oldValue = this.get(key);
             if (oldValue instanceof AutoCloseable closeable) {
                 closeable.close();
+                ErrorLogger.customError("NetworkTable entry closed from adding another entry");
             }
         }
 

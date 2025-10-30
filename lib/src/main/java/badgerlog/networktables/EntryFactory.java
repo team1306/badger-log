@@ -3,7 +3,7 @@ package badgerlog.networktables;
 import badgerlog.Dashboard;
 import badgerlog.annotations.StructType;
 import badgerlog.annotations.configuration.Configuration;
-import badgerlog.processing.TypeParser;
+import badgerlog.utilities.TypeParser;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructFetcher;
 import edu.wpi.first.util.struct.StructSerializable;
@@ -11,7 +11,7 @@ import edu.wpi.first.util.struct.StructSerializable;
 import java.util.Optional;
 
 /**
- * Internal class used by BadgerLog to create {@link NTEntry} from a key, value, and configuration.
+ * Creates a {@link NTEntry} from a key, value, and configuration.
  */
 public final class EntryFactory {
     private EntryFactory() {

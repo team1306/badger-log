@@ -1,6 +1,6 @@
 package badgerlog.conversion;
 
-import badgerlog.processing.Fields;
+import badgerlog.utilities.Members;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Measure;
@@ -21,11 +21,12 @@ import static edu.wpi.first.units.Units.Radians;
 
 /**
  * Internal class used by BadgerLog to manage and create {@link UnitConverter}.
- * This wraps the WPILib Units system into an interface that can use any string form of the unit.
+ *
+ * <p>This wraps the WPILib Units system into an interface that can use any string form of the unit.</p>
  */
 public final class UnitConversions {
 
-    public static final Map<String, Unit> units = new HashMap<>();
+    private static final Map<String, Unit> units = new HashMap<>();
 
     static {
         Field[] fields = Units.class.getFields();
@@ -33,13 +34,13 @@ public final class UnitConversions {
         HashMap<Unit, Set<String>> parts = Arrays.stream(fields)
                 .collect(Collectors.toSet())
                 .stream()
-                .map(Fields::getFieldValue)
+                .map(Members::getFieldValue)
                 .map(Unit.class::cast)
                 .collect(
                         HashMap::new, (map, unit) -> map.put(unit, new HashSet<>()), HashMap::putAll);
 
         for (Field field : fields) {
-            Unit unit = (Unit) Fields.getFieldValue(field);
+            Unit unit = (Unit) Members.getFieldValue(field);
             parts.get(unit).add(unit.name().toLowerCase(Locale.ROOT));
             parts.get(unit).add(unit.symbol().toLowerCase(Locale.ROOT));
             parts.get(unit).add(field.getName().toLowerCase(Locale.ROOT));

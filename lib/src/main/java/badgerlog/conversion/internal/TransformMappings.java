@@ -23,7 +23,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
 /**
- * Internal implementation of all the mappings that are common WPILib transform classes.
+ * Implementations of all the mappings that are common WPILib transform classes.
  */
 @SuppressWarnings("DuplicatedCode")
 public final class TransformMappings {

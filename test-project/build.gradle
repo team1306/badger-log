@@ -90,6 +90,16 @@ dependencies {
     aspect files("../lib/build/libs/lib.jar")
 
     implementation files("../lib/build/libs/lib.jar")
+    annotationProcessor files("../lib/build/libs/lib.jar")
+}
+
+tasks.register('simulate') {
+    dependsOn('buildLib', 'simulateJava')
+}
+
+tasks.register('buildLib', GradleBuild) {
+    dir = '../lib'
+    tasks = ['build']
 }
 
 sourceSets {

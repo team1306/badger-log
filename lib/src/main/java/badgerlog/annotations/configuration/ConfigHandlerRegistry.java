@@ -4,6 +4,7 @@ import badgerlog.annotations.AutoGenerateStruct;
 import badgerlog.annotations.Key;
 import badgerlog.annotations.MultiUnitConversion;
 import badgerlog.annotations.Struct;
+import badgerlog.annotations.Table;
 import badgerlog.annotations.UnitConversion;
 
 import java.lang.annotation.Annotation;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Internal class used to register handlers for specific annotations.
+ * Registers handlers for specific annotations to be used when generating a configuration.
  */
 public final class ConfigHandlerRegistry {
     private static final Map<Class<? extends Annotation>, ConfigHandler<?>> handlers = new HashMap<>();
@@ -22,13 +23,14 @@ public final class ConfigHandlerRegistry {
         registerHandler(MultiUnitConversion.class, new MultiUnitConversionHandler());
         registerHandler(Key.class, new KeyHandler());
         registerHandler(AutoGenerateStruct.class, new AutoGenerateStructHandler());
+        registerHandler(Table.class, new TableHandler());
     }
 
     private ConfigHandlerRegistry() {
     }
 
     /**
-     * Registers a annotation handler.
+     * Registers an annotation handler.
      *
      * @param annotationType the class representing the annotation
      * @param handler the handler to register
