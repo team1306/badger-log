@@ -25,6 +25,9 @@ So we created BadgerLog.
 * Triggers bound to NetworkTables entry
 * Generic `put` and `get` methods supporting base, `Struct`, `Measure`, and generated struct types
 * Minimal performance cost
+* Events on NetworkTables
+  * Direct NetworkTable value listeners
+  * Arbitrarily valued event listeners
 
 # Installation
 
