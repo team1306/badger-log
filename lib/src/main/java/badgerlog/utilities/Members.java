@@ -15,8 +15,9 @@ import java.util.function.Consumer;
  * Simplifies accessing of members and their modifiers
  */
 public class Members {
-    private Members() {}
-    
+    private Members() {
+    }
+
     /**
      * Gets a list of declared fields within a class that are annotated by {@code annotationClass}
      *
@@ -32,9 +33,11 @@ public class Members {
     }
 
     /**
-     * Iterates over the fields annotated with the {@code annotationClass} in {@code clazz} and executes the {@code consumer} on each matching one
+     * Iterates over the fields annotated with the {@code annotationClass} in {@code clazz} and executes the
+     * {@code consumer} on each matching one
+     *
      * @param clazz the class containing the annotated fields
-     * @param annotationClass the class of the annotations 
+     * @param annotationClass the class of the annotations
      * @param isStatic whether the fields should be static or non-static
      * @param consumer the function to execute for matching fields
      */
@@ -80,7 +83,7 @@ public class Members {
         field.setAccessible(true);
         field.set(instance, value);
     }
-    
+
     /**
      * Gets a list of declared methods within a class that are annotated by {@code annotationClass}
      *
@@ -112,7 +115,8 @@ public class Members {
 
     /**
      * Identical to {@link #iterateOverAnnotatedFields} except over methods
-     * @see #iterateOverAnnotatedFields 
+     *
+     * @see #iterateOverAnnotatedFields
      */
     public static void iterateOverAnnotatedMethods(Class<?> clazz, Class<? extends Annotation> annotationClass, boolean isStatic, Consumer<Method> consumer) {
         Method[] methods = getMethodsWithAnnotation(clazz, annotationClass);

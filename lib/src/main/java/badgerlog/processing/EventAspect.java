@@ -53,9 +53,10 @@ public class EventAspect {
         }
 
         Watcher watcher = method.getAnnotation(Watcher.class);
-        
+
         EventMetadata metadata = new EventMetadata(null, watcher.name(), EventType.ALL);
-        WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
+        WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members
+                .invokeMethod(method, workingClass, data));
         EventRegistry.registerWatcher(event, metadata);
     }
 
@@ -67,21 +68,18 @@ public class EventAspect {
         RawWatcher watcher = method.getAnnotation(RawWatcher.class);
 
         EventMetadata metadata = new EventMetadata(watcher.keys(), null, watcher.eventType());
-        WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members.invokeMethod(method, workingClass, data));
+        WatcherEvent<?> event = new WatcherEvent<>(getObjectType(watcher.type()), (data) -> Members
+                .invokeMethod(method, workingClass, data));
         EventRegistry.registerRawWatcher(event, metadata);
     }
 
     public static Class<?> getObjectType(Class<?> type) {
         var boxedToPrimitive = Map.ofEntries(
-                Map.entry(int.class, Integer.class),
-                Map.entry(long.class, Long.class),
-                Map.entry(double.class, Double.class),
-                Map.entry(boolean.class, Boolean.class),
-                Map.entry(float.class, Float.class),
-                Map.entry(byte.class, Byte.class),
-                Map.entry(short.class, Short.class),
-                Map.entry(char.class, Character.class),
-                Map.entry(void.class, void.class)
+                Map.entry(int.class, Integer.class), Map.entry(long.class, Long.class), Map
+                        .entry(double.class, Double.class), Map.entry(boolean.class, Boolean.class), Map
+                                .entry(float.class, Float.class), Map.entry(byte.class, Byte.class), Map
+                                        .entry(short.class, Short.class), Map.entry(char.class, Character.class), Map
+                                                .entry(void.class, void.class)
         );
 
         return boxedToPrimitive.getOrDefault(type, type);

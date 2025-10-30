@@ -8,7 +8,9 @@ import java.lang.reflect.Method;
 public class Validation {
     /**
      * Checks if the {@code method} returns void and has only one parameter. Prints issues using {@link ErrorLogger}
+     *
      * @param method the method to validate
+     *
      * @return if the method is void and has one parameter
      */
     public static boolean validateWatcherMethod(Method method) {
@@ -26,9 +28,12 @@ public class Validation {
     }
 
     /**
-     * Checks if an expected {@link Enum} Class is a properly defined {@code enum} containing at least 1 constant. 
+     * Checks if an expected {@link Enum} Class is a properly defined {@code enum} containing at least 1 constant.
+     *
      * @param tEnum the enum to check
+     *
      * @return if the class is an enum and has at least 1 defined constant
+     *
      * @param <T> a defined enum type
      */
     public static <T extends Enum<T>> boolean validateEnum(Class<T> tEnum) {

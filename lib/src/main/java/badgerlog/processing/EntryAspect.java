@@ -85,9 +85,11 @@ public class EntryAspect {
         Object instance = joinPoint.getThis();
         entries.addInstance(instance.getClass(), instance);
 
-        Members.iterateOverAnnotatedFields(instance.getClass(), Entry.class, false, field -> createFieldEntry(field, instance));
+        Members.iterateOverAnnotatedFields(instance
+                .getClass(), Entry.class, false, field -> createFieldEntry(field, instance));
 
-        Members.iterateOverAnnotatedMethods(instance.getClass(), Entry.class, false, method -> createMethodEntry(method, instance));
+        Members.iterateOverAnnotatedMethods(instance
+                .getClass(), Entry.class, false, method -> createMethodEntry(method, instance));
 
         if (instance.getClass().isAnnotationPresent(Entry.class)) {
             Field[] allFields = instance.getClass().getFields();
@@ -138,9 +140,10 @@ public class EntryAspect {
             return;
         }
 
-        NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members.getFieldValue(field, instance), config);
+        NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members
+                .getFieldValue(field, instance), config);
         registerAnyManagedEvents(entry, field);
-        
+
         Entry annotation = field.getAnnotation(Entry.class);
 
         if (annotation == null) {
@@ -171,16 +174,18 @@ public class EntryAspect {
             return;
         }
 
-        NTEntry<Object> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members.invokeMethod(method, instance), config);
+        NTEntry<Object> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members
+                .invokeMethod(method, instance), config);
         registerAnyManagedEvents(entry, method);
-        
-        Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Members.invokeMethod(method, instance)));
+
+        Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Members
+                .invokeMethod(method, instance)));
     }
-    
-    private void registerAnyManagedEvents(NTEntry<?> entry, AnnotatedElement member){
+
+    private void registerAnyManagedEvents(NTEntry<?> entry, AnnotatedElement member) {
         Watched watched = member.getAnnotation(Watched.class);
-        if(watched == null) return;
-        
+        if (watched == null) return;
+
         EventRegistry.addWatchedEntry(entry, Arrays.asList(watched.value()));
     }
 
@@ -206,10 +211,10 @@ public class EntryAspect {
         NTEntry<Object> entry = (NTEntry<Object>) entryData.entry();
 
         Object value = entry.retrieveValue();
-        
+
         Members.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
         entry.publishValue(value);
-        
+
         return value;
     }
 
@@ -239,7 +244,7 @@ public class EntryAspect {
         }
 
         NTEntry<Object> entry = (NTEntry<Object>) entryData.entry();
-        
+
         entry.publishValue(arg);
 
         return pjp.proceed(new Object[] {arg});
@@ -286,8 +291,9 @@ public class EntryAspect {
     }
 
     private record FieldEntryData(boolean valid, NTEntry<?> entry, Field targetField) {}
-    
-    private boolean isValidForClassGeneration(Field field){
-        return Members.isMemberNonStatic(field) && !Modifier.isFinal(field.getModifiers()) && field.isAnnotationPresent(NoEntry.class) && !field.isAnnotationPresent(Entry.class);
+
+    private boolean isValidForClassGeneration(Field field) {
+        return Members.isMemberNonStatic(field) && !Modifier.isFinal(field.getModifiers()) && field
+                .isAnnotationPresent(NoEntry.class) && !field.isAnnotationPresent(Entry.class);
     }
 }

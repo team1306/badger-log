@@ -24,7 +24,7 @@ public final class SubtableEntry<T> implements NTEntry<T> {
 
     private final String key;
     private final Class<?> type;
-    
+
     /**
      * Constructs a new SubtableEntry, creating all the entries on NetworkTables under the specified key.
      *

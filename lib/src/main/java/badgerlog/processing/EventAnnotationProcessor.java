@@ -31,7 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Processes any annotated elements with {@link Watcher} or {@link RawWatcher} and ensures that they match the requirements.
+ * Processes any annotated elements with {@link Watcher} or {@link RawWatcher} and ensures that they match the
+ * requirements.
  */
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
@@ -41,7 +42,7 @@ public class EventAnnotationProcessor extends AbstractProcessor {
 
     private Types typeUtils;
     private Elements elementUtils;
-    
+
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
@@ -65,94 +66,98 @@ public class EventAnnotationProcessor extends AbstractProcessor {
         }
 
         TypeMirror objectType = objectElement.asType();
-        
-        for(Element element : roundEnv.getElementsAnnotatedWith(Watcher.class)){
+
+        for (Element element : roundEnv.getElementsAnnotatedWith(Watcher.class)) {
             Watcher watcher = element.getAnnotation(Watcher.class);
-            
+
             TypeMirror annotationType = getTypeFromWatcherAnnotation(element);
             validateEvent((ExecutableElement) element, annotationType, eventDataElement, objectType);
-                       
-            
+
+
             String name = watcher.name();
             if (eventNames.containsKey(name)) {
                 printMessage(element, Kind.MANDATORY_WARNING, String
-                        .format("Duplicate name %s for '%s()' and '%s()'", name, eventNames.get(name), createElementName(element)));
+                        .format("Duplicate name %s for '%s()' and '%s()'", name, eventNames
+                                .get(name), createElementName(element)));
             } else {
                 eventNames.put(name, createElementName(element));
             }
         }
 
-        for(Element element : roundEnv.getElementsAnnotatedWith(RawWatcher.class)){
+        for (Element element : roundEnv.getElementsAnnotatedWith(RawWatcher.class)) {
             RawWatcher watcher = element.getAnnotation(RawWatcher.class);
 
             TypeMirror annotationType = getTypeFromRawWatcherAnnotation(element);
             validateEvent((ExecutableElement) element, annotationType, eventDataElement, objectType);
-            
+
             validateRawEvent((ExecutableElement) element, watcher);
         }
-        
+
         return false;
     }
 
     private void validateRawEvent(ExecutableElement method, RawWatcher annotation) {
-        for(String key : annotation.keys()) {
-            if(!key.startsWith("/")){
+        for (String key : annotation.keys()) {
+            if (!key.startsWith("/")) {
                 printMessage(method, Kind.ERROR, String
                         .format("Key '%s' in @RawWatcher annotated method '%s()' must begin with '/'", key, createElementName(method)));
             }
         }
     }
-    
-    private void validateEvent(ExecutableElement method, TypeMirror annotationType, TypeElement eventType, TypeMirror objectType){
+
+    private void validateEvent(ExecutableElement method, TypeMirror annotationType, TypeElement eventType, TypeMirror objectType) {
         List<?> parameters = method.getParameters();
         VariableElement variableElement = (VariableElement) parameters.get(0);
         TypeMirror parameterType = variableElement.asType();
-        
+
         TypeMirror voidType = typeUtils.getNoType(TypeKind.VOID);
-        
-        if(parameters.size() != 1) {
+
+        if (parameters.size() != 1) {
             printMessage(method, Kind.ERROR, String
-                    .format("Event annotated method '%s()' must have exactly one parameters, found %d", createElementName(method), parameters.size()));
+                    .format("Event annotated method '%s()' must have exactly one parameters, found %d", createElementName(method), parameters
+                            .size()));
         }
-        
-        if (!typeUtils.isSameType(voidType, annotationType)){
+
+        if (!typeUtils.isSameType(voidType, annotationType)) {
             if (!isEventDataType(parameterType, eventType.asType())) {
                 printMessage(method, Kind.ERROR, String
                         .format("Event annotated method '%s()' must have a parameter of type EventData, found %s", createElementName(method), parameterType));
-            }
-            else{
+            } else {
                 checkGenericType(method, parameterType, annotationType);
             }
-        }else{
+        } else {
             checkGenericType(method, parameterType, objectType);
         }
-        
+
     }
 
     private boolean isEventDataType(TypeMirror type, TypeMirror eventDataType) {
         TypeMirror erasedType = typeUtils.erasure(type);
         TypeMirror erasedEventType = typeUtils.erasure(eventDataType);
-        
+
         return typeUtils.isSameType(erasedType, erasedEventType);
     }
 
     private void checkGenericType(ExecutableElement method, TypeMirror paramType, TypeMirror expectedType) {
         if (!(paramType instanceof DeclaredType declaredType)) {
-            printMessage(method, Kind.ERROR, String.format("Event method '%s()' parameter EventData should be typed", createElementName(method)));
+            printMessage(method, Kind.ERROR, String
+                    .format("Event method '%s()' parameter EventData should be typed", createElementName(method)));
             return;
         }
 
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
 
-        if(typeArguments.size() != 1) {
-            printMessage(method, Kind.ERROR, String.format("Event method '%s()' parameter EventData must have exactly 1 type parameter", createElementName(method)));
+        if (typeArguments.size() != 1) {
+            printMessage(method, Kind.ERROR, String
+                    .format("Event method '%s()' parameter EventData must have exactly 1 type parameter", createElementName(method)));
             return;
         }
-        
+
         TypeMirror actualType = typeArguments.get(0);
 
         if (!typesMatch(actualType, expectedType)) {
-            printMessage(method, Kind.ERROR, String.format("Event method '%s()' declared '%s' in annotation, but had '%s' in parameter", createElementName(method), expectedType, actualType));
+            printMessage(method, Kind.ERROR, String
+                    .format("Event method '%s()' declared '%s' in annotation, but had '%s' in parameter", createElementName(method), expectedType, actualType));
         }
     }
 
@@ -160,14 +165,18 @@ public class EventAnnotationProcessor extends AbstractProcessor {
         if (typeUtils.isSameType(type1, type2)) {
             return true;
         }
-        
-        TypeMirror boxed1 = type1.getKind().isPrimitive() ? typeUtils.boxedClass((javax.lang.model.type.PrimitiveType) type1).asType() : type1;
-        TypeMirror boxed2 = type2.getKind().isPrimitive() ? typeUtils.boxedClass((javax.lang.model.type.PrimitiveType) type2).asType() : type2;
-        
+
+        TypeMirror boxed1 = type1.getKind().isPrimitive() ? typeUtils
+                .boxedClass((javax.lang.model.type.PrimitiveType) type1)
+                .asType() : type1;
+        TypeMirror boxed2 = type2.getKind().isPrimitive() ? typeUtils
+                .boxedClass((javax.lang.model.type.PrimitiveType) type2)
+                .asType() : type2;
+
         if (typeUtils.isSameType(boxed1, boxed2)) {
             return true;
         }
-        
+
         TypeMirror unboxed1 = tryUnbox(type1);
         TypeMirror unboxed2 = tryUnbox(type2);
 
@@ -198,8 +207,8 @@ public class EventAnnotationProcessor extends AbstractProcessor {
     private TypeMirror getTypeFromWatcherAnnotation(Element element) {
         for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
             if (mirror.getAnnotationType().toString().equals("badgerlog.annotations.Watcher")) {
-                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry
-                        : mirror.getElementValues().entrySet()) {
+                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues()
+                        .entrySet()) {
                     if (entry.getKey().getSimpleName().toString().equals("type")) {
                         return (TypeMirror) entry.getValue().getValue();
                     }
@@ -221,8 +230,8 @@ public class EventAnnotationProcessor extends AbstractProcessor {
     private TypeMirror getTypeFromRawWatcherAnnotation(Element element) {
         for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
             if (mirror.getAnnotationType().toString().equals("badgerlog.annotations.RawWatcher")) {
-                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry
-                        : mirror.getElementValues().entrySet()) {
+                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues()
+                        .entrySet()) {
                     if (entry.getKey().getSimpleName().toString().equals("type")) {
                         return (TypeMirror) entry.getValue().getValue();
                     }
@@ -232,7 +241,7 @@ public class EventAnnotationProcessor extends AbstractProcessor {
 
         try {
             RawWatcher annotation = element.getAnnotation(RawWatcher.class);
-            annotation.type(); 
+            annotation.type();
         } catch (MirroredTypeException mte) {
             return mte.getTypeMirror();
         }

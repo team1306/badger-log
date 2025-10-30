@@ -139,8 +139,11 @@ public class Configuration {
 
     /**
      * Creates a new {@link Configuration} based on a {@link Member Member's} annotations and enclosing class
+     *
      * @param element the element with possible annotations
+     *
      * @return a new {@code Configuration} from annotation values
+     *
      * @param <T> the {@code Member} and {@link AnnotatedElement} type
      */
     public static <T extends Member & AnnotatedElement> Configuration createConfigurationFromAnnotations(T element) {

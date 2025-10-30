@@ -39,6 +39,7 @@ public class EventRegistry {
 
     /**
      * Register an unmanaged watcher event only relying on NetworkTables
+     *
      * @param event the event to register
      * @param metadata the metadata for the event
      */
@@ -50,40 +51,45 @@ public class EventRegistry {
                     case ALL -> Kind.kValueAll;
                 });
 
-        networkTableInstance.addListener(metadata.keys(), validMessages, (ntEvent) -> addNetworkTablesWatcherEvent(event, ntEvent));
+        networkTableInstance.addListener(metadata
+                .keys(), validMessages, (ntEvent) -> addNetworkTablesWatcherEvent(event, ntEvent));
     }
 
     /**
      * Register a managed watcher event relying on entries present in BadgerLog
+     *
      * @param event the event to register
      * @param metadata the metadata for the event
      */
     public static void registerWatcher(WatcherEvent<?> event, EventMetadata metadata) {
-        networkTableInstance.addListener(new String[]{"/"}, EnumSet.of(Kind.kValueAll), (ntEvent) -> addManagedWatcherEvent(event, metadata, ntEvent));
+        networkTableInstance.addListener(new String[] {"/"}, EnumSet
+                .of(Kind.kValueAll), (ntEvent) -> addManagedWatcherEvent(event, metadata, ntEvent));
     }
 
     /**
      * Adds an entry to the list of those being watched by managed watchers
+     *
      * @param entry the generic entry to add
      * @param watcherNames the managed watcher names to attach to
      */
-    public static void addWatchedEntry(NTEntry<?> entry, List<String> watcherNames){
-        for(String watcher : watcherNames){
+    public static void addWatchedEntry(NTEntry<?> entry, List<String> watcherNames) {
+        for (String watcher : watcherNames) {
             List<NTEntry<?>> entries = watchedEntries.computeIfAbsent(watcher, k -> new ArrayList<>());
             entries.add(entry);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private static void addManagedWatcherEvent(WatcherEvent<?> event, EventMetadata metadata, NetworkTableEvent ntEvent) {
         List<NTEntry<?>> namedEntries = watchedEntries.getOrDefault(metadata.name(), new ArrayList<>());
-        
-        for(NTEntry<?> entry : namedEntries){
+
+        for (NTEntry<?> entry : namedEntries) {
             String actualKey = "/BadgerLog/" + entry.getKey();
             boolean equivalentKeys = ntEvent.valueData.getTopic().getName().startsWith(actualKey);
             boolean typeMatch = event.matches(entry.getType()) || event.type().equals(void.class);
-            if(typeMatch && equivalentKeys){
-                EventData<Object> eventData = new EventData<>(entry.getKey(), Timer.getFPGATimestamp(), entry.retrieveValue());
+            if (typeMatch && equivalentKeys) {
+                EventData<Object> eventData = new EventData<>(entry.getKey(), Timer.getFPGATimestamp(), entry
+                        .retrieveValue());
                 eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) event, eventData));
             }
         }
@@ -92,14 +98,14 @@ public class EventRegistry {
     @SuppressWarnings("unchecked")
     private static void addNetworkTablesWatcherEvent(WatcherEvent<?> watcherEvent, NetworkTableEvent event) {
         Object value = event.valueData.value.getValue();
-        
+
         if (value == null) return;
         Class<?> type = value.getClass();
-        
-        if(!watcherEvent.matches(type) && !watcherEvent.type().equals(void.class)){
+
+        if (!watcherEvent.matches(type) && !watcherEvent.type().equals(void.class)) {
             return;
         }
-        
+
         EventData<Object> data = new EventData<>(event.valueData.getTopic()
                 .getName(), Timer.getFPGATimestamp(), event.valueData.value.getValue());
         eventQueue.add(new WatcherPair<>((WatcherEvent<Object>) watcherEvent, data));

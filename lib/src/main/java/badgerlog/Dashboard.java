@@ -167,11 +167,11 @@ public final class Dashboard {
      * @param <T> the type of the value
      */
     public static <T> void putValue(String key, T value, Configuration config) {
-        if(value == null) {
+        if (value == null) {
             ErrorLogger.customError(String.format("Attempted publish of a null value. Key: %s", key));
             return;
         }
-        
+
         NTEntry<T> entry = createEntryIfNotPresent(key, value, config);
 
         entry.publishValue(value);
@@ -198,11 +198,11 @@ public final class Dashboard {
      * @return the value on NetworkTables if present, otherwise the value specified
      */
     public static <T> T getValue(String key, T defaultValue, Configuration config) {
-        if(defaultValue == null) {
+        if (defaultValue == null) {
             ErrorLogger.customError(String.format("Attempted retrieval of a null value. Key: %s", key));
             return null;
         }
-        
+
         NTEntry<T> entry = createEntryIfNotPresent(key, defaultValue, config);
 
         return entry.retrieveValue();

@@ -4,6 +4,7 @@ import badgerlog.annotations.EventType;
 
 /**
  * Represents metadata about an event
+ *
  * @param keys the keys the event watches
  * @param name the name of the event
  * @param type the {@link EventType} of the event

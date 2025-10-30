@@ -30,6 +30,7 @@ public interface NTEntry<T> extends AutoCloseable, NT {
 
     /**
      * Gets the type of the entry before NetworkTables
+     *
      * @return the type before NetworkTables
      */
     Class<?> getType();
