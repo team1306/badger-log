@@ -14,10 +14,16 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Contains all instances of events and a queue for events to be synchronized on the main thread
+ */
 public class EventRegistry {
     private static final Queue<WatcherPair<?>> eventQueue = new ConcurrentLinkedQueue<>();
     private static final Map<String, List<NTEntry<?>>> watchedEntries = new HashMap<>();
-    
+
+    /**
+     * Activates any queued events from the previous loop
+     */
     public static void updateEvents() {
         while (!eventQueue.isEmpty()) {
             WatcherPair<?> queuedEvent = eventQueue.poll();
@@ -31,6 +37,11 @@ public class EventRegistry {
 
     private static final NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
 
+    /**
+     * Register an unmanaged watcher event only relying on NetworkTables
+     * @param event the event to register
+     * @param metadata the metadata for the event
+     */
     public static void registerRawWatcher(WatcherEvent<?> event, EventMetadata metadata) {
         EnumSet<Kind> validMessages = EnumSet.of(
                 switch (metadata.type()) {
@@ -41,11 +52,21 @@ public class EventRegistry {
 
         networkTableInstance.addListener(metadata.keys(), validMessages, (ntEvent) -> addNetworkTablesWatcherEvent(event, ntEvent));
     }
-    
+
+    /**
+     * Register a managed watcher event relying on entries present in BadgerLog
+     * @param event the event to register
+     * @param metadata the metadata for the event
+     */
     public static void registerWatcher(WatcherEvent<?> event, EventMetadata metadata) {
         networkTableInstance.addListener(new String[]{"/"}, EnumSet.of(Kind.kValueAll), (ntEvent) -> addManagedWatcherEvent(event, metadata, ntEvent));
     }
-    
+
+    /**
+     * Adds an entry to the list of those being watched by managed watchers
+     * @param entry the generic entry to add
+     * @param watcherNames the managed watcher names to attach to
+     */
     public static void addWatchedEntry(NTEntry<?> entry, List<String> watcherNames){
         for(String watcher : watcherNames){
             List<NTEntry<?>> entries = watchedEntries.computeIfAbsent(watcher, k -> new ArrayList<>());
@@ -93,6 +114,4 @@ public class EventRegistry {
     }
 
     private record WatcherPair<T>(WatcherEvent<T> watcher, EventData<T> data) {}
-
-    private record WatcherData(WatcherEvent<?> watcherEvent, EventMetadata data) {}
 }

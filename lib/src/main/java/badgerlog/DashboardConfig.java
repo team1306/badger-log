@@ -15,6 +15,7 @@ public final class DashboardConfig {
     /**
      * {@return the default struct publishing options}
      */
+    @SuppressWarnings("InvalidBlockTag")
     private StructType structType = StructType.SUB_TABLE;
 
     private DashboardConfig() {

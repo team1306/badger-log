@@ -26,7 +26,7 @@ import static edu.wpi.first.units.Units.Radians;
  */
 public final class UnitConversions {
 
-    public static final Map<String, Unit> units = new HashMap<>();
+    private static final Map<String, Unit> units = new HashMap<>();
 
     static {
         Field[] fields = Units.class.getFields();

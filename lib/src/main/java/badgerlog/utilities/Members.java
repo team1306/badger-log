@@ -30,7 +30,14 @@ public class Members {
                 .filter(field -> field.isAnnotationPresent(annotationClass))
                 .toArray(Field[]::new);
     }
-    
+
+    /**
+     * Iterates over the fields annotated with the {@code annotationClass} in {@code clazz} and executes the {@code consumer} on each matching one
+     * @param clazz the class containing the annotated fields
+     * @param annotationClass the class of the annotations 
+     * @param isStatic whether the fields should be static or non-static
+     * @param consumer the function to execute for matching fields
+     */
     public static void iterateOverAnnotatedFields(Class<?> clazz, Class<? extends Annotation> annotationClass, boolean isStatic, Consumer<Field> consumer) {
         Field[] fields = getFieldsWithAnnotation(clazz, annotationClass);
         Arrays.stream(fields)
@@ -103,6 +110,10 @@ public class Members {
         return method.invoke(instance, args);
     }
 
+    /**
+     * Identical to {@link #iterateOverAnnotatedFields} except over methods
+     * @see #iterateOverAnnotatedFields 
+     */
     public static void iterateOverAnnotatedMethods(Class<?> clazz, Class<? extends Annotation> annotationClass, boolean isStatic, Consumer<Method> consumer) {
         Method[] methods = getMethodsWithAnnotation(clazz, annotationClass);
         Arrays.stream(methods)
@@ -110,11 +121,17 @@ public class Members {
                 .forEach(consumer);
     }
 
-    public static boolean isMemberStatic(Member field) {
-        return Modifier.isStatic(field.getModifiers());
+    /**
+     * {@return if the member is static}
+     */
+    public static boolean isMemberStatic(Member member) {
+        return Modifier.isStatic(member.getModifiers());
     }
 
-    public static boolean isMemberNonStatic(Member field) {
-        return !isMemberStatic(field);
+    /**
+     * {@return if the member is non-static}
+     */
+    public static boolean isMemberNonStatic(Member member) {
+        return !isMemberStatic(member);
     }
 }

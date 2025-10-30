@@ -16,6 +16,9 @@ import org.aspectj.lang.annotation.Pointcut;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * Utilizes AspectJ to weave event initialization into target classes
+ */
 @Aspect
 public class EventAspect {
 
