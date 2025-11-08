@@ -293,7 +293,7 @@ public class EntryAspect {
     private record FieldEntryData(boolean valid, NTEntry<?> entry, Field targetField) {}
 
     private boolean isValidForClassGeneration(Field field) {
-        return Members.isMemberNonStatic(field) && !Modifier.isFinal(field.getModifiers()) && field
+        return Members.isMemberNonStatic(field) && !Modifier.isFinal(field.getModifiers()) && !field
                 .isAnnotationPresent(NoEntry.class) && !field.isAnnotationPresent(Entry.class);
     }
 }
