@@ -145,8 +145,8 @@ public class EntryAspect {
         if (annotation == null) {
             annotation = clazz.getAnnotation(Entry.class);
         }
-        
-        if(annotation.value() == EntryType.SENDABLE){
+
+        if (annotation.value() == EntryType.SENDABLE) {
             Dashboard.addNetworkTableEntry(config.getKey(), new SendableEntry(config
                     .getKey(), (Sendable) Members.getFieldValue(field, instance)));
             return;
@@ -156,7 +156,6 @@ public class EntryAspect {
                 .getFieldValue(field, instance), config);
         registerAnyManagedEvents(entry, field);
 
-        
 
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
@@ -164,7 +163,8 @@ public class EntryAspect {
                         .addEntry(name, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
-            default -> {}
+            default -> {
+            }
         }
     }
 
