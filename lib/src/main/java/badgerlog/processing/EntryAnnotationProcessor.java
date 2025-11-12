@@ -136,7 +136,7 @@ public class EntryAnnotationProcessor extends AbstractProcessor {
                 }
             }
             case SENDABLE -> {
-                if (!typeUtils.isSameType(sendableMirror, field.asType())) {
+                if (!typeUtils.isSubtype(field.asType(), sendableMirror)) {
                     printMessage(field, Kind.ERROR, String
                             .format("Sendable @Entry field '%s' must be a Sendable", createElementName(field)));
                 }
