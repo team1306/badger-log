@@ -8,8 +8,10 @@ import badgerlog.annotations.Struct;
 import badgerlog.annotations.StructType;
 import badgerlog.annotations.Table;
 import badgerlog.annotations.UnitConversion;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Inches;
@@ -47,6 +49,9 @@ public class FieldsTest implements Testing {
     @AutoGenerateStruct
     public CustomRecord record = new CustomRecord(3.4, 3);
 
+    @Entry(EntryType.SENDABLE)
+    public ProfiledPIDController pidController = new ProfiledPIDController(0, 2, 3, new Constraints(100, 200)); 
+    
     public record CustomRecord(double value, int count) {
     }
 

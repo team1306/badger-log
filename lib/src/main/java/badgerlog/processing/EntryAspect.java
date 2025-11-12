@@ -140,15 +140,23 @@ public class EntryAspect {
             return;
         }
 
-        NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members
-                .getFieldValue(field, instance), config);
-        registerAnyManagedEvents(entry, field);
-
         Entry annotation = field.getAnnotation(Entry.class);
 
         if (annotation == null) {
             annotation = clazz.getAnnotation(Entry.class);
         }
+        
+        if(annotation.value() == EntryType.SENDABLE){
+            Dashboard.addNetworkTableEntry(config.getKey(), new SendableEntry(config
+                    .getKey(), (Sendable) Members.getFieldValue(field, instance)));
+            return;
+        }
+
+        NTEntry<?> entry = EntryFactory.createNetworkTableEntryFromValue(config.getKey(), Members
+                .getFieldValue(field, instance), config);
+        registerAnyManagedEvents(entry, field);
+
+        
 
         switch (annotation.value()) {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
@@ -156,8 +164,7 @@ public class EntryAspect {
                         .addEntry(name, entry);
                 Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
-            case SENDABLE -> Dashboard.addNetworkTableEntry(entry.getKey(), new SendableEntry(config
-                    .getKey(), (Sendable) Members.getFieldValue(field, instance)));
+            default -> {}
         }
     }
 
