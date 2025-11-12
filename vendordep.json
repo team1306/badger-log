@@ -3,7 +3,7 @@
     {
       "groupId": "com.github.team1306",
       "artifactId": "badger-log",
-      "version": "2025.4"
+      "version": "2025.4.1"
     }
   ],
   "fileName": "badger-log.json",
@@ -15,6 +15,6 @@
     "https://jitpack.io"
   ],
   "cppDependencies": [],
-  "version": "2025.4",
+  "version": "2025.4.1",
   "uuid": "e5beadf1-8b5a-4317-8b9a-91a77b5390f6"
 }
