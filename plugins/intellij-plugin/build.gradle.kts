@@ -23,6 +23,7 @@ dependencies {
 
       // Add necessary plugin dependencies for compilation here, example:
        bundledPlugin("com.intellij.java")
+        bundledPlugin("com.intellij.gradle")
     }
 }
 
