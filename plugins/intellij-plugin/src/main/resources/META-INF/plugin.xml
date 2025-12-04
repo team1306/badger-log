@@ -16,11 +16,21 @@
         Validation and code generation for BadgerLog. Provides syntax highlighting and common code completions. 
     ]]></description>
 
-    
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Annotator for custom highlighting -->
+        <annotator language="JAVA" implementationClass="team1306.BadgerLogAnnotator"/>
 
+        <!-- Inspection for validation -->
+        <localInspection language="JAVA"
+                         displayName="BadgerLog @Entry Validation"
+                         groupName="BadgerLog"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="team1306.BadgerLogInspection"/>
     </extensions>
+    
+    
 </idea-plugin>

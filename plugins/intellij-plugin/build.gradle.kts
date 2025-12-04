@@ -23,7 +23,6 @@ dependencies {
 
       // Add necessary plugin dependencies for compilation here, example:
        bundledPlugin("com.intellij.java")
-        bundledPlugin("com.intellij.gradle")
     }
 }
 
@@ -37,6 +36,11 @@ intellijPlatform {
             Initial version
         """.trimIndent()
     }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks {
