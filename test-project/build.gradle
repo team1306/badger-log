@@ -62,6 +62,11 @@ wpi.java.debugJni = false
 //noinspection GroovyUnusedAssignment
 def includeDesktopSupport = true
 
+// Define the local library dependency and explicitly state it is built by the 'buildLib' task.
+// This ensures Gradle resolves the dependency order correctly and expects the file to be generated.
+def localLib = files("../lib/build/libs/lib.jar")
+localLib.builtBy('buildLib')
+
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
@@ -84,13 +89,15 @@ dependencies {
     testImplementation platform("org.junit:junit-bom:5.11.4")
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.junit.jupiter:junit-jupiter-params"
+    testImplementation "org.assertj:assertj-core:3.27.3"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     implementation "org.aspectj:aspectjrt:1.9.24"
-    aspect files("../lib/build/libs/lib.jar")
-
-    implementation files("../lib/build/libs/lib.jar")
-    annotationProcessor files("../lib/build/libs/lib.jar")
+    
+    // Use the localLib variable which includes the builtBy information
+    aspect localLib
+    implementation localLib
+    annotationProcessor localLib
 }
 
 tasks.register('simulate') {
@@ -102,6 +109,14 @@ tasks.register('buildLib', GradleBuild) {
     tasks = ['build']
 }
 
+// Ensure the library is built before compiling Java code, as we depend on the jar file
+tasks.named('compileJava') {
+    dependsOn 'buildLib'
+}
+tasks.named('compileTestJava') {
+    dependsOn 'buildLib'
+}
+
 sourceSets {
     files("../lib/build/libs/lib-sources.jar")
 }
@@ -109,6 +124,10 @@ sourceSets {
 test{
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        showStandardStreams = true
+    }
 }
 
 // Simulation configuration (e.g. environment variables).
