@@ -1,132 +1,188 @@
 plugins {
-	id 'java'
-	id "com.diffplug.spotless" version "7.2.1"
-	id("io.freefair.lombok") version "8.12.2.1"
-	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.+'
-	id 'maven-publish'
-	id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
-	id("net.ltgt.errorprone") version "4.2.0"
+    id 'java'
+    id 'idea'
+    id "com.diffplug.spotless" version "7.2.1"
+    id("io.freefair.lombok") version "8.12.2.1"
+    id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.+'
+    id 'maven-publish'
+    id("net.ltgt.errorprone") version "4.2.0"
 }
 
 group = 'team1306'
+def aspectVersion = '1.9.25'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 if (project.hasProperty('releaseMode')) {
-	wpilibRepositories.addAllReleaseRepositories(project)
+    wpilibRepositories.addAllReleaseRepositories(project)
 } else {
-	wpilibRepositories.addAllDevelopmentRepositories(project)
+    wpilibRepositories.addAllDevelopmentRepositories(project)
+}
+
+configurations {
+    ajc
 }
 
 dependencies {
-	compileOnly 'edu.wpi.first.ntcore:ntcore-java:2025.+'
+    compileOnly 'edu.wpi.first.ntcore:ntcore-java:2025.+'
 
-	compileOnly 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2025.+'
-	compileOnly 'edu.wpi.first.wpiunits:wpiunits-java:2025.+'
-	compileOnly 'edu.wpi.first.wpimath:wpimath-java:2025.+'
-	compileOnly 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
-	compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
-	compileOnly 'edu.wpi.first.hal:hal-java:2025.+'
+    compileOnly 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2025.+'
+    compileOnly 'edu.wpi.first.wpiunits:wpiunits-java:2025.+'
+    compileOnly 'edu.wpi.first.wpimath:wpimath-java:2025.+'
+    compileOnly 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
+    compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
+    compileOnly 'edu.wpi.first.hal:hal-java:2025.+'
 
-	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 
-	compileOnly 'com.google.auto.service:auto-service:1.0-rc5'
-	annotationProcessor 'com.google.auto.service:auto-service:1.0-rc5'
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc5'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc5'
 
-	implementation "org.aspectj:aspectjrt:1.9.24"
-	runtimeOnly 'org.aspectj:aspectjweaver:1.9.24'
+    implementation "org.aspectj:aspectjrt:${aspectVersion}"
+    ajc "org.aspectj:aspectjtools:${aspectVersion}"
 
-	aspect 'org.aspectj:aspectjtools:1.9.24'
+    errorprone("com.google.errorprone:error_prone_core:2.37.0")
 
-	errorprone("com.google.errorprone:error_prone_core:2.37.0")
-
-	testImplementation platform('org.junit:junit-bom:5.10.0')
-	testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+// AspectJ compile task that runs after Java/Lombok compilation
+task compileAspects(type: JavaExec, dependsOn: compileJava) {
+    mainClass = 'org.aspectj.tools.ajc.Main'
+    classpath = configurations.ajc
+
+    inputs.dir('src/main/aspectj')
+
+    doFirst {
+        def aspectDir = file('src/main/aspectj')
+        def aspectFiles = []
+
+        if (aspectDir.exists()) {
+            aspectFiles = fileTree(dir: aspectDir, include: '**/*.aj').files
+        }
+
+        if (aspectFiles.isEmpty()) {
+            return
+        }
+
+        def outputDir = compileJava.destinationDirectory.get().asFile
+
+        args = [
+                '-inpath', outputDir.absolutePath,
+                '-d', outputDir.absolutePath,
+                '-classpath', configurations.compileClasspath.asPath,
+                '-source', '17',
+                '-target', '17',
+                '-Xlint:ignore',
+        ]
+
+        // Add .aj files
+        aspectFiles.each { file ->
+            args += file.absolutePath
+        }
+    }
+}
+
+// Exclude .aj files from normal Java compilation
+compileJava {
+    exclude '**/*.aj'
+    source = fileTree(dir: 'src/main/java', include: '**/*.java')
+}
+
+// Make sure aspects are compiled before classes task
+classes.dependsOn compileAspects
+
 publishing {
-	publications {
-		maven(MavenPublication) {
-			from components.java
-			groupId = "com.github.team1306"
-			artifactId = "badger-log"
-		}
-	}
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            groupId = "com.github.team1306"
+            artifactId = "badger-log"
+        }
+    }
 }
 
 java {
-	withSourcesJar()
-	withJavadocJar()
-
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    withSourcesJar()
+    withJavadocJar()
 }
 
 jar {
-	from {
-		configurations.runtimeClasspath.collect {
-			it.isDirectory() ? it : zipTree(it)
-		}
-	}
-	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.withType(JavaCompile) {
-	options.compilerArgs << '-Xlint:processing'
+    options.compilerArgs << '-Xlint:processing'
 }
 
 tasks.withType(Javadoc) {
-	options {
-		docTitle = "BadgerLog Javadoc"
-	}
+    options {
+        docTitle = "BadgerLog Javadoc"
+    }
 }
 
 
 javadoc {
-	exclude 'com.fasterxml.jackson.annotation.JsonAutoDetect'
+    exclude 'com.fasterxml.jackson.annotation.JsonAutoDetect'
+    exclude('badgerlog/aspect/**')
+    exclude('**/*.aj')
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 apply plugin: 'groovy'
 spotless {
-	enforceCheck false
+    enforceCheck false
 
-	encoding 'UTF-8'
-	lineEndings 'UNIX'
+    encoding 'UTF-8'
+    lineEndings 'UNIX'
 
-	java {
-		eclipse().configFile('eclipse-java-style.xml')
-		target 'src/**/*.java'
-		removeUnusedImports()
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
+    java {
+        eclipse().configFile('eclipse-java-style.xml')
+        target 'src/**/*.java'
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 
-	groovy {
-		importOrder()
-		excludeJava()
-		greclipse()
-	}
+    groovy {
+        importOrder()
+        excludeJava()
+        greclipse()
+    }
 
-	groovyGradle {
-		greclipse()
-	}
+    groovyGradle {
+        greclipse()
+    }
 
-	json {
-		target '**/*.json'
-		simple().indentWithSpaces(2)
-	}
+    json {
+        target '**/*.json'
+        simple().indentWithSpaces(2)
+    }
 
-	format 'misc', {
-		target '.gitignore'
+    format 'misc', {
+        target '.gitignore'
 
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// Mark aspectj directory as source for IDE without adding to compilation
+plugins.withType(IdeaPlugin) {
+    idea {
+        module {
+            sourceDirs += file('src/main/aspectj')
+        }
+    }
 }
