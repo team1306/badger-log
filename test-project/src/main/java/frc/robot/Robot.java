@@ -17,6 +17,7 @@ public class Robot extends TimedRobot {
     
     public Robot() {
         testingList = List.of(new ComplexTest(), new MethodsTest(), new FieldsTest("fieldsInitial"), new FieldsTest("fieldsFinal"), new ClassTest(), new EventsTest());
+        System.out.println(Dashboard.getStatus());
     }
 
     @Override

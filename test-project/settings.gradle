@@ -26,5 +26,8 @@ pluginManagement {
     }
 }
 
+include 'badgerlog'
+project(':badgerlog').projectDir = file('../lib')
+
 Properties props = System.getProperties()
 props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true")
