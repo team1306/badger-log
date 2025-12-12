@@ -32,8 +32,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Utilizes AspectJ to weave entry generation and management into target classes.
@@ -41,7 +43,8 @@ import java.util.HashMap;
 @Aspect
 public class EntryAspect {
     private final Entries entries = new Entries(new HashMap<>());
-
+    private final List<Class<?>> blacklistedClasses = new ArrayList<>();
+    
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
     public void onlyRobotCode() {
     }
@@ -73,6 +76,13 @@ public class EntryAspect {
     @After("onlyRobotCode() && staticinitialization(*)")
     public void createStaticEntries(JoinPoint joinPoint) {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        if(blacklistedClasses.contains(clazz)) {
+            return;
+        }
+        if (!Members.hasAnyOfAnnotation(clazz, Entry.class)){
+            blacklistedClasses.add(clazz);
+        }
+        
         entries.addInstance(clazz, null);
 
         Members.iterateOverAnnotatedFields(clazz, Entry.class, true, field -> createFieldEntry(field, null));
@@ -83,7 +93,16 @@ public class EntryAspect {
     @After("onlyRobotCode() && newInitialization()")
     public void createInstanceEntries(JoinPoint joinPoint) {
         Object instance = joinPoint.getThis();
-        entries.addInstance(instance.getClass(), instance);
+        Class<?> clazz = joinPoint.getSignature().getDeclaringType();
+        
+        if(blacklistedClasses.contains(clazz)) {
+            return;
+        }
+        if (!Members.hasAnyOfAnnotation(clazz, Entry.class)){
+            blacklistedClasses.add(clazz);
+        }
+        
+        entries.addInstance(clazz, instance);
 
         Members.iterateOverAnnotatedFields(instance
                 .getClass(), Entry.class, false, field -> createFieldEntry(field, instance));
@@ -91,8 +110,8 @@ public class EntryAspect {
         Members.iterateOverAnnotatedMethods(instance
                 .getClass(), Entry.class, false, method -> createMethodEntry(method, instance));
 
-        if (instance.getClass().isAnnotationPresent(Entry.class)) {
-            Field[] allFields = instance.getClass().getFields();
+        if (clazz.isAnnotationPresent(Entry.class)) {
+            Field[] allFields = clazz.getFields();
             Arrays.stream(allFields)
                     .filter(this::isValidForClassGeneration)
                     .forEach(field -> createFieldEntry(field, instance));

@@ -49,6 +49,19 @@ public class Members {
     }
 
     /**
+     * Checks for any occurrences of an annotation in a specific class. Checks the class level, field level, and method level annotations 
+     * @param clazz the class to search in
+     * @param annotationClass the annotation to search for
+     * @return whether the class has any instances of the annotation
+     */
+    public static boolean hasAnyOfAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        Member[] fields = getFieldsWithAnnotation(clazz, annotationClass);
+        Member[] methods = getMethodsWithAnnotation(clazz, annotationClass);
+        boolean hasClassAnnotation = clazz.isAnnotationPresent(annotationClass);
+        return fields.length > 0 || methods.length > 0 || hasClassAnnotation;
+    }
+
+    /**
      * {@code object} defaults to {@code null}. This method should only be used if the field is known to be static.
      *
      * @see #getFieldValue(Field, Object)
