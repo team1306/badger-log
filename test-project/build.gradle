@@ -91,10 +91,10 @@ dependencies {
     jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
     
     implementation "org.aspectj:aspectjrt:1.9.24"
-    aspect files("../lib/build/libs/lib.jar")
+    aspect project(":badgerlog")
 
-    implementation files("../lib/build/libs/lib.jar")
-    annotationProcessor files("../lib/build/libs/lib.jar")
+    implementation project(":badgerlog")
+    annotationProcessor project(":badgerlog")
 }
 
 jmh {
@@ -117,7 +117,7 @@ tasks.register('buildLib', GradleBuild) {
 }
 
 sourceSets {
-    files("../lib/build/libs/lib-sources.jar")
+    project(":badgerlog")
 }
 
 test{
