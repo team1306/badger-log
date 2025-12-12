@@ -6,6 +6,7 @@ plugins {
     id "idea"
 //    id 'io.freefair.aspectj' version '8.14'
     id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
+    id 'me.champeau.jmh' version '0.7.2'
 }
 
 def javaVersion = JavaVersion.VERSION_17
@@ -86,11 +87,24 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
+    jmh 'org.openjdk.jmh:jmh-core:1.37'
+    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+    
     implementation "org.aspectj:aspectjrt:1.9.24"
     aspect files("../lib/build/libs/lib.jar")
 
     implementation files("../lib/build/libs/lib.jar")
     annotationProcessor files("../lib/build/libs/lib.jar")
+}
+
+jmh {
+    resultFormat = 'JSON'
+    resultsFile = file("${buildDir}/reports/jmh/results.json")
+    jvmArgs = [
+            "-Djava.library.path=${projectDir}/build/jni/release", '-Xms2G', '-Xmx2G'
+    ] as Iterable<? extends String>
+
+    profilers = ['gc']
 }
 
 tasks.register('simulate') {
@@ -108,6 +122,7 @@ sourceSets {
 
 test{
     useJUnitPlatform()
+    maxHeapSize = "4g"
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
