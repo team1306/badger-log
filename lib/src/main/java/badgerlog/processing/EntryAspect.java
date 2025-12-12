@@ -44,7 +44,7 @@ import java.util.List;
 public class EntryAspect {
     private final Entries entries = new Entries(new HashMap<>());
     private final List<Class<?>> blacklistedClasses = new ArrayList<>();
-    
+
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
     public void onlyRobotCode() {
     }
@@ -76,13 +76,13 @@ public class EntryAspect {
     @After("onlyRobotCode() && staticinitialization(*)")
     public void createStaticEntries(JoinPoint joinPoint) {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
-        if(blacklistedClasses.contains(clazz)) {
+        if (blacklistedClasses.contains(clazz)) {
             return;
         }
-        if (!Members.hasAnyOfAnnotation(clazz, Entry.class)){
+        if (!Members.hasAnyOfAnnotation(clazz, Entry.class)) {
             blacklistedClasses.add(clazz);
         }
-        
+
         entries.addInstance(clazz, null);
 
         Members.iterateOverAnnotatedFields(clazz, Entry.class, true, field -> createFieldEntry(field, null));
@@ -94,14 +94,14 @@ public class EntryAspect {
     public void createInstanceEntries(JoinPoint joinPoint) {
         Object instance = joinPoint.getThis();
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
-        
-        if(blacklistedClasses.contains(clazz)) {
+
+        if (blacklistedClasses.contains(clazz)) {
             return;
         }
-        if (!Members.hasAnyOfAnnotation(clazz, Entry.class)){
+        if (!Members.hasAnyOfAnnotation(clazz, Entry.class)) {
             blacklistedClasses.add(clazz);
         }
-        
+
         entries.addInstance(clazz, instance);
 
         Members.iterateOverAnnotatedFields(instance

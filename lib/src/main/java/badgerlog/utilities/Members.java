@@ -49,9 +49,12 @@ public class Members {
     }
 
     /**
-     * Checks for any occurrences of an annotation in a specific class. Checks the class level, field level, and method level annotations 
+     * Checks for any occurrences of an annotation in a specific class. Checks the class level, field level, and method
+     * level annotations
+     *
      * @param clazz the class to search in
      * @param annotationClass the annotation to search for
+     *
      * @return whether the class has any instances of the annotation
      */
     public static boolean hasAnyOfAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
