@@ -14,6 +14,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +23,8 @@ import java.util.Map;
  */
 @Aspect
 public class EventAspect {
+
+    private final List<Class<?>> blacklistedClasses = new ArrayList<>();
 
     @Pointcut("!within(edu.wpi.first..*) && !within(badgerlog..*) && !within(java..*) && !within(javax..*)")
     public void onlyRobotCode() {
@@ -34,6 +38,13 @@ public class EventAspect {
     public void createStaticEvents(JoinPoint joinPoint) {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
 
+        if (blacklistedClasses.contains(clazz)) {
+            return;
+        }
+        if (!Members.hasAnyOfAnnotation(clazz, Watcher.class) && !Members.hasAnyOfAnnotation(clazz, RawWatcher.class)) {
+            blacklistedClasses.add(clazz);
+        }
+        
         Members.iterateOverAnnotatedMethods(clazz, Watcher.class, true, method -> handleWatcherMethod(method, null));
         Members.iterateOverAnnotatedMethods(clazz, RawWatcher.class, true, method -> handleRawWatcherMethod(method, null));
     }
@@ -43,6 +54,13 @@ public class EventAspect {
         Class<?> clazz = joinPoint.getSignature().getDeclaringType();
         Object workingClass = joinPoint.getThis();
 
+        if (blacklistedClasses.contains(clazz)) {
+            return;
+        }
+        if (!Members.hasAnyOfAnnotation(clazz, Watcher.class) && !Members.hasAnyOfAnnotation(clazz, RawWatcher.class)) {
+            blacklistedClasses.add(clazz);
+        }
+        
         Members.iterateOverAnnotatedMethods(clazz, Watcher.class, false, method -> handleWatcherMethod(method, workingClass));
         Members.iterateOverAnnotatedMethods(clazz, RawWatcher.class, false, method -> handleRawWatcherMethod(method, workingClass));
     }

@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 1)
-@Measurement(iterations = 5, time = 1)
+@Measurement(iterations = 5, time = 25)
 @Fork(1)
 public class EntryCreationBenchmark {
     
-    @Benchmark
+//    @Benchmark
     public void normalIntegerCreation(){
         new NoAnnotation();
     }
@@ -31,8 +31,8 @@ public class EntryCreationBenchmark {
     public void entryIntegerCreation(){
         new SingleAnnotation();
     }
-    
-    @Benchmark
+
+//    @Benchmark
     public void defaultObjectCreation(){
         new Object();
     }
