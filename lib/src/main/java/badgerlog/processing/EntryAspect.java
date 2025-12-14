@@ -1,6 +1,6 @@
 package badgerlog.processing;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
 import badgerlog.annotations.NoEntry;
@@ -166,7 +166,7 @@ public class EntryAspect {
         }
 
         if (annotation.value() == EntryType.SENDABLE) {
-            Dashboard.addNetworkTableEntry(config.getKey(), new SendableEntry(config
+            BadgerLog.addNetworkTableEntry(config.getKey(), new SendableEntry(config
                     .getKey(), (Sendable) Members.getFieldValue(field, instance)));
             return;
         }
@@ -180,7 +180,7 @@ public class EntryAspect {
             case PUBLISHER, SUBSCRIBER, INTELLIGENT -> {
                 entries.getInstanceEntries(clazz, Modifier.isStatic(field.getModifiers()) ? null : instance)
                         .addEntry(name, entry);
-                Dashboard.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
+                BadgerLog.addNetworkTableEntry(entry.getKey(), new MockNTEntry(entry));
             }
             default -> {
             }
@@ -204,7 +204,7 @@ public class EntryAspect {
                 .invokeMethod(method, instance), config);
         registerAnyManagedEvents(entry, method);
 
-        Dashboard.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Members
+        BadgerLog.addNetworkTableEntry(config.getKey(), (NTUpdatable) () -> entry.publishValue(Members
                 .invokeMethod(method, instance)));
     }
 

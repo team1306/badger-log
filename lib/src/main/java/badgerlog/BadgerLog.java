@@ -1,5 +1,6 @@
 package badgerlog;
 
+import badgerlog.annotations.StructType;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.events.EventRegistry;
 import badgerlog.networktables.EntryFactory;
@@ -27,23 +28,15 @@ import java.util.function.Consumer;
  * Provides utility methods for interacting with NetworkTables.
  */
 @SuppressWarnings({"unused", "resource"})
-public final class Dashboard {
+public final class BadgerLog {
 
     public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("BadgerLog");
+    public static final StructType defaultStruct = StructType.SUB_TABLE;
+
     private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
 
-    public static DashboardConfig config = DashboardConfig.defaultConfig;
 
-    private Dashboard() {
-    }
-
-    /**
-     * Changes the default configuration options to use when the specific version is missing on a field.
-     *
-     * @param config the configuration to use as a default
-     */
-    public static void configure(DashboardConfig config) {
-        Dashboard.config = config;
+    private BadgerLog() {
     }
 
     /**
@@ -86,7 +79,7 @@ public final class Dashboard {
         }
         chooser.onChange(onValueChange);
         onValueChange.accept(startingValue);
-        Dashboard.putSendable(key, chooser);
+        BadgerLog.putSendable(key, chooser);
         return Optional.of(chooser);
     }
 

@@ -1,6 +1,6 @@
 package badgerlog.networktables;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
@@ -22,7 +22,7 @@ public final class SendableEntry implements NTUpdatable, AutoCloseable {
     public SendableEntry(String key, Sendable sendable) {
         this.sendable = sendable;
 
-        NetworkTable dataTable = Dashboard.defaultTable.getSubTable(key);
+        NetworkTable dataTable = BadgerLog.defaultTable.getSubTable(key);
         SendableBuilderImpl builder = new SendableBuilderImpl();
         builder.setTable(dataTable);
         SendableRegistry.publish(sendable, builder);

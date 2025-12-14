@@ -1,6 +1,6 @@
 package badgerlog.networktables;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.conversion.Mapping;
 import badgerlog.conversion.Mappings;
@@ -40,7 +40,7 @@ public final class ValueEntry<T> implements NTEntry<T> {
         this.fieldValueMapping = Mappings.findMapping(valueClass);
 
         NetworkTableType networkTableType = Mappings.findMappingType(valueClass);
-        this.entry = Dashboard.defaultTable.getEntry(key).getTopic().getGenericEntry(networkTableType.getValueStr());
+        this.entry = BadgerLog.defaultTable.getEntry(key).getTopic().getGenericEntry(networkTableType.getValueStr());
 
         publishValue(initialValue);
     }

@@ -1,6 +1,6 @@
 package badgerlog.networktables;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import edu.wpi.first.networktables.StructEntry;
 import edu.wpi.first.util.struct.Struct;
 
@@ -27,7 +27,7 @@ public final class StructValueEntry<T> implements NTEntry<T> {
     public StructValueEntry(String key, Struct<T> struct, T initialValue) {
         this.key = key;
         this.type = initialValue.getClass();
-        entry = Dashboard.defaultTable.getStructTopic(key, struct).getEntry(initialValue);
+        entry = BadgerLog.defaultTable.getStructTopic(key, struct).getEntry(initialValue);
         publishValue(initialValue);
     }
 

@@ -1,6 +1,6 @@
 package frc.robot;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.conversion.UnitConversions;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,27 +19,27 @@ public class MethodsTest implements Testing {
 
     @Override
     public void initialize() {
-        Dashboard.createSelectorFromEnum("MethodsTest/SelectorNoDefault", RobotMode.class, System.out::println);
-        Dashboard.createSelectorFromEnum("MethodsTest/SelectorWithDefault", RobotMode.class, RobotMode.DISABLED, System.out::println);
-        Dashboard.createAutoResettingButton("MethodsTest/AutoResetButton", CommandScheduler.getInstance().getDefaultButtonLoop()).onTrue(new PrintCommand("Auto reset button true"));
-        Dashboard.createNetworkTablesButton("MethodsTest/NetworkTablesButton", CommandScheduler.getInstance().getDefaultButtonLoop()).onTrue(new PrintCommand("Network Tables button true")).onFalse(new PrintCommand("Network Tables button false"));
+        BadgerLog.createSelectorFromEnum("MethodsTest/SelectorNoDefault", RobotMode.class, System.out::println);
+        BadgerLog.createSelectorFromEnum("MethodsTest/SelectorWithDefault", RobotMode.class, RobotMode.DISABLED, System.out::println);
+        BadgerLog.createAutoResettingButton("MethodsTest/AutoResetButton", CommandScheduler.getInstance().getDefaultButtonLoop()).onTrue(new PrintCommand("Auto reset button true"));
+        BadgerLog.createNetworkTablesButton("MethodsTest/NetworkTablesButton", CommandScheduler.getInstance().getDefaultButtonLoop()).onTrue(new PrintCommand("Network Tables button true")).onFalse(new PrintCommand("Network Tables button false"));
 
-        Dashboard.putSendable("MethodsTest/Field", field);
+        BadgerLog.putSendable("MethodsTest/Field", field);
     }
 
     @Override
     public void update() {
-        double x = Dashboard.getValue("MethodsTest/PoseX", 0.0);
-        Distance y = Dashboard.getValue("MethodsTest/PoseY", Inches.of(0), new Configuration().withConverter("", UnitConversions.createConverter("meters")));
+        double x = BadgerLog.getValue("MethodsTest/PoseX", 0.0);
+        Distance y = BadgerLog.getValue("MethodsTest/PoseY", Inches.of(0), new Configuration().withConverter("", UnitConversions.createConverter("meters")));
 
-        Rotation2d rotation = Dashboard.getValue("MethodsTest/Rotation", Rotation2d.fromDegrees(0));
+        Rotation2d rotation = BadgerLog.getValue("MethodsTest/Rotation", Rotation2d.fromDegrees(0));
 
         Pose2d pose = new Pose2d(x, y.in(Meters), rotation);
         field.setRobotPose(pose);
 
-        Dashboard.putValue("MethodsTest/PoseX Publish", Meters.of(x), new Configuration().withConverter("", UnitConversions.createConverter("inches")));
-        Dashboard.putValue("MethodsTest/PoseY Publish", y);
-        Dashboard.putValue("MethodsTest/Rotation Publish", rotation);
+        BadgerLog.putValue("MethodsTest/PoseX Publish", Meters.of(x), new Configuration().withConverter("", UnitConversions.createConverter("inches")));
+        BadgerLog.putValue("MethodsTest/PoseY Publish", y);
+        BadgerLog.putValue("MethodsTest/Rotation Publish", rotation);
     }
 
     public enum RobotMode {

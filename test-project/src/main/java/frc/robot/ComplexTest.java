@@ -1,6 +1,6 @@
 package frc.robot;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -13,7 +13,7 @@ public class ComplexTest implements Testing {
 
     @Override
     public void initialize() {
-        Dashboard.createNetworkTablesButton("ComplexTest/ButtonBoolean", CommandScheduler.getInstance()
+        BadgerLog.createNetworkTablesButton("ComplexTest/ButtonBoolean", CommandScheduler.getInstance()
                         .getDefaultButtonLoop())
                 .onTrue(new InstantCommand(() -> testBoolean = true).ignoringDisable(true))
                 .onFalse(new InstantCommand(() -> testBoolean = false).ignoringDisable(true));
