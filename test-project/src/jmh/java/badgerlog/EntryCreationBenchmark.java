@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.MICROSECONDS)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 1)
-@Measurement(iterations = 5, time = 5)
+@Measurement(iterations = 5, time = 1)
 @Fork(1)
 public class EntryCreationBenchmark {
     
@@ -30,5 +30,10 @@ public class EntryCreationBenchmark {
     @Benchmark
     public void entryIntegerCreation(){
         new SingleAnnotation();
+    }
+    
+    @Benchmark
+    public void defaultObjectCreation(){
+        new Object();
     }
 }

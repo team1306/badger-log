@@ -101,7 +101,7 @@ jmh {
     resultFormat = 'JSON'
     resultsFile = file("${buildDir}/reports/jmh/results.json")
     jvmArgs = [
-            "-Djava.library.path=${projectDir}/build/jni/release", '-Xms2G', '-Xmx2G'
+            "-Djava.library.path=${projectDir}/build/jni/release", '-Xms6G', '-Xmx6G', "-XX:+FlightRecorder"
     ] as Iterable<? extends String>
 
     profilers = ['gc']
