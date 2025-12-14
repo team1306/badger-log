@@ -3,6 +3,7 @@ package badgerlog.processing.data;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Contains all the generated entry data.
@@ -58,10 +59,12 @@ public record Entries(Map<Class<?>, ClassData> classDataMap) {
     public void addInstance(Class<?> clazz, Object instance) {
         ClassData classData = getClassData(clazz);
         if (classData == null) {
-            classData = new ClassData(new HashMap<>(), new HashMap<>());
+            classData = new ClassData(new HashMap<>(), new WeakHashMap<>());
             classDataMap.put(clazz, classData);
         }
-
+        if (instance != null) {
+            classData.incrementInstanceCount();
+        }
         classData.instanceEntries().putIfAbsent(instance, new InstanceData(new HashMap<>()));
     }
 
