@@ -5,7 +5,7 @@
 
 package frc.robot;
 
-import badgerlog.Dashboard;
+import badgerlog.BadgerLog;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -27,7 +27,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        Dashboard.update();
+        BadgerLog.update();
 
         testingList.forEach(Testing::update);
         StaticTest.staticDouble ++;
