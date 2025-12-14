@@ -34,8 +34,8 @@ public final class BadgerLog {
     public static final StructType defaultStruct = StructType.SUB_TABLE;
 
     private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
-    
-    
+
+
     private BadgerLog() {
     }
 

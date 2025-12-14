@@ -62,7 +62,7 @@ public record Entries(Map<Class<?>, ClassData> classDataMap) {
             classData = new ClassData(new HashMap<>(), new WeakHashMap<>());
             classDataMap.put(clazz, classData);
         }
-        if(instance != null){
+        if (instance != null) {
             classData.incrementInstanceCount();
         }
         classData.instanceEntries().putIfAbsent(instance, new InstanceData(new HashMap<>()));
