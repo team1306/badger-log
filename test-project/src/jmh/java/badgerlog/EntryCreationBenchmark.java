@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class EntryCreationBenchmark {
     
-//    @Benchmark
+    @Benchmark
     public void normalIntegerCreation(){
         new NoAnnotation();
     }
@@ -32,7 +32,7 @@ public class EntryCreationBenchmark {
         new SingleAnnotation();
     }
 
-//    @Benchmark
+    @Benchmark
     public void defaultObjectCreation(){
         new Object();
     }
