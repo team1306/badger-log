@@ -12,7 +12,7 @@ import java.util.Objects;
 public final class ClassData {
     private final Map<String, Field> fieldMap;
     private final Map<Object, InstanceData> instanceEntries;
-    
+
     @Getter
     private int instanceCount = 0;
     /**
@@ -42,7 +42,7 @@ public final class ClassData {
     public Map<Object, InstanceData> instanceEntries() {
         return instanceEntries;
     }
-    
+
     public void incrementInstanceCount() {
         instanceCount++;
     }
@@ -56,8 +56,8 @@ public final class ClassData {
             return false;
         }
         var that = (ClassData) obj;
-        return Objects.equals(this.fieldMap, that.fieldMap) &&
-                Objects.equals(this.instanceEntries, that.instanceEntries);
+        return Objects.equals(this.fieldMap, that.fieldMap) && Objects
+                .equals(this.instanceEntries, that.instanceEntries);
     }
 
     @Override
@@ -67,8 +67,6 @@ public final class ClassData {
 
     @Override
     public String toString() {
-        return "ClassData[" +
-                "fieldMap=" + fieldMap + ", " +
-                "instanceEntries=" + instanceEntries + ']';
+        return "ClassData[" + "fieldMap=" + fieldMap + ", " + "instanceEntries=" + instanceEntries + ']';
     }
 }
