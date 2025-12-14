@@ -44,7 +44,7 @@ public class EventAspect {
         if (!Members.hasAnyOfAnnotation(clazz, Watcher.class) && !Members.hasAnyOfAnnotation(clazz, RawWatcher.class)) {
             blacklistedClasses.add(clazz);
         }
-        
+
         Members.iterateOverAnnotatedMethods(clazz, Watcher.class, true, method -> handleWatcherMethod(method, null));
         Members.iterateOverAnnotatedMethods(clazz, RawWatcher.class, true, method -> handleRawWatcherMethod(method, null));
     }
@@ -60,7 +60,7 @@ public class EventAspect {
         if (!Members.hasAnyOfAnnotation(clazz, Watcher.class) && !Members.hasAnyOfAnnotation(clazz, RawWatcher.class)) {
             blacklistedClasses.add(clazz);
         }
-        
+
         Members.iterateOverAnnotatedMethods(clazz, Watcher.class, false, method -> handleWatcherMethod(method, workingClass));
         Members.iterateOverAnnotatedMethods(clazz, RawWatcher.class, false, method -> handleRawWatcherMethod(method, workingClass));
     }
