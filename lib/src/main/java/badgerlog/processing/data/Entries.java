@@ -70,6 +70,7 @@ public record Entries(Map<Class<?>, ClassData> classDataMap) {
      * Gets the field map for a particular class
      *
      * @param type the class to get the field map from
+     *
      * @return a copied map containing the entries from the {@link ClassData} field map
      */
     public Map<String, Field> getFieldMap(Class<?> type) {

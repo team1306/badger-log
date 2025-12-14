@@ -26,17 +26,17 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
             NT oldValue = this.get(key);
             if (oldValue instanceof AutoCloseable closeable) {
                 String extraInfo = "";
-                
-                if(oldValue instanceof NTEntry<?> entry) {
+
+                if (oldValue instanceof NTEntry<?> entry) {
                     extraInfo = entry.getKey();
                 }
-                if(oldValue instanceof MockNTEntry entry) {
+                if (oldValue instanceof MockNTEntry entry) {
                     extraInfo = entry.realEntry().getKey();
                 }
 
                 extraInfo = extraInfo.isEmpty() ? "No Extra Info" : extraInfo + " closed by " + key;
                 extraInfo += "\n";
-                
+
                 closeable.close();
                 ErrorLogger.customError("NetworkTable entry closed from adding another entry.\n" + extraInfo);
             }
