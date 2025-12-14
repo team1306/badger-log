@@ -6,12 +6,11 @@ import edu.wpi.first.networktables.NetworkTableEvent.Kind;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -19,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class EventRegistry {
     private static final Queue<WatcherPair<?>> eventQueue = new ConcurrentLinkedQueue<>();
-    private static final Map<String, List<NTEntry<?>>> watchedEntries = new HashMap<>();
+    private static final Map<String, Queue<NTEntry<?>>> watchedEntries = new ConcurrentHashMap<>();
 
     /**
      * Activates any queued events from the previous loop
@@ -74,14 +73,14 @@ public class EventRegistry {
      */
     public static void addWatchedEntry(NTEntry<?> entry, List<String> watcherNames) {
         for (String watcher : watcherNames) {
-            List<NTEntry<?>> entries = watchedEntries.computeIfAbsent(watcher, k -> new ArrayList<>());
+            Queue<NTEntry<?>> entries = watchedEntries.computeIfAbsent(watcher, k -> new ConcurrentLinkedQueue<>());
             entries.add(entry);
         }
     }
 
     @SuppressWarnings("unchecked")
     private static void addManagedWatcherEvent(WatcherEvent<?> event, EventMetadata metadata, NetworkTableEvent ntEvent) {
-        List<NTEntry<?>> namedEntries = watchedEntries.getOrDefault(metadata.name(), new ArrayList<>());
+        Queue<NTEntry<?>> namedEntries = watchedEntries.getOrDefault(metadata.name(), new ConcurrentLinkedQueue<>());
 
         for (NTEntry<?> entry : namedEntries) {
             String actualKey = "/BadgerLog/" + entry.getKey();

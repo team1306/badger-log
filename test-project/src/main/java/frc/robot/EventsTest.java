@@ -14,12 +14,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class EventsTest implements Testing{
     
     @Entry(EntryType.SUBSCRIBER)
-    @Watched("integer")
+    @Watched({"integer", "tester"})
     private int watcherTest = 1;
 
     @Entry(EntryType.SUBSCRIBER)
     @Struct(StructType.SUB_TABLE)
-    @Watched("pose2d")
+    @Watched({"pose2d", "tester"})
     private Pose2d robotPose = Pose2d.kZero;
     
     @Override
@@ -40,6 +40,11 @@ public class EventsTest implements Testing{
     @Watcher(type = int.class, name = "integer")
     private void integerWatcher(EventData<Integer> data){
         System.out.println("EVENT value: "+data + "-> Fired");
+    }
+
+    @Watcher(type = void.class, name = "tester")
+    private void allWatcher(EventData<Object> data){
+        System.out.println("ALL value: "+data + "-> Fired");
     }
 
     @RawWatcher(type = void.class, keys = "/BadgerLog/EventsTest", eventType = EventType.ALL)
