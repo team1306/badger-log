@@ -1,10 +1,11 @@
+import io.freefair.gradle.plugins.aspectj.AspectjCompile
+
 plugins {
 	id 'java'
 	id "com.diffplug.spotless" version "7.2.1"
-	id("io.freefair.lombok") version "8.12.2.1"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.+'
 	id 'maven-publish'
-	id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
+	id 'io.freefair.aspectj' version '8.14'
 	id("net.ltgt.errorprone") version "4.2.0"
 }
 
@@ -44,6 +45,10 @@ dependencies {
 
 	testImplementation platform('org.junit:junit-bom:5.10.0')
 	testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.withType(AspectjCompile).configureEach {
+	ajcOptions.compilerArgs.add('-XhasMember')
 }
 
 publishing {

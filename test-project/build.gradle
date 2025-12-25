@@ -4,8 +4,8 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "idea"
-//    id 'io.freefair.aspectj' version '8.14'
-    id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
+    id 'io.freefair.aspectj' version '8.14'
+//    id 'io.freefair.aspectj.post-compile-weaving' version '8.14'
     id 'me.champeau.jmh' version '0.7.2'
 }
 
@@ -105,15 +105,6 @@ jmh {
     ] as Iterable<? extends String>
 
     profilers = ['gc']
-}
-
-tasks.register('simulate') {
-    dependsOn('buildLib', 'simulateJava')
-}
-
-tasks.register('buildLib', GradleBuild) {
-    dir = '../lib'
-    tasks = ['build']
 }
 
 sourceSets {
