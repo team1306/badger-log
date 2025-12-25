@@ -1,7 +1,6 @@
 package badgerlog.networktables;
 
 import edu.wpi.first.util.struct.Struct;
-import lombok.SneakyThrows;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -44,9 +43,8 @@ public final class SubtableEntry<T> implements NTEntry<T> {
         entries = Subtables.createEntries(struct, key, initialValue);
     }
 
-    @SneakyThrows
     @Override
-    public void close() {
+    public void close() throws Exception {
         for (NTEntry<?> entry : entries.keySet()) {
             entry.close();
         }

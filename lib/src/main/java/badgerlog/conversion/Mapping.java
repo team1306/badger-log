@@ -2,7 +2,6 @@ package badgerlog.conversion;
 
 import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.networktables.NetworkTableType;
-import lombok.Getter;
 
 /**
  * Represents an abstract converter back and forth between two types.
@@ -13,7 +12,6 @@ import lombok.Getter;
  * @param <NTType> the ending type of the mapping
  */
 @SuppressWarnings("InvalidBlockTag")
-@Getter
 public abstract class Mapping<StartType, NTType> {
 
     /**
@@ -74,4 +72,16 @@ public abstract class Mapping<StartType, NTType> {
      * @return the converted value
      */
     public abstract StartType toStart(NTType ntValue, Configuration config);
+    
+    public Class<StartType> getStartType() {
+        return startType;
+    }
+
+    public Class<NTType> getTableType() {
+        return tableType;
+    }
+
+    public NetworkTableType getNetworkTableType() {
+        return networkTableType;
+    }
 }

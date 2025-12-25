@@ -19,13 +19,13 @@ import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.KeyParser;
 import badgerlog.utilities.Members;
 import edu.wpi.first.util.sendable.Sendable;
-import lombok.SneakyThrows;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.FieldSignature;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -141,7 +141,6 @@ public class EntryAspect {
     private void createFieldEntry(Field field, Object instance) {
         Class<?> clazz = field.getDeclaringClass();
         String name = field.getName();
-        entries.getClassData(clazz).addField(field);
 
         if (Members.getFieldValue(field, instance) == null) {
             ErrorLogger.memberError(field, "is an uninitialized field");
@@ -216,14 +215,15 @@ public class EntryAspect {
     }
 
     @SuppressWarnings("unchecked")
-    @SneakyThrows(Throwable.class)
     @Around(value = "onlyRobotCode() && entryAccess(annotation)", argNames = "pjp, annotation")
-    public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation) {
+    public Object getFieldEntry(ProceedingJoinPoint pjp, Entry annotation) throws Throwable {
         EntryType entryType = annotation.value();
         if (entryType != EntryType.SUBSCRIBER && entryType != EntryType.INTELLIGENT) {
             return pjp.proceed();
         }
-
+        
+        FieldSignature signature = (FieldSignature) pjp.getSignature();
+        
         String name = pjp.getSignature().getName();
         Class<?> containingClass = pjp.getSignature().getDeclaringType();
         Object target = pjp.getTarget();
@@ -238,16 +238,15 @@ public class EntryAspect {
 
         Object value = entry.retrieveValue();
 
-        Members.setFieldValue(pjp.getTarget(), entryData.targetField(), value);
+        Members.setFieldValue(pjp.getTarget(), signature.getField(), value);
         entry.publishValue(value);
 
         return value;
     }
 
     @SuppressWarnings("unchecked")
-    @SneakyThrows(Throwable.class)
     @Around(value = "onlyRobotCode() && entryUpdate(annotation) && args(arg)", argNames = "pjp, arg, annotation")
-    public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation) {
+    public Object setFieldEntry(ProceedingJoinPoint pjp, Object arg, Entry annotation) throws Throwable {
         EntryType entryType = annotation.value();
         if (entryType != EntryType.PUBLISHER && entryType != EntryType.INTELLIGENT) {
             return pjp.proceed(pjp.getArgs());
@@ -263,7 +262,7 @@ public class EntryAspect {
             return pjp.proceed(pjp.getArgs());
         }
 
-        if (Members.getFieldValue(entryData.targetField(), target) == null) {
+        if (arg == null) {
             ErrorLogger.customError(String.format("Field %s was null when it should not have been", pjp.getSignature()
                     .getName()));
             return pjp.proceed(pjp.getArgs());
@@ -278,14 +277,14 @@ public class EntryAspect {
 
     @SuppressWarnings("unchecked")
     @Around("onlyRobotCode() && entryUpdateInEntryClass() && args(arg)")
-    public Object setClassFieldEntry(ProceedingJoinPoint pjp, Object arg) {
+    public Object setClassFieldEntry(ProceedingJoinPoint pjp, Object arg) throws Throwable {
         Entry annotation = (Entry) pjp.getSignature().getDeclaringType().getAnnotation(Entry.class);
         return setFieldEntry(pjp, arg, annotation);
     }
 
     @SuppressWarnings("unchecked")
     @Around("onlyRobotCode() && entryAccessInEntryClass()")
-    public Object getClassFieldEntry(ProceedingJoinPoint pjp) {
+    public Object getClassFieldEntry(ProceedingJoinPoint pjp) throws Throwable {
         Entry annotation = (Entry) pjp.getSignature().getDeclaringType().getAnnotation(Entry.class);
         return getFieldEntry(pjp, annotation);
     }
@@ -293,30 +292,25 @@ public class EntryAspect {
     private FieldEntryData createFieldData(String name, Class<?> containingClass, Object target) {
         ClassData data = entries.getClassData(containingClass);
         if (data == null) {
-            return new FieldEntryData(false, null, null);
+            return new FieldEntryData(false, null);
         }
 
         InstanceData instanceData = data.instanceEntries().get(target);
-        Field field = data.fieldMap().get(name);
 
         if (instanceData == null) {
-            return new FieldEntryData(false, null, null);
+            return new FieldEntryData(false, null);
         }
-
-        if (field == null) {
-            return new FieldEntryData(false, null, null);
-        }
-
+        
         NTEntry<?> entry = instanceData.getEntry(name);
 
         if (entry == null) {
-            return new FieldEntryData(false, null, null);
+            return new FieldEntryData(false, null);
         }
 
-        return new FieldEntryData(true, entry, field);
+        return new FieldEntryData(true, entry);
     }
 
-    private record FieldEntryData(boolean valid, NTEntry<?> entry, Field targetField) {}
+    private record FieldEntryData(boolean valid, NTEntry<?> entry) {}
 
     private boolean isValidForClassGeneration(Field field) {
         return Members.isMemberNonStatic(field) && !Modifier.isFinal(field.getModifiers()) && !field

@@ -4,7 +4,6 @@ import badgerlog.networktables.MockNTEntry;
 import badgerlog.networktables.NT;
 import badgerlog.networktables.NTEntry;
 import badgerlog.networktables.NTUpdatable;
-import lombok.SneakyThrows;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,6 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
      *
      * @see Map#put(Object, Object)
      */
-    @SneakyThrows
     @Override
     public NT put(String key, NT value) {
         if (containsKey(key)) {
@@ -37,7 +35,11 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
                 extraInfo = extraInfo.isEmpty() ? "No Extra Info" : extraInfo + " closed by " + key;
                 extraInfo += "\n";
 
-                closeable.close();
+                try {
+                    closeable.close();
+                } catch (Exception e) {
+                    ErrorLogger.customError("NetworkTable entry could not be closed");
+                }
                 ErrorLogger.customError("NetworkTable entry closed from adding another entry.\n" + extraInfo);
             }
         }
@@ -50,13 +52,16 @@ public final class CheckedNetworkTablesMap extends HashMap<String, NT> {
      *
      * @see Map#remove(Object)
      */
-    @SneakyThrows
     @Override
     public NT remove(Object key) {
         if (containsKey(key)) {
             NT oldValue = this.get(key);
             if (oldValue instanceof AutoCloseable closeable) {
-                closeable.close();
+                try {
+                    closeable.close();
+                } catch (Exception e) {
+                    ErrorLogger.customError("NetworkTable entry could not be closed");
+                }
             }
         }
         return super.remove(key);

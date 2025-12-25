@@ -3,7 +3,6 @@ package badgerlog.networktables;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.utilities.ErrorLogger;
 import edu.wpi.first.util.struct.Struct;
-import lombok.SneakyThrows;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -53,7 +52,6 @@ public final class Subtables {
      *
      * @return an ordered map containing all the entries created from the schema, ordered by how the buffer is packed
      */
-    @SneakyThrows
     public static <T> Map<NTEntry<?>, PrimType<?>> createEntries(Struct<T> struct, String key, T value) {
         ByteBuffer buffer = ByteBuffer.allocate(struct.getSize());
         buffer.clear();
@@ -64,7 +62,11 @@ public final class Subtables {
         boolean valid = createEntriesImpl(struct, key, buffer, entries, 0);
         if (!valid) {
             for (NTEntry<?> entry : entries.keySet()) {
-                entry.close();
+                try {
+                    entry.close();
+                } catch (Exception e) {
+                    ErrorLogger.customError("Failed to generate, could not close allocated entries");
+                }
             }
             entries.clear();
         }

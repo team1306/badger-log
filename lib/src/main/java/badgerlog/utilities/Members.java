@@ -1,7 +1,5 @@
 package badgerlog.utilities;
 
-import lombok.SneakyThrows;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -81,10 +79,14 @@ public class Members {
      *
      * @return the value on the field in the specific instance
      */
-    @SneakyThrows({IllegalAccessException.class, IllegalArgumentException.class})
     public static Object getFieldValue(Field field, Object object) {
         field.setAccessible(true);
-        return field.get(object);
+        try {
+            return field.get(object);
+        } catch (IllegalAccessException e) {
+            ErrorLogger.customError("Could not access field: " + field.getName());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -94,10 +96,14 @@ public class Members {
      * @param field the field to set
      * @param value the value to set on the field
      */
-    @SneakyThrows({IllegalAccessException.class})
     public static void setFieldValue(Object instance, Field field, Object value) {
         field.setAccessible(true);
-        field.set(instance, value);
+        try {
+            field.set(instance, value);
+        } catch (IllegalAccessException e) {
+            ErrorLogger.customError("Could not access field: " + field.getName());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -123,10 +129,14 @@ public class Members {
      *
      * @return the return value of the method
      */
-    @SneakyThrows({IllegalAccessException.class, InvocationTargetException.class})
     public static Object invokeMethod(Method method, Object instance, Object... args) {
         method.setAccessible(true);
-        return method.invoke(instance, args);
+        try {
+            return method.invoke(instance, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            ErrorLogger.customError("Could not invoke method: " + method.getName());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
