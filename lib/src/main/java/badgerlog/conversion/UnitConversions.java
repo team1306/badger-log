@@ -54,6 +54,21 @@ public final class UnitConversions {
 
     private UnitConversions() {
     }
+    
+    public static badgerlog.transformations.Mapping<?, ?> createMapping(String unit){
+        unit = unit.toLowerCase(Locale.ROOT);
+
+        if (units.get(unit) == null) {
+            throw new IllegalArgumentException(String.format("Unit type: (%s) may not exist", unit));
+        }
+        return createMapping(units.get(unit));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Unit> badgerlog.transformations.Mapping<Measure<T>, ?> createMapping(T unit){
+        return new badgerlog.transformations.Mapping<>((value) -> value.in(unit), (value) -> (Measure<T>) unit.of(value));
+    }
+    
 
     /**
      * Creates an implementation of a {@link UnitConverter} that uses the {@code toUnit} as its base.

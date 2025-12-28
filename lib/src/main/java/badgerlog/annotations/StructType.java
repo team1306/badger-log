@@ -13,8 +13,4 @@ public enum StructType {
      * schema
      */
     SUB_TABLE,
-    /**
-     * Uses a mapping to convert the struct to a double or double array
-     */
-    MAPPING,
 }

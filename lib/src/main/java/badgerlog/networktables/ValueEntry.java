@@ -1,9 +1,7 @@
 package badgerlog.networktables;
 
 import badgerlog.BadgerLog;
-import badgerlog.annotations.configuration.Configuration;
-import badgerlog.conversion.Mapping;
-import badgerlog.conversion.Mappings;
+import badgerlog.transformations.Mapping;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableType;
 
@@ -13,10 +11,8 @@ import edu.wpi.first.networktables.NetworkTableType;
  * @param <T> the type to use. Does not need to be a valid NetworkTableType
  */
 public final class ValueEntry<T> implements NTEntry<T> {
-
-    private final Configuration config;
-
-    private final Mapping<T, Object> fieldValueMapping;
+    
+    private final Mapping<T, Object> mapping;
     private final GenericEntry entry;
     private final String key;
     private final Class<?> type;
@@ -30,16 +26,13 @@ public final class ValueEntry<T> implements NTEntry<T> {
      * @param key the key on NetworkTables
      * @param valueClass the class type of the {@code initialValue}
      * @param initialValue the value to initially publish to NetworkTables
-     * @param config the configuration to use for the Mapping
      */
-    public ValueEntry(String key, Class<T> valueClass, T initialValue, Configuration config) {
-        this.config = config;
+    @SuppressWarnings("unchecked")
+    public ValueEntry(String key, Class<T> valueClass, T initialValue, Mapping<T, ?> mapping, NetworkTableType networkTableType) {
         this.key = key;
         this.type = valueClass;
-
-        this.fieldValueMapping = Mappings.findMapping(valueClass);
-
-        NetworkTableType networkTableType = Mappings.findMappingType(valueClass);
+        this.mapping = (Mapping<T, Object>) mapping;
+        
         this.entry = BadgerLog.defaultTable.getEntry(key).getTopic().getGenericEntry(networkTableType.getValueStr());
 
         publishValue(initialValue);
@@ -47,12 +40,12 @@ public final class ValueEntry<T> implements NTEntry<T> {
 
     @Override
     public void publishValue(T value) {
-        entry.setValue(fieldValueMapping.toNT(value, config));
+        entry.setValue(mapping.evaluateForwards(value));
     }
 
     @Override
     public T retrieveValue() {
-        return fieldValueMapping.toStart(entry.get().getValue(), config);
+        return mapping.evaluateBackwards(entry.get().getValue());
     }
 
     @Override

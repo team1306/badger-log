@@ -1,10 +1,10 @@
 package badgerlog.utilities;
 
-import badgerlog.annotations.configuration.Configuration;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructGenerator;
 
 import java.lang.reflect.RecordComponent;
+import java.util.Optional;
 
 /**
  * Generates structs from predefined types.
@@ -20,11 +20,10 @@ public final class TypeParser {
      *
      * <p>The class should either be a record or an Enum.</p>
      *
-     * @param config the configuration object to attach the generated struct to
      * @param type the type class
      * @param <T> the type of the class
      */
-    public static <T> void generateStructFromTypeIfPossible(Configuration config, Class<T> type) {
+    public static <T> Optional<Struct<T>> generateStructFromTypeIfPossible(Class<T> type) {
         Struct<T> struct;
         if (type.isRecord()) {
             createStructReferencesFromRecord((Class<? extends Record>) type, 0);
@@ -33,12 +32,11 @@ public final class TypeParser {
             createStructReferencesFromEnum((Class<? extends Enum>) type, 0);
             struct = StructGenerator.genEnum((Class<? extends Enum>) type);
         } else {
-            ErrorLogger.normalError("Struct not generated for " + type.getSimpleName());
-            return;
+            return Optional.empty();
         }
 
-        config.withGeneratedStruct(struct);
         StructGenerator.addCustomStruct(type, struct, true);
+        return Optional.of(struct);
     }
 
     private static <T extends Record> void createStructReferencesFromRecord(Class<T> type, int depth) {

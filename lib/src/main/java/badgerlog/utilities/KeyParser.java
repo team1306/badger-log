@@ -44,7 +44,7 @@ public final class KeyParser {
      * @param instance the instance for the instance specific keys
      * @param instanceCount the number of instances that have already been created
      */
-    public static void createKeyFromMember(Configuration config, Member member, Object instance, int instanceCount) {
+    public static String createKeyFromMember(Configuration config, Member member, Object instance, int instanceCount) {
         StringBuilder keyBuilder = new StringBuilder(createUnparsedKey(config, member));
 
         if (instanceCount > 1 && missingFieldKey(keyBuilder.toString())) {
@@ -56,12 +56,10 @@ public final class KeyParser {
             }
         }
         String unparsedKey = keyBuilder.toString();
-
-        config.withKey(unparsedKey);
-
+        
         List<String> fieldNames = extractFieldNames(unparsedKey);
         if (fieldNames.isEmpty()) {
-            return;
+            return unparsedKey;
         }
 
         Map<String, String> fieldValues = new HashMap<>();
@@ -70,15 +68,13 @@ public final class KeyParser {
                 Field valueField = member.getDeclaringClass().getDeclaredField(fieldName);
                 fieldValues.put(fieldName, Members.getFieldValue(valueField, instance).toString());
             } catch (NoSuchFieldException | NullPointerException e) {
-                config.makeInvalid();
                 ErrorLogger.customError(member.getDeclaringClass().getSimpleName() + "." + member
-                        .getName() + " was invalidated after key contained invalid field.");
-                return;
+                        .getName() + " is using non-specific key after it contained invalid field(s).");
+                return unparsedKey;
             }
         }
 
-        String parsedKey = replaceFields(unparsedKey, fieldValues);
-        config.withKey(parsedKey);
+        return replaceFields(unparsedKey, fieldValues);
     }
 
     /**
@@ -90,7 +86,7 @@ public final class KeyParser {
      * @param config the configuration to both get data from and apply the final key to
      * @param member the static member to generate the key for
      */
-    public static void createKeyFromStaticMember(Configuration config, Member member) {
+    public static String createKeyFromStaticMember(Configuration config, Member member) {
         String unparsedKey = createUnparsedKey(config, member);
 
         List<String> fieldNames = extractFieldNames(unparsedKey);
@@ -99,7 +95,7 @@ public final class KeyParser {
 
         unparsedKey = replaceFields(unparsedKey, emptyReplaceMap);
 
-        config.withKey(unparsedKey);
+        return unparsedKey;
     }
 
     private static String createUnparsedKey(Configuration config, Member member) {
