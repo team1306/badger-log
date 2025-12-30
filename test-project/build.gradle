@@ -156,3 +156,50 @@ idea {
         excludeDirs+=file(".vscode" )
     }
 }
+
+eclipse {
+    classpath {
+        file {
+            whenMerged { classpath ->
+                classpath.entries.removeAll { entry ->
+                    entry instanceof org.gradle.plugins.ide.eclipse.model.SourceFolder &&
+                            entry.path == 'src/main/java'
+                }
+
+                classpath.entries.removeAll { entry ->
+                    entry instanceof org.gradle.plugins.ide.eclipse.model.SourceFolder &&
+                            entry.path == 'build/generated/sources/annotationProcessor/java/main'
+                }
+
+                classpath.entries.removeAll { entry ->
+                    entry instanceof org.gradle.plugins.ide.eclipse.model.Container
+                }
+
+                def srcEntry = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/main/java', 'build/classes/java/main')
+                srcEntry.entryAttributes['gradle_scope'] = 'main'
+                srcEntry.entryAttributes['gradle_used_by_scope'] = 'main,test'
+                classpath.entries.add(0, srcEntry)
+
+                def genSrcEntry = new org.gradle.plugins.ide.eclipse.model.SourceFolder(
+                        'build/generated/sources/annotationProcessor/java/main',
+                        null
+                )
+                classpath.entries.add(1, genSrcEntry)
+
+                classpath.entries.add(new org.gradle.plugins.ide.eclipse.model.Container(
+                        'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17/'
+                ))
+
+                classpath.entries.add(new org.gradle.plugins.ide.eclipse.model.Container(
+                        'org.eclipse.buildship.core.gradleclasspathcontainer'
+                ))
+            }
+        }
+
+        defaultOutputDir = file('build/classes/java/main')
+    }
+}
+
+tasks.named('simulateExternalJavaRelease') {
+    dependsOn 'eclipse'
+}

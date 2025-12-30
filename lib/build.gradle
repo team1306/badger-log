@@ -31,7 +31,7 @@ dependencies {
 	compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
 	compileOnly 'edu.wpi.first.hal:hal-java:2025.+'
 
-	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+	implementation 'com.google.code.gson:gson:2.13.2'
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc5'
 	annotationProcessor 'com.google.auto.service:auto-service:1.0-rc5'

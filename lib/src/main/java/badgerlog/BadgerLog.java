@@ -10,6 +10,7 @@ import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
 import badgerlog.networktables.ValueEntry;
 import badgerlog.utilities.CheckedNetworkTablesMap;
+import badgerlog.utilities.ConfigLoader;
 import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Validation;
 import edu.wpi.first.networktables.NetworkTable;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -35,9 +37,22 @@ public final class BadgerLog {
 
     private static final CheckedNetworkTablesMap activeEntries = new CheckedNetworkTablesMap();
 
-
+    private static final BadgerLogConfig configuration;
+    
+    
     private BadgerLog() {
     }
+    
+    static {
+        ConfigLoader configLoader = new ConfigLoader();
+        try {
+            configuration = configLoader.loadConfig(BadgerLogConfig.class);
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError("Failed to load BadgerLog configuration: " + e.getMessage());
+        }
+    }
+    
+    
 
     /**
      * {@code defaultValue} defaults to the first defined Enum constant
@@ -225,5 +240,9 @@ public final class BadgerLog {
      */
     public static void putSendable(String key, Sendable sendable) {
         addNetworkTableEntry(key, new SendableEntry(key, sendable));
+    }
+
+    public static BadgerLogConfig getConfiguration(){
+        return configuration;
     }
 }

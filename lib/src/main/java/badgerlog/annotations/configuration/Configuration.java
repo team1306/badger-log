@@ -1,5 +1,7 @@
 package badgerlog.annotations.configuration;
 
+import badgerlog.BadgerLog;
+import badgerlog.BadgerLogConfig;
 import badgerlog.annotations.StructType;
 import edu.wpi.first.util.struct.Struct;
 
@@ -21,6 +23,10 @@ public class Configuration {
 
     private String unit = null;
 
+    private Configuration() {
+
+    }
+    
     /**
      * {@return the configuration object for method chaining}
      *
@@ -100,7 +106,8 @@ public class Configuration {
      * @param <T> the {@code Member} and {@link AnnotatedElement} type
      */
     public static <T extends Member & AnnotatedElement> Configuration createConfigurationFromAnnotations(T element) {
-        Configuration config = new Configuration();
+        Configuration config = createDefaultConfiguration();
+        
         Annotation[] classAnnotations = element.getDeclaringClass().getAnnotations();
         for (Annotation annotation : classAnnotations) {
             handleAnnotation(annotation, config);
@@ -110,6 +117,16 @@ public class Configuration {
         for (Annotation annotation : annotations) {
             handleAnnotation(annotation, config);
         }
+        return config;
+    }
+    
+    public static Configuration createDefaultConfiguration() {
+        Configuration config = new Configuration();
+        
+        BadgerLogConfig badgerLogConfig = BadgerLog.getConfiguration();
+        
+        config.withStructType(badgerLogConfig.getStructType());
+        
         return config;
     }
 
