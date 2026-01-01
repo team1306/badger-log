@@ -1,11 +1,9 @@
 package badgerlog.annotations.configuration;
 
-import badgerlog.annotations.AutoGenerateStruct;
+import badgerlog.annotations.Convert;
 import badgerlog.annotations.Key;
-import badgerlog.annotations.MultiUnitConversion;
 import badgerlog.annotations.Struct;
 import badgerlog.annotations.Table;
-import badgerlog.annotations.UnitConversion;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -19,10 +17,8 @@ public final class ConfigHandlerRegistry {
 
     static {
         registerHandler(Struct.class, new StructTypeHandler());
-        registerHandler(UnitConversion.class, new UnitConversionHandler());
-        registerHandler(MultiUnitConversion.class, new MultiUnitConversionHandler());
+        registerHandler(Convert.class, new ConvertHandler());
         registerHandler(Key.class, new KeyHandler());
-        registerHandler(AutoGenerateStruct.class, new AutoGenerateStructHandler());
         registerHandler(Table.class, new TableHandler());
     }
 

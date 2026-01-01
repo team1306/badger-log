@@ -3,18 +3,20 @@ package badgerlog;
 import badgerlog.annotations.StructType;
 import badgerlog.annotations.configuration.Configuration;
 import badgerlog.events.EventRegistry;
-import badgerlog.networktables.EntryFactory;
 import badgerlog.networktables.NT;
 import badgerlog.networktables.NTEntry;
 import badgerlog.networktables.NTUpdatable;
 import badgerlog.networktables.SendableEntry;
 import badgerlog.networktables.ValueEntry;
+import badgerlog.transformations.EntryFactory;
+import badgerlog.transformations.Mapping;
 import badgerlog.utilities.CheckedNetworkTablesMap;
 import badgerlog.utilities.ConfigLoader;
 import badgerlog.utilities.ErrorLogger;
 import badgerlog.utilities.Validation;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -140,7 +142,7 @@ public final class BadgerLog {
      * @return a Trigger with a toggle based on a boolean NetworkTables entry
      */
     public static Trigger createNetworkTablesButton(String key, EventLoop eventLoop) {
-        var subscriber = new ValueEntry<>(key, boolean.class, false, new Configuration());
+        var subscriber = new ValueEntry<>(key, boolean.class, false, Mapping.identity(), NetworkTableType.kBoolean);
         addNetworkTableEntry(key, subscriber);
         return new Trigger(eventLoop, subscriber::retrieveValue);
     }
@@ -162,7 +164,7 @@ public final class BadgerLog {
      * @see #putValue(String, Object, Configuration)
      */
     public static <T> void putValue(String key, T value) {
-        putValue(key, value, new Configuration());
+        putValue(key, value, Configuration.createDefaultConfiguration());
     }
 
     /**
@@ -191,7 +193,7 @@ public final class BadgerLog {
      * @see #getValue(String, Object, Configuration)
      */
     public static <T> T getValue(String key, T defaultValue) {
-        return getValue(key, defaultValue, new Configuration());
+        return getValue(key, defaultValue, Configuration.createDefaultConfiguration());
     }
 
     /**
@@ -220,12 +222,13 @@ public final class BadgerLog {
     private static <T> NTEntry<T> createEntryIfNotPresent(String key, T defaultValue, Configuration config) {
         NTEntry<T> entry;
         if (!activeEntries.containsKey(key)) {
-            entry = EntryFactory.createNetworkTableEntryFromValue(key, defaultValue, config);
+            entry = (NTEntry<T>) EntryFactory.createEntry(key, defaultValue, config);
             addNetworkTableEntry(key, entry);
         } else {
             entry = (NTEntry<T>) activeEntries.getNTEntry(key);
 
             if (entry == null) {
+                //todo better logging
                 throw new NullPointerException("Entry with name " + key + " either is using a key that is already used, or the entry is just invalid");
             }
         }

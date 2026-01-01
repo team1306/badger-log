@@ -1,13 +1,11 @@
 package frc.robot;
 
-import badgerlog.annotations.AutoGenerateStruct;
 import badgerlog.annotations.Entry;
 import badgerlog.annotations.EntryType;
 import badgerlog.annotations.Key;
 import badgerlog.annotations.Struct;
 import badgerlog.annotations.StructType;
 import badgerlog.annotations.Table;
-import badgerlog.annotations.UnitConversion;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,17 +34,13 @@ public class FieldsTest implements Testing {
     public Rotation2d rotation2d = Rotation2d.fromDegrees(1306);
 
     @Entry(EntryType.PUBLISHER)
-    @UnitConversion("meters")
     public Distance height = Inches.of(10);
 
     @Entry(EntryType.SUBSCRIBER)
-    @UnitConversion(value = "in", converterId = "translation")
-    @UnitConversion(value = "radian", converterId = "rotation")
     @Struct(StructType.MAPPING)
     public Pose2d robotPose = Pose2d.kZero;
 
     @Entry(EntryType.PUBLISHER)
-    @AutoGenerateStruct
     public CustomRecord record = new CustomRecord(3.4, 3);
 
     @Entry(EntryType.SENDABLE)
