@@ -4,7 +4,7 @@ pluginManagement {
     repositories {
         mavenLocal()
         gradlePluginPortal()
-        String frcYear = '2025'
+        String frcYear = '2026'
         File frcHome
         if (OperatingSystem.current().isWindows()) {
             String publicFolder = System.getenv('PUBLIC')
@@ -20,8 +20,8 @@ pluginManagement {
         }
         def frcHomeMaven = new File(frcHome, 'maven')
         maven {
-            name 'frcHome'
-            url frcHomeMaven
+            name = 'frcHome'
+            url = frcHomeMaven
         }
     }
 }
@@ -29,5 +29,5 @@ pluginManagement {
 include 'badgerlog'
 project(':badgerlog').projectDir = file('../lib')
 
-Properties props = System.getProperties()
-props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true")
+Properties props = System.getProperties();
+props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true");

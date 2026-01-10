@@ -21,14 +21,14 @@ if (project.hasProperty('releaseMode')) {
 }
 
 dependencies {
-	compileOnly 'edu.wpi.first.ntcore:ntcore-java:2025.+'
+	compileOnly 'edu.wpi.first.ntcore:ntcore-java:2026.+'
 
-	compileOnly 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2025.+'
-	compileOnly 'edu.wpi.first.wpiunits:wpiunits-java:2025.+'
-	compileOnly 'edu.wpi.first.wpimath:wpimath-java:2025.+'
-	compileOnly 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
-	compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
-	compileOnly 'edu.wpi.first.hal:hal-java:2025.+'
+	compileOnly 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2026.+'
+	compileOnly 'edu.wpi.first.wpiunits:wpiunits-java:2026.+'
+	compileOnly 'edu.wpi.first.wpimath:wpimath-java:2026.+'
+	compileOnly 'edu.wpi.first.wpilibj:wpilibj-java:2026.+'
+	compileOnly 'edu.wpi.first.wpiutil:wpiutil-java:2026.+'
+	compileOnly 'edu.wpi.first.hal:hal-java:2026.+'
 
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 
