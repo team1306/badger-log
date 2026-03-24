@@ -2,6 +2,9 @@
 
 [![](https://jitpack.io/v/team1306/badger-log.svg)](https://jitpack.io/#team1306/badger-log) [![CodeQL Advanced](https://github.com/team1306/badger-log/actions/workflows/codeql.yml/badge.svg)](https://github.com/team1306/badger-log/actions/workflows/codeql.yml)
 
+# BadgerLog will be deprecated following the 2026 season because the [new Telemetry API](https://github.com/wpilibsuite/allwpilib/pull/7773) supports the majority of the features with less of the mess. 
+
+
 # About
 
 BadgerLog is a NetworkTables utility. It provides annotations to auto generate entries, and periodically update them.
